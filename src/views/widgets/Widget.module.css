@@ -1,0 +1,51 @@
+.view {
+    /* margin: 0px;
+    padding: 0px; */
+    width: 100%;
+    height: 100%;
+    background: rgba(100, 100, 100, 0.25);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+}
+
+.title {
+    color: rgb(200, 200, 200);
+    text-align: center;
+    position: absolute;
+    padding-top: 10px;
+}
+
+.settings_button, .close_button {
+    color: rgba(200, 200, 200);
+    opacity: 0.25;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+
+.settings_button {
+    right: 40px;
+}
+
+.dragHandle {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    color: rgb(200, 200, 200);
+    opacity: 0.25;
+}
+
+.close_button:hover, .settings_button:hover, .dragHandle:hover {
+    opacity: 1;
+    cursor: pointer;
+}
+
+.content {
+    /* margin: 10px; */
+    margin-top: 45px;
+    padding: 10px;
+    overflow: hidden;
+    flex-grow: 1;
+    /* display: flex; */
+}
