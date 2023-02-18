@@ -24,13 +24,12 @@ export default function Home() {
   const {activePage} = useContext(ConfigContext);
 
   return (
-    <Dashboard />
-    // <div className={styles.container}>
-    //   <Menu />
-    //   <Divider orientation="vertical" />
-    //   <div className={styles.contents}>
-    //     {pages[activePage]}
-    //   </div>
-    // </div>
+    <div className={styles.container}>
+      <Menu />
+      <Divider orientation="vertical" />
+      <div className={styles.contents}>
+        {pages[activePage]}
+      </div>
+    </div>
   );
 }

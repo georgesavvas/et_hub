@@ -29,13 +29,13 @@ function Widget(props) {
 
   return (
     <div className={styles.view}>
-      {/* <Typography className={styles.title} variant="h6">{props.title}</Typography>
+      <Typography className={styles.title} variant="h6">{props.title}</Typography>
       <Close className={styles.close_button} onClick={handleRemovePressed} />
       <Settings className={styles.settings_button} onClick={handleShowSettings} />
       <DragIndicatorIcon className="dragHandle" style={drag_handle_style} />
       <div className={styles.content}>
         {props.children}
-      </div> */}
+      </div>
     </div>
   );
 }
