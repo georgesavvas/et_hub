@@ -5,6 +5,7 @@ import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import React, {useEffect, useState} from "react";
 import { Button, Modal, Typography } from "@mui/material";
 
+import { useResizeDetector } from "react-resize-detector";
 import Farm from "./Farm";
 import Support from "./Support";
 import Projects from "./Projects";
@@ -15,32 +16,33 @@ import Apps from "./Apps";
 
 const widgets = {
   projects: {
-    widget: <Projects />,
+    widget: Projects,
     title: "Projects"
   },
   workstation: {
-    widget: <Workstation />,
+    widget: Workstation,
     title: "Workstation"
   },
   farm: {
-    widget: <Farm />,
+    widget: Farm,
     title: "Farm"
   },
   support: {
-    widget: <Support />,
+    widget: Support,
     title: "Support"
   },
   wiki: {
-    widget: <Wiki />,
+    widget: Wiki,
     title: "Wiki"
   },
   apps: {
-    widget: <Apps />,
+    widget: Apps,
     title: "Apps"
   }
 };
 
-function Widget(props) {
+const Widget = props => {
+  const { width, height, ref } = useResizeDetector();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [selectedWidget, setSelectedWidget] = useState("");
 
@@ -54,6 +56,8 @@ function Widget(props) {
   const handleRemovePressed = () => {
     props.handleRemoveView(props.rglKey);
   };
+
+  const SelectedWidget = selectedWidget.widget;
 
   return (
     <div className={styles.view}>
@@ -74,12 +78,12 @@ function Widget(props) {
               onClick={handleRemovePressed} />
           </div>
         </div>
-        <div className={styles.content}>
-          {selectedWidget.widget}
+        <div className={styles.content} ref={ref}>
+          {SelectedWidget ? <SelectedWidget size={[width, height]} /> : null}
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default Widget;

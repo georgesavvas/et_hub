@@ -43,8 +43,9 @@ const Dashboard = () => {
     saveToLS("layout", layout);
   };
 
-  const margin = window.innerHeight / 100;
-  const row_height = window.innerHeight / 7.5 - margin;
+  const columns = 4;
+  const margin = 10;
+  const rowHeight = window.innerHeight / 7.5;
 
   const handleResetLayout = () => setLayout(defaultLayout);
 
@@ -62,16 +63,16 @@ const Dashboard = () => {
         width={1200}
         onDrop={handleDrop}
         isDroppable={true}
-        rowHeight={row_height}
+        rowHeight={rowHeight}
         margin={[margin, margin]}
-        cols={4}
+        cols={columns}
         compactType={"vertical"}
         draggableHandle=".dragHandle"
         measureBeforeMount={false}
         useCSSTransforms={mounted}
         isBounded
       >
-        {layout.map(w =>
+        {layout.map(w => 
           <div key={w.i}>
             <Widget widget={w.i.split("_")[0]} rglKey={w.i} />
           </div>

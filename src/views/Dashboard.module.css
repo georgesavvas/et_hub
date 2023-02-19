@@ -19,7 +19,7 @@
   color: rgba(200, 200, 200);
   opacity: 0.25;
   cursor: pointer;
-  font-size: 35px;
+  font-size: 35px !important;
 }
 
 .settingsButton:hover {
