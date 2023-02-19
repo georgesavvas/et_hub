@@ -51,7 +51,7 @@
 }
 
 .dragHandle {
-  transform: translateX(-3px) translateY(-3px) rotate(90deg);
+  transform: translateX(-1px) translateY(-3px) rotate(90deg);
   cursor: grab;
   font-size: 30px !important;
 }
