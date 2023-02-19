@@ -3,7 +3,7 @@ import Close from "@mui/icons-material/Close";
 import Settings from "@mui/icons-material/Settings";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import React, {useEffect, useState} from "react";
-import { Button, Modal, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 
 import { useResizeDetector } from "react-resize-detector";
 import Farm from "./Farm";
@@ -12,6 +12,11 @@ import Projects from "./Projects";
 import Workstation from "./Workstation";
 import Wiki from "./Wiki";
 import Apps from "./Apps";
+import Todo from "./Todo";
+import Notes from "./Notes";
+import Rundeck from "./Rundeck";
+import Licenses from "./Licenses";
+import Modal from "../../components/Modal";
 
 
 const widgets = {
@@ -38,7 +43,29 @@ const widgets = {
   apps: {
     widget: Apps,
     title: "Apps"
+  },
+  todo: {
+    widget: Todo,
+    title: "Todo"
+  },
+  notes: {
+    widget: Notes,
+    title: "Notes"
+  },
+  licenses: {
+    widget: Licenses,
+    title: "Licenses"
+  },
+  rundeck: {
+    widget: Rundeck,
+    title: "Rundeck"
   }
+};
+
+const WidgetSettings = props => {
+  return (
+    <Modal {...props} />
+  );
 };
 
 const Widget = props => {
@@ -61,6 +88,7 @@ const Widget = props => {
 
   return (
     <div className={styles.view}>
+      <WidgetSettings open={settingsOpen} onClose={handleCloseSettings} title={props.rglKey} />
       <div className={styles.container}>
         <div className={styles.top}>
           <div className={styles.topLeft}>

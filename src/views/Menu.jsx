@@ -15,9 +15,9 @@ const options = [
   {
     label: "Workstation"
   },
-  // {
-  //   label: "Rundeck"
-  // },
+  {
+    label: "Rundeck"
+  },
   {
     label: "Farm"
   },
@@ -26,6 +26,15 @@ const options = [
   },
   {
     label: "Wiki"
+  },
+  {
+    label: "Todo"
+  },
+  {
+    label: "Notes"
+  },
+  {
+    label: "Licenses"
   }
 ];
 

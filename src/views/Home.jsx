@@ -13,6 +13,10 @@ import Projects from "./widgets/Projects";
 import Workstation from "./widgets/Workstation";
 import Wiki from "./widgets/Wiki";
 import Apps from "./widgets/Apps";
+import Todo from "./widgets/Todo";
+import Notes from "./widgets/Notes";
+import Licenses from "./widgets/Licenses";
+import Rundeck from "./widgets/Rundeck";
 
 
 const widgets = {
@@ -22,7 +26,11 @@ const widgets = {
   farm: <Farm />,
   support: <Support />,
   wiki: <Wiki />,
-  apps: <Apps />
+  apps: <Apps />,
+  todo: <Todo />,
+  notes: <Notes />,
+  licenses: <Licenses />,
+  rundeck: <Rundeck />
 };
 
 export default function Home() {

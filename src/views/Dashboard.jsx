@@ -7,6 +7,9 @@ import saveToLS from "../utils/saveToLS";
 import Widget from "./widgets/Widget";
 import {Button} from "@mui/material";
 import Settings from "@mui/icons-material/Settings";
+import Modal from "../components/Modal";
+import JSONInput from "react-json-editor-ajrm";
+import locale    from "react-json-editor-ajrm/locale/en";
 
 import "/node_modules/react-grid-layout/css/styles.css";
 
@@ -19,15 +22,33 @@ const defaultLayout = [
   {i: "projects_0", x: 2, y: 1, w: 2, h: 1},
 ];
 
+const DashboardSettings = props => {
+  return (
+    <Modal open={props.open} onClose={props.onClose}>
+      <JSONInput
+        id          = 'a_unique_id'
+        placeholder = { {} }
+        locale      = { locale }
+        height      = '550px'
+      />
+    </Modal>
+  );
+};
+
 const Dashboard = () => {
   const [layout, setLayout] = useState([]);
   const [mounted, setMounted] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     const savedLayout = loadFromLS("layout") || [...defaultLayout];
     setLayout(savedLayout);
   }, []);
+
+
+  const handleOpenSettings = () => setSettingsOpen(true);
+  const handleCloseSettings = () => setSettingsOpen(false);
 
   const handleLayoutChange = newLayout => {
     setLayout(newLayout);
@@ -51,11 +72,13 @@ const Dashboard = () => {
 
   return (
     <div className={styles.container}>
+      <DashboardSettings open={settingsOpen} onClose={handleCloseSettings} />
       <div className={styles.top}>
         <Button onClick={handleResetLayout} variant="outlined" color="secondary" size="small">
           Reset Layout
         </Button>
-        <Settings className={styles.settingsButton} />
+        <Settings className={styles.settingsButton}
+          onClick={handleOpenSettings} />
       </div>
       <RGL
         layout={layout}
