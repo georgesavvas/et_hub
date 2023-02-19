@@ -1,4 +1,4 @@
-import { MenuItem, Typography } from "@mui/material";
+import { Divider, MenuItem, Typography } from "@mui/material";
 import React, {useContext} from "react";
 import Logo from "../components/Logo";
 
@@ -7,16 +7,25 @@ import {ConfigContext} from "../contexts/ConfigContext";
 
 const options = [
   {
-    label: "Dashboard",
+    label: "Apps"
   },
+  {
+    label: "Projects"
+  },
+  {
+    label: "Workstation"
+  },
+  // {
+  //   label: "Rundeck"
+  // },
   {
     label: "Farm"
   },
   {
-    label: "Help"
+    label: "Support"
   },
   {
-    label: "Settings"
+    label: "Wiki"
   }
 ];
 
@@ -40,6 +49,9 @@ const Menu = () => {
         <Logo />
       </div>
       <div className={styles.menuContainer}>
+        <MenuOption key="DashBoard" label="Dashboard"
+          setActivePage={setActivePage} />
+        <Divider />
         {options.map(o =>
           <MenuOption key={o.label} label={o.label}
             setActivePage={setActivePage} />

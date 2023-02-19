@@ -1,51 +1,64 @@
 .view {
-    /* margin: 0px;
-    padding: 0px; */
-    width: 100%;
-    height: 100%;
-    background: rgba(100, 100, 100, 0.25);
-    backdrop-filter: blur(10px);
-    display: flex;
-    justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: rgba(150, 150, 150, 0.2);
+  backdrop-filter: blur(10px);
+  display: flex;
+}
+
+.container {
+  flex-grow: 1;
+  padding: 3px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.top {
+  width: 100%;
+  display: flex;
+  height: 30px;
+}
+
+.topLeft {
+  flex-grow: 1;
+}
+
+.topCentre {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.topRight {
+  flex-grow: 1;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .title {
-    color: rgb(200, 200, 200);
-    text-align: center;
-    position: absolute;
-    padding-top: 10px;
+  color: rgb(200, 200, 200);
+  text-align: center;
 }
 
-.settings_button, .close_button {
-    color: rgba(200, 200, 200);
-    opacity: 0.25;
-    position: absolute;
-    top: 5px;
-    right: 5px;
-}
-
-.settings_button {
-    right: 40px;
+.settingsButton, .closeButton, .dragHandle {
+  color: rgba(200, 200, 200);
+  opacity: 0.25;
+  cursor: pointer;
 }
 
 .dragHandle {
-    position: absolute;
-    top: 5px;
-    left: 5px;
-    color: rgb(200, 200, 200);
-    opacity: 0.25;
+  transform: translateX(-3px) translateY(-3px) rotate(90deg);
+  cursor: grab;
+  font-size: 30px;
 }
 
-.close_button:hover, .settings_button:hover, .dragHandle:hover {
-    opacity: 1;
-    cursor: pointer;
+.closeButton:hover, .settingsButton:hover, .dragHandle:hover {
+  opacity: 1;
 }
 
 .content {
-    /* margin: 10px; */
-    margin-top: 45px;
-    padding: 10px;
-    overflow: hidden;
-    flex-grow: 1;
-    /* display: flex; */
+  overflow: hidden;
+  flex-grow: 1;
+  position: relative;
 }

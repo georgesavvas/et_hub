@@ -4,20 +4,25 @@ import Divider from "@mui/material/Divider";
 
 import styles from "./Home.module.css";
 import {ConfigContext} from "../contexts/ConfigContext";
-import serverRequest from "../services/serverRequest";
+// import serverRequest from "../services/serverRequest";
 import Menu from "./Menu";
-import DataPlaceholder from "../components/DataPlaceholder";
-import Dashboard from "./pages/Dashboard";
-import Farm from "./pages/Farm";
-import Help from "./pages/Help";
-import Settings from "./pages/Settings";
+import Dashboard from "./Dashboard";
+import Farm from "./widgets/Farm";
+import Support from "./widgets/Support";
+import Projects from "./widgets/Projects";
+import Workstation from "./widgets/Workstation";
+import Wiki from "./widgets/Wiki";
+import Apps from "./widgets/Apps";
 
 
-const pages = {
+const widgets = {
   dashboard: <Dashboard />,
+  projects: <Projects />,
+  workstation: <Workstation />,
   farm: <Farm />,
-  help: <Help />,
-  settings: <Settings />
+  support: <Support />,
+  wiki: <Wiki />,
+  apps: <Apps />
 };
 
 export default function Home() {
@@ -28,7 +33,7 @@ export default function Home() {
       <Menu />
       <Divider orientation="vertical" />
       <div className={styles.contents}>
-        {pages[activePage]}
+        {widgets[activePage]}
       </div>
     </div>
   );

@@ -1,0 +1,21 @@
+.container {
+  /* height: 100%; */
+  /* width: 500px; */
+  /* border: solid red 1px; */
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+
+/* .carousel {
+  border: solid green 1px;
+  height: 100%;
+} */
+
+.video {
+  /* width: 200px; */
+  /* height: 180px; */
+  /* aspect-ratio: 16/9; */
+  height: 180px;
+  /* border: solid blue 1px; */
+}

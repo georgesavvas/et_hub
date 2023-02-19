@@ -2,39 +2,81 @@ import styles from "./Widget.module.css";
 import Close from "@mui/icons-material/Close";
 import Settings from "@mui/icons-material/Settings";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
-// import { Modal, Button } from "react-bootstrap";
-// import { withSize } from "react-sizeme";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import { Button, Modal, Typography } from "@mui/material";
 
-function Widget(props) {
-  const [showSettings, setShowSettings] = useState(false);
-  const [viewSize, setViewSize] = useState({});
+import Farm from "./Farm";
+import Support from "./Support";
+import Projects from "./Projects";
+import Workstation from "./Workstation";
+import Wiki from "./Wiki";
+import Apps from "./Apps";
 
-  const handleCloseSettings = () => setShowSettings(false);
-  const handleShowSettings = () => setShowSettings(true);
+
+const widgets = {
+  projects: {
+    widget: <Projects />,
+    title: "Projects"
+  },
+  workstation: {
+    widget: <Workstation />,
+    title: "Workstation"
+  },
+  farm: {
+    widget: <Farm />,
+    title: "Farm"
+  },
+  support: {
+    widget: <Support />,
+    title: "Support"
+  },
+  wiki: {
+    widget: <Wiki />,
+    title: "Wiki"
+  },
+  apps: {
+    widget: <Apps />,
+    title: "Apps"
+  }
+};
+
+function Widget(props) {
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [selectedWidget, setSelectedWidget] = useState("");
+
+  useEffect(() => {
+    setSelectedWidget(widgets[props.widget]);
+  }, [props.widget]);
+
+  const handleOpenSettings = () => setSettingsOpen(true);
+  const handleCloseSettings = () => setSettingsOpen(false);
 
   const handleRemovePressed = () => {
     props.handleRemoveView(props.rglKey);
   };
 
-  const drag_handle_style = {
-    position: "absolute",
-    top: "5px",
-    left: "0px",
-    color: "rgb(200, 200, 200)",
-    opacity: "0.25",
-    fontSize: "40"
-  };
-
   return (
     <div className={styles.view}>
-      <Typography className={styles.title} variant="h6">{props.title}</Typography>
-      <Close className={styles.close_button} onClick={handleRemovePressed} />
-      <Settings className={styles.settings_button} onClick={handleShowSettings} />
-      <DragIndicatorIcon className="dragHandle" style={drag_handle_style} />
-      <div className={styles.content}>
-        {props.children}
+      <div className={styles.container}>
+        <div className={styles.top}>
+          <div className={styles.topLeft}>
+            <DragIndicatorIcon className={"dragHandle " + styles.dragHandle} />
+          </div>
+          <div className={styles.topCentre}>
+            <Typography className={styles.title} variant="body1">
+              {selectedWidget.title}
+            </Typography>
+          </div>
+          <div className={styles.topRight}>
+            <Settings className={styles.settingsButton}
+              onClick={handleOpenSettings} />
+            <Close className={styles.closeButton}
+              onClick={handleRemovePressed} />
+          </div>
+        </div>
+        <div className={styles.content}>
+          {selectedWidget.widget}
+        </div>
       </div>
     </div>
   );
