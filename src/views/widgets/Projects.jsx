@@ -1,8 +1,9 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
 
 import styles from "./Projects.module.css";
 import Carousel from "nuka-carousel/lib/carousel";
 import { Typography } from "@mui/material";
+import serverRequest from "../../services/serverRequest";
 
 
 const files = [
@@ -13,8 +14,17 @@ const files = [
   "job4",
   "job5"
 ];
+const testData = files.map(file => `media/jobs/${file}.mp4`);
 
 const Projects = props => {
+  const [loadedData, setLoadedData] = useState(testData);
+
+  useEffect(() => {
+    // serverRequest("studio_jobs").then(resp => {
+    //   setLoadedData(resp.data || []);
+    // });
+  }, []);
+
   const slideHeight = props.size[1];
   const slideWidth = slideHeight * 16/9;
   const placeholderAmount = Math.max((props.size[0] - 20) / slideWidth, 1);
@@ -30,7 +40,7 @@ const Projects = props => {
       <Carousel autoplay wrapAround enableKeyboardControls withoutControls
         slidesToScroll={slidesToScroll} dragThreshold={0.25}
         slidesToShow={slidesAmount} autoplayInterval={5000} cellAlign="center">
-        {files.map(file =>
+        {loadedData.map(file =>
           <div key={file} className={styles.slide} style={slideStyle}>
             <div className={styles.overlay}>
               <Typography variant="body2" align="center"
@@ -39,7 +49,7 @@ const Projects = props => {
               </Typography>
             </div>
             <video muted loop autoPlay className={styles.video}
-              src={`media/jobs/${file}.mp4`} />
+              src={file} />
           </div>
         )}
       </Carousel>
