@@ -81,10 +81,10 @@ const Widget = props => {
   const handleCloseSettings = () => setSettingsOpen(false);
 
   const handleRemovePressed = () => {
-    props.handleRemoveView(props.rglKey);
+    props.onRemove(props.rglKey);
   };
 
-  const SelectedWidget = selectedWidget.widget;
+  const SelectedWidget = selectedWidget?.widget;
 
   return (
     <div className={styles.view}>
@@ -96,7 +96,7 @@ const Widget = props => {
           </div>
           <div className={styles.topCentre}>
             <Typography className={styles.title} variant="body1">
-              {selectedWidget.title}
+              {selectedWidget?.title}
             </Typography>
           </div>
           <div className={styles.topRight}>

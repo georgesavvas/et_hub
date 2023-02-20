@@ -7,41 +7,57 @@ import {ConfigContext} from "../contexts/ConfigContext";
 
 const options = [
   {
-    label: "Apps"
+    label: "Apps",
+    name: "apps"
   },
   {
-    label: "Projects"
+    label: "Projects",
+    name: "projects"
   },
   {
-    label: "Workstation"
+    label: "Workstation",
+    name: "workstation"
   },
   {
-    label: "Rundeck"
+    label: "Rundeck",
+    name: "rundeck"
   },
   {
-    label: "Farm"
+    label: "Farm",
+    name: "farm"
   },
   {
-    label: "Support"
+    label: "Support",
+    name: "support"
   },
   {
-    label: "Wiki"
+    label: "Wiki",
+    name: "wiki"
   },
   {
-    label: "Todo"
+    label: "Todo",
+    name: "todo"
   },
   {
-    label: "Notes"
+    label: "Notes",
+    name: "notes"
   },
   {
-    label: "Licenses"
+    label: "Licenses",
+    name: "licenses"
   }
 ];
 
 const MenuOption = props => {
   const handleClick = () => props.setActivePage(props.label.toLowerCase());
+  const handleDragStart = e => {
+    e.dataTransfer.setData("text/hub_view/" + props.name, "");
+    e.dataTransfer.setData("text/hub_view", props.name);
+  };
+
   return (
-    <MenuItem className={styles.optionContainer} onClick={handleClick}>
+    <MenuItem className={styles.optionContainer} onClick={handleClick} draggable
+      onDragStart={handleDragStart}>
       <Typography variant="h5">
         {props.label}
       </Typography>
@@ -62,7 +78,7 @@ const Menu = () => {
           setActivePage={setActivePage} />
         <Divider />
         {options.map(o =>
-          <MenuOption key={o.label} label={o.label}
+          <MenuOption key={o.label} label={o.label} name={o.name}
             setActivePage={setActivePage} />
         )}
       </div>
