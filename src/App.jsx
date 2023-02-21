@@ -11,6 +11,7 @@ import Typography from "@mui/material/Typography";
 
 import "./App.css";
 import {ConfigProvider} from "./contexts/ConfigContext";
+import {DataProvider} from "./contexts/DataContext";
 import Home from "./views/Home";
 
 
@@ -51,7 +52,9 @@ function App() {
         <ErrorBoundary FallbackComponent={ErrorFallback}>
           <SnackbarProvider maxSnack={3} autoHideDuration={2500}>
             <ConfigProvider>
-              <Home />
+              <DataProvider>
+                <Home />
+              </DataProvider>
             </ConfigProvider>
           </SnackbarProvider>
         </ErrorBoundary>
