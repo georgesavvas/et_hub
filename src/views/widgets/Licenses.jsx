@@ -14,7 +14,7 @@ const COLUMNS = [
   {
     field: "app",
     headerName: "App",
-    width: 100
+    width: 80
   },
   {
     field: "free",
@@ -47,7 +47,7 @@ const Licenses = props => {
   const [filterValue, setFilterValue] = useState("");
 
   const columns = [...COLUMNS];
-  if (props.size[0] > 300) columns.splice(1, 0, userColumn);
+  if (props.size[0] > 250) columns.splice(1, 0, userColumn);
   if (props.size[0] > 400) columns.splice(2, 0, wsColumn);
 
   const data = licenses.data.map((d, i) => ({id: i, ...d})).filter(

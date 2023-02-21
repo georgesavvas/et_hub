@@ -11,6 +11,7 @@ export const DataProvider = props => {
   const [reels, setReels] = useState(testReelData);
   const [licenses, setLicenses] = useState(testLicenseData);
   const [farm, setFarm] = useState(testFarmData);
+  const [apps, setApps] = useState(testAppsData);
 
   return (
     <DataContext.Provider value={{
@@ -19,7 +20,9 @@ export const DataProvider = props => {
       licenses: licenses,
       setLicenses: setLicenses,
       farm: farm,
-      setFarm: setFarm
+      setFarm: setFarm,
+      apps: apps,
+      setApps: setApps
     }}>
       {props.children}
     </DataContext.Provider>
@@ -51,3 +54,71 @@ const files = [
 const testReelData = files.map(file => `media/jobs/${file}.mp4`);
 
 const testFarmData = {};
+
+const testAppsData = [
+  {
+    name: "Houdini",
+    package: "houdini",
+    executable: "houdinicore"
+  },
+  {
+    name: "Maya",
+    package: "maya",
+    executable: "maya"
+  },
+  {
+    name: "Mari",
+    package: "mari",
+    executable: "mari"
+  },
+  {
+    name: "Designer",
+    package: "designer",
+    executable: "designer"
+  },
+  {
+    name: "Nuke",
+    package: "nuke",
+    executable: "nuke"
+  },
+  {
+    name: "After Effects",
+    package: "aftereffects",
+    executable: "aftereffects"
+  },
+  {
+    name: "Blender",
+    package: "blender",
+    executable: "blender"
+  },
+  {
+    name: "DJV",
+    package: "djv",
+    executable: "djv"
+  },
+  {
+    name: "Illustrator",
+    package: "illustrator",
+    executable: "illustrator"
+  },
+  {
+    name: "Natron",
+    package: "natron",
+    executable: "natron"
+  },
+  {
+    name: "Painter",
+    package: "painter",
+    executable: "painter"
+  },
+  {
+    name: "Unreal Engine",
+    package: "unreal",
+    executable: "unreal"
+  },
+  {
+    name: "VSCode",
+    package: "vscode",
+    executable: "vscode"
+  }
+];

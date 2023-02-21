@@ -1,2 +1,97 @@
 .container {
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.containerInner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.gridContainer {
+  width: 100%;
+  /* height: 100%; */
+  display: grid;
+  position: relative;
+  overflow-y: auto;
+  grid-gap: 3px;
+  grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+}
+
+.appContainer {
+  overflow: clip;
+  background-color: rgb(10, 10, 10);
+  border-width: 1px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-sizing: border-box;
+  aspect-ratio: 1;
+  /* width: 100%; */
+  cursor: pointer;
+}
+
+.appIcon {
+  width: 100%;
+  height: auto;
+  margin: auto;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+  position: absolute;
+  color: rgb(100, 100, 100);
+}
+
+.layoutHelper {
+  flex-grow: 10;
+}
+
+.bottomBar {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  padding: 5px;
+  background-color: rgb(30, 30, 30);
+  border-radius: 3px;
+}
+
+.overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  background-color: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(5px);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeButton {
+  position: absolute;
+  font-size: 32px !important;
+  right: 3px;
+  top: 3px;
+  cursor: pointer;
+  color: rgb(200, 200, 200);
+  opacity: 0.5;
+}
+
+.closeButton:hover {
+  opacity: 1;
+}
+
+.overlayApp {
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }
