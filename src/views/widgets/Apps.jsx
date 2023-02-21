@@ -4,6 +4,7 @@ import DataPlaceholder from "../../components/DataPlaceholder";
 import {DataContext} from "../../contexts/DataContext";
 import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
 import ClearIcon from "@mui/icons-material/Clear";
+import FilterField from "../../components/FilterField";
 
 import styles from "./Apps.module.css";
 
@@ -38,7 +39,10 @@ const getIcon = app => {
 const App = ({app, setSelected, style}) => {
   const icon = getIcon(app);
 
-  const handleSelect = () => setSelected(app);
+  const handleSelect = () => {
+    if (!setSelected) return;
+    setSelected(app);
+  };
 
   return (
     <Tooltip title={app.name}>
@@ -53,6 +57,7 @@ const App = ({app, setSelected, style}) => {
 const Apps = props => {
   const {apps} = useContext(DataContext);
   const [selected, setSelected] = useState("");
+  const [filterValue, setFilterValue] = useState("");
 
   const small = props.size[0] < 300 || props.size[1] < 250;
 
@@ -65,6 +70,10 @@ const Apps = props => {
   return (
     <div className={styles.container}>
       <div className={styles.containerInner}>
+        {/* {small || selected ? null :
+          <FilterField filterValue={filterValue}
+            setFilterValue={setFilterValue} />
+        } */}
         {!selected ? null :
           <div className={styles.overlay}>
             <ClearIcon onClick={handleClose} className={styles.closeButton} />
@@ -75,7 +84,7 @@ const Apps = props => {
           </div>
         }
         <div className={styles.gridContainer}>
-          {apps.map(app =>
+          {apps.filter(app => (app.name + app.executable).includes(filterValue)).map(app =>
             <App key={app.package} app={app} setSelected={setSelected} />
           )}
         </div>
