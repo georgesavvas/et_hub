@@ -59,7 +59,7 @@ const Apps = props => {
   const [selected, setSelected] = useState("");
   const [filterValue, setFilterValue] = useState("");
 
-  const small = props.size[0] < 300 || props.size[1] < 250;
+  const small = props.size[0] < 250 || props.size[1] < 250;
 
   const handleClose = () => setSelected();
   const handleLaunch = () => {

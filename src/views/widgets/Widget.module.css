@@ -3,8 +3,9 @@
   height: 100%;
   background: rgba(100, 100, 100, 0.25);
   backdrop-filter: blur(10px);
+  box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.25);
   display: flex;
-  overflow: clip;
+  /* overflow: clip; */
 }
 
 .container {
@@ -61,7 +62,10 @@
 }
 
 .content {
-  overflow: clip;
-  flex-grow: 1;
   position: relative;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  padding: 6px;
+  overflow: auto;
 }
