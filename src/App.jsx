@@ -31,6 +31,29 @@ let darkTheme = createTheme({
       color: "lightgrey"
     }
   },
+  components: {
+    MuiTabs: {
+      styleOverrides: {
+        root: {
+          minHeight: 0
+        }
+      }
+    },
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          minHeight: "40px"
+        }
+      }
+    },
+    MuiButtonBase: {
+      styleOverrides: {
+        root: {
+          minHeight: 0
+        }
+      }
+    }
+  }
 });
 
 const ErrorFallback = ({error, resetErrorBoundary}) => {
