@@ -3,42 +3,127 @@ import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import ClearIcon from "@mui/icons-material/Clear";
 import RepeatIcon from "@mui/icons-material/Repeat";
-import {LinearProgress, OutlinedInput} from "@mui/material";
+import {IconButton, LinearProgress, OutlinedInput} from "@mui/material";
 import React, {useState} from "react";
 import Tab from "@mui/material/Tab";
 import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
+import DataPlaceholder from "../../components/DataPlaceholder";
 
 import styles from "./Todo.module.css";
 
 
-const SubItem = props => {
-  const [text, setText] = useState("");
-  const [checked, setChecked] = useState(false);
+const SubTask = props => {
+  const {task} = props;
+  const {text, checked, today} = task;
+
+  const handleSubTaskChange = (index, field, value) => {
+    props.setTasks(prev => {
+      const tasks = [...prev];
+      const task = tasks[props.taskIndex];
+      if (!task) tasks[props.taskIndex] = {};
+      const subTasks = tasks[props.taskIndex].subTasks || [];
+      if (index == subTasks.length) subTasks.push({taskIndex: props.taskIndex});
+      subTasks[index][field] = value;
+      tasks[props.taskIndex].subTasks = subTasks;
+      return tasks;
+    });
+  };
+
+  const handleSubTaskClear = () => {
+    props.setTasks(prev => {
+      const tasks = [...prev];
+      const subTasks = tasks[props.taskIndex].subTasks;
+      if (props.index < subTasks.length) subTasks.splice(props.index, 1);
+      return tasks;
+    });
+  };
+
+  const handleTextChange = e => {
+    handleSubTaskChange(props.index, "text", e.target.value);
+  };
+
+  const handleCheckedChange = e => {
+    handleSubTaskChange(props.index, "checked", e.target.checked);
+  };
+
+  const handleTodayChange = e => {
+    handleSubTaskChange(props.index, "today", e.target.checked);
+  };
 
   return (
     <div className={styles.subItemContainer}>
-      <Checkbox color="success" disabled={text === ""} margin="dense"
-        checked={checked} onChange={(e, value) => setChecked(value)} />
-      <OutlinedInput placeholder="Sub Task" size="small" fullWidth value={text}
-        onChange={e => setText(e.target.value)} />
-      <Checkbox sx={{padding: "5px"}}
-        icon={<EventAvailableIcon sx={{fontSize: 27}} />}
+      <Checkbox color="success" disabled={!text || props.disabled} tabIndex={-1}
+        checked={checked || false} onChange={handleCheckedChange} margin="dense"
+      />
+      <OutlinedInput placeholder="Add subtask..." size="small" fullWidth
+        onBlur={() => props.onFocusChange(false)}
+        onFocus={() => props.onFocusChange(true)}
+        value={text || ""} onChange={handleTextChange} disabled={props.disabled}
+      />
+      <Checkbox sx={{padding: "5px"}} disabled={props.last || props.disabled}
+        onChange={handleTodayChange} checked={today || false}
+        icon={<EventAvailableIcon sx={{fontSize: 27}} />} tabIndex={-1}
         checkedIcon={
-          <EventAvailableIcon color="warning" sx={{fontSize: 27}} />
+          <EventAvailableIcon color="warning" sx={{fontSize: 27}}
+            tabIndex={-1} />
         }
       />
+      <IconButton size="small" color="error" tabIndex={-1}
+        disabled={props.last} onClick={handleSubTaskClear}>
+        <ClearIcon sx={{fontSize: 27}} />
+      </IconButton>
     </div>
   );
 };
 
-const Item = props => {
-  const [subItems, setSubItems] = useState([{}, {}, {}, {}]);
+const Task = props => {
   const [expanded, setExpanded] = useState(false);
-  const [text, setText] = useState("");
-  const [checked, setChecked] = useState(false);
+  const {task} = props;
+  const {text, checked, today} = task;
+  const subTasks = task.subTasks || [];
+  const completed = subTasks.filter(st => st.checked);
+  const progress = subTasks.length ?
+    completed.length / subTasks.length * 100 :
+    checked ? 100 : 0;
+
+  const handleTaskChange = (index, field, value) => {
+    props.setTasks(prev => {
+      const existing = [...prev];
+      if (index == existing.length) existing.push({});
+      existing[index][field] = value;
+      return existing;
+    });
+  };
+
+  const handleTaskClear = () => {
+    props.setTasks(prev => {
+      if (props.index >= prev.length) return prev;
+      const existing = [...prev];
+      existing.splice(props.index, 1);
+      return existing;
+    });
+  };
+
+  const handleTextChange = e => {
+    handleTaskChange(props.index, "text", e.target.value);
+  };
+
+  const handleCheckedChange = e => {
+    handleTaskChange(props.index, "checked", e.target.checked);
+  };
+
+  const handleTodayChange = e => {
+    handleTaskChange(props.index, "today", e.target.checked);
+  };
+
+  const onFocusChange = value => {
+    if (value) setExpanded(true);
+    else if (!subTasks.length) setExpanded(false);
+  };
 
   const subItemListStyle = {
     maxHeight: expanded ? "300px" : 0,
@@ -49,19 +134,31 @@ const Item = props => {
     <div className={styles.itemContainer}>
       <div className={styles.itemContainerRow}>
         <div className={styles.firstRow}>
-          <Checkbox color="success" disabled={text === ""} margin="dense"
-            checked={checked} onChange={(e, value) => setChecked(value)} />
-          <OutlinedInput placeholder="Task" size="small" fullWidth value={text}
-            onChange={e => setText(e.target.value)} />
-          <Checkbox sx={{padding: "5px"}}
-            icon={<EventAvailableIcon sx={{fontSize: 27}} />}
+          <Checkbox color="success" disabled={!text || subTasks.length > 0}
+            margin="dense" tabIndex={-1} onChange={handleCheckedChange}
+            checked={checked || subTasks.length ? progress === 100 : false} />
+          <OutlinedInput placeholder="Add task..." size="small"
+            fullWidth value={text || ""} onChange={handleTextChange} />
+          <Checkbox sx={{padding: "5px"}} checked={today || false}
+            onChange={handleTodayChange} disabled={props.last}
+            icon={<EventAvailableIcon sx={{fontSize: 27}} />} tabIndex={-1}
             checkedIcon={
-              <EventAvailableIcon color="warning" sx={{fontSize: 27}} />
+              <EventAvailableIcon color="warning" tabIndex={-1}
+                sx={{fontSize: 27}} />
             }
           />
+          <IconButton tabIndex={-1} size="small" color="error"
+            disabled={props.last} onClick={handleTaskClear}>
+            <ClearIcon sx={{fontSize: 27}} tabIndex={-1} />
+          </IconButton>
         </div>
         <div className={styles.subItemListContainer} style={subItemListStyle}>
-          {subItems.map((item, index) => <SubItem key={index} />)}
+          {[...subTasks, {}].map((subTask, index) =>
+            <SubTask index={index} taskIndex={props.index} disabled={!text}
+              key={index} last={index == subTasks.length} task={subTask}
+              setTasks={props.setTasks} onFocusChange={onFocusChange}
+            />
+          )}
         </div>
         {/* <div className={styles.bottomBar}>
           <div className={styles.dueDateContainer}>
@@ -72,12 +169,14 @@ const Item = props => {
             <Chip label="farm" size="small" color="error" />
           </div>
         </div> */}
-        <LinearProgress color="success" variant="determinate" value={60} />
+        <LinearProgress color="success" variant="determinate"
+          value={progress} />
       </div>
       <div className={styles.addToTodayButton}>
         
       </div>
-      <div className={styles.expandButton} onClick={() => setExpanded(prev => !prev)}>
+      <div className={styles.expandButton}
+        onClick={() => setExpanded(prev => !prev)}>
         {expanded ?
           <ExpandLessIcon sx={{fontSize: 20}} />
           : <ExpandMoreIcon />
@@ -93,30 +192,60 @@ const tabStyle = {
 };
 
 const Todo = () => {
-  const [mainList, setMainList] = useState([{}, {}, {}]);
-  const [tab, setTab] = useState("main");
+  const [tasks, setTasks] = useState([]);
+  const [tab, setTab] = useState("tasks");
+
+  const todayTasks = [];
+  [...tasks].forEach(task => {
+    if (task.today) todayTasks.push(task);
+    else if (task.subTasks?.length) {
+      task.subTasks.forEach(subTask => {
+        if (subTask.today) todayTasks.push(subTask);
+      });
+    }
+  });
+
+  const getTodayTasks = () => {
+    return todayTasks.map((task, index) => {
+      if (task.taskIndex >= 0) return <SubTask key={index} task={task} />;
+      return <Task key={index} task={task} />;
+    });
+  };
 
   return (
     <div className={styles.container}>
       <TabContext value={tab}>
         <div className={styles.tabsContainer}>
           <TabList onChange={(e, value) => setTab(value)}>
-            <Tab sx={tabStyle} label="Tasks" iconPosition="start" icon={<FormatListBulletedIcon />} value="main" />
-            <Tab sx={tabStyle} label="Today" iconPosition="start" icon={<EventAvailableIcon />} value="today" />
-            <Tab sx={tabStyle} label="Recurring" iconPosition="start" icon={<RepeatIcon />} value="repeat" />
+            <Tab sx={tabStyle} label="Tasks" iconPosition="start"
+              icon={<FormatListBulletedIcon />} value="tasks" />
+            <Tab sx={tabStyle} label="Today" iconPosition="start"
+              icon={<EventAvailableIcon />} value="today" />
+            <Tab sx={tabStyle} label="Recurring" iconPosition="start"
+              icon={<RepeatIcon />} value="repeat" />
           </TabList>
         </div>
-        <TabPanel sx={{padding: 0, paddingTop: "10px"}} value="main">
-          <div className={styles.listContainer}>
-            {mainList.map((item, index) => <Item key={index} />)}
+        <TabPanel sx={{padding: 0, paddingTop: "10px"}} value="tasks">
+          <div className={styles.tasksContainer}>
+            {[...tasks, {}].map((task, index) =>
+              <Task index={index} task={task} key={index} setTasks={setTasks}
+                last={index == tasks.length}
+              />
+            )}
           </div>
         </TabPanel>
         <TabPanel value="today">
           <div className={styles.todayContainer}>
+            {!todayTasks.length
+              ? <DataPlaceholder text="No tasks for today..." />
+              : null
+            }
+            {getTodayTasks()}
           </div>
         </TabPanel>
         <TabPanel value="repeat">
           <div className={styles.repeatContainer}>
+            <DataPlaceholder text="Coming soon!" />
           </div>
         </TabPanel>
       </TabContext>
