@@ -34,8 +34,8 @@ const iconPaths = {
 
 function createWindow (show=true) {
   const win = new BrowserWindow({
-    width: 1280,
-    height: 720,
+    width: 1920 + 200,
+    height: 1080,
     show: show,
     icon: path.join(__dirname, iconPaths[platformName]),
     backgroundColor: "#141414",
