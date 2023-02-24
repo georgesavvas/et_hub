@@ -5,16 +5,22 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ClearIcon from "@mui/icons-material/Clear";
 import RepeatIcon from "@mui/icons-material/Repeat";
-import {IconButton, LinearProgress, OutlinedInput} from "@mui/material";
+import {Divider, IconButton, LinearProgress, OutlinedInput, Typography} from "@mui/material";
 import React, {useState} from "react";
 import Tab from "@mui/material/Tab";
 import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
 import DataPlaceholder from "../../components/DataPlaceholder";
+import debounce from "lodash.debounce";
+import loadFromLS from "../../utils/loadFromLS";
+import saveToLS from "../../utils/saveToLS";
 
 import styles from "./Todo.module.css";
+import { useEffect } from "react";
 
+
+const debounced = debounce(fn => fn(), 500);
 
 const SubTask = props => {
   const {task} = props;
@@ -53,6 +59,18 @@ const SubTask = props => {
   const handleTodayChange = e => {
     handleSubTaskChange(props.index, "today", e.target.checked);
   };
+
+  if (props.compact) return (
+    <div className={styles.compactContainer}>
+      <Checkbox color="success" disabled={!text || props.disabled} tabIndex={-1}
+        checked={checked || false} onChange={handleCheckedChange} margin="dense"
+      />
+      <Typography variant="h6" style={{color: "rgb(150, 150, 150)"}}>
+        {props.parentText} /&nbsp;
+      </Typography>
+      <Typography variant="h6">{text}</Typography>
+    </div>
+  );
 
   return (
     <div className={styles.subItemContainer}>
@@ -130,6 +148,15 @@ const Task = props => {
     padding: expanded ? "3px 0" : 0
   };
 
+  if (props.compact) return (
+    <div className={styles.compactContainer}>
+      <Checkbox color="success" disabled={!text || props.disabled} tabIndex={-1}
+        checked={checked || false} onChange={handleCheckedChange} margin="dense"
+      />
+      <Typography variant="h6">{text}</Typography>
+    </div>
+  );
+
   return (
     <div className={styles.itemContainer}>
       <div className={styles.itemContainerRow}>
@@ -193,24 +220,46 @@ const tabStyle = {
 
 const Todo = () => {
   const [tasks, setTasks] = useState([]);
+  const [first, setFirst] = useState(true);
   const [tab, setTab] = useState("tasks");
 
-  const todayTasks = [];
-  [...tasks].forEach(task => {
-    if (task.today) todayTasks.push(task);
-    else if (task.subTasks?.length) {
-      task.subTasks.forEach(subTask => {
-        if (subTask.today) todayTasks.push(subTask);
-      });
+  useEffect(() => {
+    if (first) {
+      setTasks(loadFromLS("widget_todo") || []);
+      setFirst(false);
+      return;
     }
-  });
+    debounced(() => saveToLS("widget_todo", tasks));
+  }, [tasks]);
 
   const getTodayTasks = () => {
-    return todayTasks.map((task, index) => {
-      if (task.taskIndex >= 0) return <SubTask key={index} task={task} />;
-      return <Task key={index} task={task} />;
+    const checked = [];
+    const unchecked = [];
+    tasks.forEach((task, index) => {
+      const hasSubTasks = task.subTasks?.length > 0;
+      if (task.today && !hasSubTasks) {
+        const list = task.checked ? checked : unchecked;
+        list.push(
+          <Task key={index} index={index} task={task} setTasks={setTasks}
+            compact />
+        );
+      }
+      if (hasSubTasks) {
+        task.subTasks.forEach((st, stIndex) => {
+          if (task.today || st.today) {
+            const stKey = `${index}_${stIndex}`;
+            const list = st.checked ? checked : unchecked;
+            list.push(
+              <SubTask key={stKey} task={st} index={stIndex} taskIndex={index}
+                setTasks={setTasks} compact parentText={task.text} />
+            );
+          }
+        });
+      }
     });
+    return [checked, unchecked];
   };
+  const [todayChecked, todayUnchecked] = getTodayTasks();
 
   return (
     <div className={styles.container}>
@@ -236,11 +285,28 @@ const Todo = () => {
         </TabPanel>
         <TabPanel value="today">
           <div className={styles.todayContainer}>
-            {!todayTasks.length
+            {!todayChecked.length && !todayUnchecked.length
               ? <DataPlaceholder text="No tasks for today..." />
               : null
             }
-            {getTodayTasks()}
+            {todayUnchecked.length
+              ? <>
+                <Typography variant="h6">In Progress</Typography>
+                <div className={styles.todayUnchecked}>
+                  {todayUnchecked}
+                </div>
+              </>
+              : null
+            }
+            {todayChecked.length
+              ? <>
+                <Typography variant="h6" style={{marginTop: "15px"}}>Completed</Typography>
+                <div className={styles.todayChecked}>
+                  {todayChecked}
+                </div>
+              </>
+              : null
+            }
           </div>
         </TabPanel>
         <TabPanel value="repeat">

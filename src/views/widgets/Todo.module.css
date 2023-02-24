@@ -61,6 +61,31 @@
   overflow: hidden;
 }
 
+.todayContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.todayChecked {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.todayUnchecked {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.compactContainer {
+  border: solid rgb(60, 60, 60) 1px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+}
+
 .firstRow {
   display: flex;
   gap: 5px;
