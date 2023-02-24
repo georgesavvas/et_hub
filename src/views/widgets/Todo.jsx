@@ -10,7 +10,6 @@ import React, {useState} from "react";
 import DataPlaceholder from "../../components/DataPlaceholder";
 
 import styles from "./Todo.module.css";
-import e from "express";
 
 
 const SubItem = props => {
