@@ -53,7 +53,7 @@ const files = [
 ];
 const testReelData = files.map(file => `media/jobs/${file}.mp4`);
 
-const testFarmData = {};
+const testFarmData = {"data":{"children":[{"children":[{"color":"hsl(290, 70%, 50%)","loc":2012,"name":"waiting"},{"color":"hsl(290, 70%, 50%)","loc":21,"name":"running"},{"color":"hsl(290, 70%, 50%)","loc":0,"name":"dead"}],"color":"hsl(249, 70%, 50%)","name":"accenture_changing_tree"},{"children":[{"color":"hsl(290, 70%, 50%)","loc":7872,"name":"waiting"},{"color":"hsl(290, 70%, 50%)","loc":21,"name":"running"},{"color":"hsl(290, 70%, 50%)","loc":2,"name":"dead"}],"color":"hsl(249, 70%, 50%)","name":"nda_thrift_shop"},{"children":[{"color":"hsl(290, 70%, 50%)","loc":979,"name":"waiting"},{"color":"hsl(290, 70%, 50%)","loc":0,"name":"running"},{"color":"hsl(290, 70%, 50%)","loc":29,"name":"dead"}],"color":"hsl(249, 70%, 50%)","name":"pinterest_its_possible"},{"children":[{"color":"hsl(290, 70%, 50%)","loc":11118,"name":"waiting"},{"color":"hsl(290, 70%, 50%)","loc":77,"name":"running"},{"color":"hsl(290, 70%, 50%)","loc":0,"name":"dead"}],"color":"hsl(249, 70%, 50%)","name":"splash_tpain"},{"children":[{"color":"hsl(290, 70%, 50%)","loc":66,"name":"waiting"},{"color":"hsl(290, 70%, 50%)","loc":0,"name":"running"},{"color":"hsl(290, 70%, 50%)","loc":2,"name":"dead"}],"color":"hsl(249, 70%, 50%)","name":"white_claw_pack_animation"}],"color":"hsl(46, 70%, 50%)","name":""}};
 
 const testAppsData = [
   {
