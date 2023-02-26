@@ -1,15 +1,58 @@
 .container {
+  display: flex;
   height: 100%;
+  flex-direction: column;
+}
+
+.graphContainer {
+  position: relative;
+  flex-grow: 1;
+  overflow: clip;
+}
+
+.graph {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
 }
 
 .topBar {
   display: flex;
-  flex-direction: column;
+  padding: 5px;
   gap: 5px;
-  padding: 0 10px;
 }
 
-.row {
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+}
+
+.topRow {
   display: flex;
   gap: 5px;
+}
+
+.bottomRow {
+  display: flex;
+  overflow: hidden;
+  gap: 5px;
+  padding: 0 5px;
+  transition: max-height 0.25s, padding 0.25s;
+}
+
+.expandButton {
+  background-color: rgb(50, 50, 50);
+  width: 25px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.expandButton:hover {
+  background-color: rgb(100, 100, 100);
 }

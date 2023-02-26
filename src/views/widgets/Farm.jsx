@@ -30,6 +30,7 @@ const MenuProps = {
 const Farm = () => {
   const {farm} = useContext(DataContext);
   const [expanded, setExpanded] = useState(false);
+  const [viewType, setViewType] = useState("");
   const [filtersEnabled, setFiltersEnabled] = useState(false);
   const [selectedProjects, setSelectedProjects] = useState([]);
   const [selectedArtists, setSelectedArtists] = useState([]);
@@ -45,62 +46,79 @@ const Farm = () => {
     setSelectedProjects([]);
     setSelectedArtists([]);
   };
+  
+  const bottomRowStyle = {
+    maxHeight: expanded ? "100px" : 0,
+    // padding: expanded ? "3px 0" : 0
+  };
 
   return (
     <div className={styles.container}>
       <div className={styles.topBar}>
-        <div className={styles.row}>
-        </div>
-        <div className={styles.row}>
-          <FormGroup size="small">
-            <FormControlLabel
-              control={<Switch checked={filtersEnabled}
-                onChange={e => setFiltersEnabled(e.target.checked)} />}
-              label="Filters"
-            />
-          </FormGroup>
-          <FormControl sx={{flexGrow: 1, flexBasis: 0}} size="small"
-            disabled={!filtersEnabled}>
-            <InputLabel>Filter by project</InputLabel>
-            <Select
-              label="Filter by project"
-              multiple
-              value={selectedProjects}
-              onChange={e => setSelectedProjects(e.target.value)}
-              MenuProps={MenuProps}
-              renderValue={(selected) => selected.join(", ")}
-            >
-              {[...projects].map(data =>
-                <MenuItem key={data} value={data}>
-                  <Checkbox checked={selectedProjects.includes(data)} />
-                  <ListItemText primary={data} />
-                </MenuItem>
-              )}
-            </Select>
-          </FormControl>
-          <FormControl sx={{flexGrow: 0.5, flexBasis: 0}} size="small"
-            disabled={!filtersEnabled}>
-            <InputLabel>Filter by artist</InputLabel>
-            <Select
-              label="Filter by artist"
-              multiple
-              value={selectedArtists}
-              onChange={e => setSelectedArtists(e.target.value)}
-              MenuProps={MenuProps}
-              renderValue={(selected) => selected.join(", ")}
-            >
-              {[...artists].map(data =>
-                <MenuItem key={data} value={data}>
-                  <Checkbox checked={selectedArtists.includes(data)} />
-                  <ListItemText primary={data} />
-                </MenuItem>
-              )}
-            </Select>
-          </FormControl>
-          <Button variant="outlined" color="secondary" disabled={!filtersEnabled}
-            onClick={handleFiltersClear}>
-            Clear
-          </Button>
+        <div className={styles.column}>
+          <div className={styles.topRow}>
+            <FormControl sx={{width: "150px"}} size="small">
+              <InputLabel>Graph type</InputLabel>
+              <Select
+                label="Graph type"
+                // value={viewType}
+                onChange={e => setViewType(e.target.value)}
+              >
+                <MenuItem value={"state"}>Frame amount</MenuItem>
+              </Select>
+            </FormControl>
+          </div>
+          <div className={styles.bottomRow} style={bottomRowStyle}>
+            <FormGroup size="small">
+              <FormControlLabel
+                control={<Switch checked={filtersEnabled}
+                  onChange={e => setFiltersEnabled(e.target.checked)} />}
+                label="Filters"
+              />
+            </FormGroup>
+            <FormControl sx={{flexGrow: 1, flexBasis: 0}} size="small"
+              disabled={!filtersEnabled}>
+              <InputLabel>Filter by project</InputLabel>
+              <Select
+                label="Filter by project"
+                multiple
+                value={selectedProjects}
+                onChange={e => setSelectedProjects(e.target.value)}
+                MenuProps={MenuProps}
+                renderValue={(selected) => selected.join(", ")}
+              >
+                {[...projects].map(data =>
+                  <MenuItem key={data} value={data}>
+                    <Checkbox checked={selectedProjects.includes(data)} />
+                    <ListItemText primary={data} />
+                  </MenuItem>
+                )}
+              </Select>
+            </FormControl>
+            <FormControl sx={{flexGrow: 0.5, flexBasis: 0}} size="small"
+              disabled={!filtersEnabled}>
+              <InputLabel>Filter by artist</InputLabel>
+              <Select
+                label="Filter by artist"
+                multiple
+                value={selectedArtists}
+                onChange={e => setSelectedArtists(e.target.value)}
+                MenuProps={MenuProps}
+                renderValue={(selected) => selected.join(", ")}
+              >
+                {[...artists].map(data =>
+                  <MenuItem key={data} value={data}>
+                    <Checkbox checked={selectedArtists.includes(data)} />
+                    <ListItemText primary={data} />
+                  </MenuItem>
+                )}
+              </Select>
+            </FormControl>
+            <Button variant="outlined" color="secondary" disabled={!filtersEnabled}
+              onClick={handleFiltersClear}>
+              Clear
+            </Button>
+          </div>          
         </div>
         <div className={styles.expandButton}
           onClick={() => setExpanded(prev => !prev)}>
@@ -110,30 +128,33 @@ const Farm = () => {
           }
         </div>
       </div>
-      <ResponsiveTreeMap
-        data={farm.data}
-        identity="name"
-        value="loc"
-        // tile="binary"
-        valueFormat=" >-.2s"
-        margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
-        labelSkipSize={12}
-        parentLabelPosition="top"
-        labelTextColor="lightgrey"
-        parentLabelTextColor="lightgrey"
-        colors={{ scheme: "nivo" }}
-        borderColor={{
-          from: "color",
-          modifiers: [
-            [
-              "darker",
-              2
-            ]
-          ]
-        }}
-        animate={false}
-        motionConfig="slow"
-      />
+      <div className={styles.graphContainer}>
+        <div className={styles.graph}>
+          <ResponsiveTreeMap data={farm.data}
+            identity="name"
+            value="loc"
+            // tile="binary"
+            valueFormat=" >-.2s"
+            margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
+            labelSkipSize={12}
+            parentLabelPosition="top"
+            labelTextColor="lightgrey"
+            parentLabelTextColor="lightgrey"
+            colors={{ scheme: "nivo" }}
+            borderColor={{
+              from: "color",
+              modifiers: [
+                [
+                  "darker",
+                  2
+                ]
+              ]
+            }}
+            animate={false}
+            motionConfig="slow"
+          />
+        </div>
+      </div>
     </div>
   );
 };
