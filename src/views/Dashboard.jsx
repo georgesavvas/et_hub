@@ -280,7 +280,7 @@ const Dashboard = () => {
           measureBeforeMount={false}
           useCSSTransforms={mounted}
           isBounded
-          resizeHandles={["se", "sw"]}
+          // resizeHandles={["se", "sw"]}
           onDragStart={handleDragStart}
           onResizeStart={handleResizeStart}
         >
