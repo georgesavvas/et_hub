@@ -8,6 +8,8 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import Checkbox from "@mui/material/Checkbox";
 import ListItemText from "@mui/material/ListItemText";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
 import styles from "./Farm.module.css";
 import { Button, FormControlLabel, FormGroup, Switch } from "@mui/material";
@@ -27,6 +29,7 @@ const MenuProps = {
 
 const Farm = () => {
   const {farm} = useContext(DataContext);
+  const [expanded, setExpanded] = useState(false);
   const [filtersEnabled, setFiltersEnabled] = useState(false);
   const [selectedProjects, setSelectedProjects] = useState([]);
   const [selectedArtists, setSelectedArtists] = useState([]);
@@ -46,60 +49,66 @@ const Farm = () => {
   return (
     <div className={styles.container}>
       <div className={styles.topBar}>
-        <FormGroup size="small">
-          <FormControlLabel
-            control={<Switch checked={filtersEnabled}
-              onChange={e => setFiltersEnabled(e.target.checked)} />}
-            label="Filters"
-          />
-        </FormGroup>
-        <FormControl sx={{flexGrow: 1, flexBasis: 0}} size="small"
-          disabled={!filtersEnabled}>
-          <InputLabel>Filter by project</InputLabel>
-          <Select
-            // value={age}
-            label="Filter by project"
-            multiple
-            value={selectedProjects}
-            onChange={e => setSelectedProjects(e.target.value)}
-            MenuProps={MenuProps}
-            renderValue={(selected) => selected.join(", ")}
-            // onChange={handleChange}
-          >
-            {[...projects].map(data =>
-              <MenuItem key={data} value={data}>
-                <Checkbox checked={selectedProjects.includes(data)} />
-                <ListItemText primary={data} />
-              </MenuItem>
-            )}
-          </Select>
-        </FormControl>
-        <FormControl sx={{flexGrow: 0.5, flexBasis: 0}} size="small"
-          disabled={!filtersEnabled}>
-          <InputLabel>Filter by artist</InputLabel>
-          <Select
-            // value={age}
-            label="Filter by artist"
-            multiple
-            value={selectedArtists}
-            onChange={e => setSelectedArtists(e.target.value)}
-            MenuProps={MenuProps}
-            // renderValue={(selected) => console.log(selected)}
-            renderValue={(selected) => selected.join(", ")}
-            // onChange={handleChange}
-          >
-            {[...artists].map(data =>
-              <MenuItem key={data} value={data}>
-                <Checkbox checked={selectedArtists.includes(data)} />
-                <ListItemText primary={data} />
-              </MenuItem>
-            )}
-          </Select>
-        </FormControl>
-        <Button variant="outlined" color="secondary" disabled={!filtersEnabled}
-          onClick={handleFiltersClear}>
-          Clear
-        </Button>
+        <div className={styles.row}>
+        </div>
+        <div className={styles.row}>
+          <FormGroup size="small">
+            <FormControlLabel
+              control={<Switch checked={filtersEnabled}
+                onChange={e => setFiltersEnabled(e.target.checked)} />}
+              label="Filters"
+            />
+          </FormGroup>
+          <FormControl sx={{flexGrow: 1, flexBasis: 0}} size="small"
+            disabled={!filtersEnabled}>
+            <InputLabel>Filter by project</InputLabel>
+            <Select
+              label="Filter by project"
+              multiple
+              value={selectedProjects}
+              onChange={e => setSelectedProjects(e.target.value)}
+              MenuProps={MenuProps}
+              renderValue={(selected) => selected.join(", ")}
+            >
+              {[...projects].map(data =>
+                <MenuItem key={data} value={data}>
+                  <Checkbox checked={selectedProjects.includes(data)} />
+                  <ListItemText primary={data} />
+                </MenuItem>
+              )}
+            </Select>
+          </FormControl>
+          <FormControl sx={{flexGrow: 0.5, flexBasis: 0}} size="small"
+            disabled={!filtersEnabled}>
+            <InputLabel>Filter by artist</InputLabel>
+            <Select
+              label="Filter by artist"
+              multiple
+              value={selectedArtists}
+              onChange={e => setSelectedArtists(e.target.value)}
+              MenuProps={MenuProps}
+              renderValue={(selected) => selected.join(", ")}
+            >
+              {[...artists].map(data =>
+                <MenuItem key={data} value={data}>
+                  <Checkbox checked={selectedArtists.includes(data)} />
+                  <ListItemText primary={data} />
+                </MenuItem>
+              )}
+            </Select>
+          </FormControl>
+          <Button variant="outlined" color="secondary" disabled={!filtersEnabled}
+            onClick={handleFiltersClear}>
+            Clear
+          </Button>
+        </div>
+        <div className={styles.expandButton}
+          onClick={() => setExpanded(prev => !prev)}>
+          {expanded ?
+            <ExpandLessIcon sx={{fontSize: 20}} />
+            : <ExpandMoreIcon />
+          }
+        </div>
       </div>
       <ResponsiveTreeMap
         data={farm.data}

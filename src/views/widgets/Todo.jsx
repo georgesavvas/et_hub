@@ -199,9 +199,6 @@ const Task = props => {
         <LinearProgress color="success" variant="determinate"
           value={progress} />
       </div>
-      <div className={styles.addToTodayButton}>
-        
-      </div>
       <div className={styles.expandButton}
         onClick={() => setExpanded(prev => !prev)}>
         {expanded ?
