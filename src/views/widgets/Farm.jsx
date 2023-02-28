@@ -10,10 +10,10 @@ import Checkbox from "@mui/material/Checkbox";
 import ListItemText from "@mui/material/ListItemText";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import stc from "string-to-color";
 
 import styles from "./Farm.module.css";
 import { Button, FormControlLabel, FormGroup, Switch } from "@mui/material";
-import { set } from "lodash";
 
 
 const ITEM_HEIGHT = 48;
@@ -27,6 +27,24 @@ const MenuProps = {
   },
 };
 
+const COLOURS = {
+  Error: "rgb(150, 50, 50)",
+  Running: "rgb(50, 150, 50)",
+  Finished: "rgb(50, 50, 100)",
+  Waiting: "rgb(100, 100, 100)"
+};
+
+const nivoTheme = {
+  fontSize: 14,
+  tooltip: {
+    container: {
+      background: "rgb(20, 20, 20)",
+      color: "rgb(200, 200, 200)",
+      fontSize: 16
+    },
+  }
+};
+
 const Farm = () => {
   const {farm} = useContext(DataContext);
   const [expanded, setExpanded] = useState(false);
@@ -34,12 +52,36 @@ const Farm = () => {
   const [filtersEnabled, setFiltersEnabled] = useState(false);
   const [selectedProjects, setSelectedProjects] = useState([]);
   const [selectedArtists, setSelectedArtists] = useState([]);
+  const [layerMask, setLayerMask] = useState("ass, img");
 
   const getViewState = () => {
     const data = {name: "View Name"};
-    const children = [];
+    const shows = {};
+    const allowedLayers = layerMask.replaceAll(" ", "").split(",");
     farm.data.jobs.forEach(job => {
-      
+      const show = job.show;
+      if (!shows[show]) shows[show] = {
+        name: show,
+        statuses: {r: 0, f: 0, e: 0, w: 0}
+      };
+      job.layers.forEach(l => {
+        if (allowedLayers.some(name => l.name.startsWith(name + "."))) {
+          shows[show].statuses.r += l.runningFrames;
+          shows[show].statuses.f += l.succeededFrames;
+          shows[show].statuses.e += l.deadFrames;
+          shows[show].statuses.w += l.pendingFrames;
+        }
+      });
+    });
+    data.children = Object.values(shows).map(show => {
+      // show.children = [
+      //   {name: "Running", frames: show.statuses.r},
+      //   // {name: "Error", frames: show.statuses.e},
+      //   // {name: "Finished", frames: show.statuses.f},
+      //   {name: "Waiting", frames: show.statuses.w}
+      // ];
+      show.frames = show.statuses.r + show.statuses.w;
+      return show;
     });
     return data;
   };
@@ -57,8 +99,8 @@ const Farm = () => {
   };
   
   const bottomRowStyle = {
-    // maxHeight: expanded ? "100px" : 0,
-    // padding: expanded ? "3px 0" : 0
+    maxHeight: expanded ? "100px" : 0,
+    padding: expanded ? "3px 0" : 0
   };
 
   return (
@@ -70,6 +112,7 @@ const Farm = () => {
               <InputLabel>Graph type</InputLabel>
               <Select
                 label="Graph type"
+                value="state"
                 // value={viewType}
                 onChange={e => setViewType(e.target.value)}
               >
@@ -139,27 +182,29 @@ const Farm = () => {
       </div>
       <div className={styles.graphContainer}>
         <div className={styles.graph}>
-          <ResponsiveTreeMap data={farm.data}
+          <ResponsiveTreeMap data={getViewState()}
             identity="name"
-            value="loc"
-            // tile="binary"
-            valueFormat=" >-.2s"
+            value="frames"
+            tile="binary"
+            valueFormat=".02s"
             margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
-            labelSkipSize={12}
-            parentLabelPosition="top"
+            labelSkipSize={14}
+            parentLabelSize={24}
             labelTextColor="lightgrey"
+            orientLabel={false}
             parentLabelTextColor="lightgrey"
-            colors={{ scheme: "nivo" }}
-            borderColor={{
-              from: "color",
-              modifiers: [
-                [
-                  "darker",
-                  2
-                ]
-              ]
-            }}
-            animate={false}
+            // colors={node => COLOURS[node.id] || "rgb(10, 10, 10)"}
+            colors={{scheme: "paired"}}
+            // nodeOpacity={1}
+            // borderColor="rgb(10, 10, 10)"
+            // borderWidth={2}
+            theme={nivoTheme}
+            // animate={false}
+            // outerPadding={5}
+            // innerPadding={5}
+            leavesOnly
+            label={node => `${node.id}`}
+            // label={node => `${node.id}: ${node.formattedValue}`}
             motionConfig="slow"
           />
         </div>
