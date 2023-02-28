@@ -6,7 +6,7 @@ import React, {useEffect, useState} from "react";
 import { Typography } from "@mui/material";
 
 import { useResizeDetector } from "react-resize-detector";
-import Farm from "./Farm";
+import Farm from "./Farm/Farm";
 import Support from "./Support";
 import Projects from "./Projects";
 import Workstation from "./Workstation";

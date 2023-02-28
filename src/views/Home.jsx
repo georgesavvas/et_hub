@@ -8,7 +8,7 @@ import {ConfigContext} from "../contexts/ConfigContext";
 // import serverRequest from "../services/serverRequest";
 import Menu from "./Menu";
 import Dashboard from "./Dashboard";
-import Farm from "./widgets/Farm";
+import Farm from "./widgets/Farm/Farm";
 import Support from "./widgets/Support";
 import Projects from "./widgets/Projects";
 import Workstation from "./widgets/Workstation";
