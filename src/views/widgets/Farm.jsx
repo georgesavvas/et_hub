@@ -35,6 +35,15 @@ const Farm = () => {
   const [selectedProjects, setSelectedProjects] = useState([]);
   const [selectedArtists, setSelectedArtists] = useState([]);
 
+  const getViewState = () => {
+    const data = {name: "View Name"};
+    const children = [];
+    farm.data.jobs.forEach(job => {
+      
+    });
+    return data;
+  };
+
   const projects = new Set();
   const artists = new Set();
   farm.data.jobs.forEach(job => {
@@ -48,7 +57,7 @@ const Farm = () => {
   };
   
   const bottomRowStyle = {
-    maxHeight: expanded ? "100px" : 0,
+    // maxHeight: expanded ? "100px" : 0,
     // padding: expanded ? "3px 0" : 0
   };
 
