@@ -89,8 +89,6 @@
     "appId": "georgesavvas.ethub",
     "productName": "et_hub",
     "artifactName": "${productName}-setup-${version}.${ext}",
-    "generateUpdatesFilesForAllChannels": true,
-    "afterSign": "scripts/notarize.js",
     "extraMetadata": {
       "main": "build/main.js"
     },
