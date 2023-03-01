@@ -50,7 +50,7 @@
     "eject": "react-scripts eject",
     "electron": "cross-env NODE_ENV=dev electron .",
     "package-only": "electron-packager . --overwrite --prune=true --name=ETHub --asar --platform=linux --arch=x64 --out=dist",
-    "release": "cp -f -r dist/ETHub-linux-x64/resources /transfer/hub/app/ETHub-linux-x64",
+    "release": "cp -f -r dist/et_hub-linux-x64 /transfer/hub/app/et_hub-linux-x64",
     "package-release": "npm run package && npm run release"
   },
   "eslintConfig": {
@@ -76,11 +76,10 @@
     "@typescript-eslint/parser": "^5.38.0",
     "concurrently": "^7.2.2",
     "cross-env": "^7.0.3",
-    "electron": "^22.0.0",
+    "electron": "^23.1.1",
     "eslint": "^8.24.0",
     "eslint-plugin-react": "^7.31.8",
-    "react-scripts": "^5.0.1",
-    "wait-on": "^6.0.1"
+    "react-scripts": "^5.0.1"
   },
   "build": {
     "appId": "georgesavvas.ethub",

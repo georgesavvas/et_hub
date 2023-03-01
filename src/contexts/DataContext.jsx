@@ -2,16 +2,30 @@ import React, {useState, createContext, useEffect, useRef} from "react";
 
 // import {useSnackbar} from "notistack";
 
-// import serverRequest from "../services/serverRequest";
+import serverRequest from "../services/serverRequest";
 
 
 export const DataContext = createContext();
+
+const URLS = {
+  licenses: "http://192.168.11.20:8085/data/licenses",
+  projects: "http://192.168.11.20:8085/data/projects",
+  farm: "http://192.168.11.20:8085/data/farm/jobs",
+  hosts: "http://192.168.11.20:8085/data/farm/hosts"
+};
 
 export const DataProvider = props => {
   const [reels, setReels] = useState(testReelData);
   const [licenses, setLicenses] = useState(testLicenseData);
   const [farm, setFarm] = useState(testFarmData);
   const [apps, setApps] = useState(testAppsData);
+
+  useEffect(() => {
+    const fetchDataInterval = setInterval(() => {
+      serverRequest(URLS.licenses).then(resp => console.log(resp));
+    });
+    return () => clearInterval(fetchDataInterval);
+  }, []);
 
   return (
     <DataContext.Provider value={{

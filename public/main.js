@@ -6,8 +6,11 @@ const fs = require("fs");
 const path = require("path");
 require("v8-compile-cache");
 const uuid4 = require("uuid4");
+const osu = require("node-os-utils");
 
 const sessionID = uuid4();
+const cpu = osu.cpu;
+const mem = osu.mem;
 let platformName = process.platform;
 let appPath = app.getAppPath();
 if (platformName === "win32") {
@@ -31,6 +34,10 @@ const iconPaths = {
   "darwin": "media/desktop_icon/mac/icon.icns",
   "linux": "media/desktop_icon/linux/icon.png"
 };
+
+const wsData = {};
+wsData.hostname = osu.os.hostname();
+wsData.ip = osu.os.ip();
 
 function createWindow (show=true) {
   const win = new BrowserWindow({
@@ -179,6 +186,16 @@ app.whenReady().then(async () => {
     splash.destroy();
     window.show();
   });
+
+  setInterval(() => {
+    const cpuAvg = cpu.usage();
+    const memUsed = mem.used();
+    Promise.all([cpuAvg, memUsed]).then(data => {
+      wsData.cpuAvg = data[0];
+      wsData.memUsed = data[1];
+      window.webContents.send("workstationData", {data: wsData});
+    });
+  }, 2000);
 
   if (tray === null) tray = new Tray(`${public}/media/icon.png`);
   const contextMenu = Menu.buildFromTemplate([
