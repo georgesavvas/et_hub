@@ -4,6 +4,7 @@ import {DataContext} from "../../contexts/DataContext";
 import Widget from "./Widget";
 import loadFromLS from "../../utils/loadFromLS";
 import saveToLS from "../../utils/saveToLS";
+import {fit} from "../../utils/math";
 
 import styles from "./Workstation.module.css";
 import { Divider, TextField } from "@mui/material";
@@ -11,6 +12,7 @@ import { Divider, TextField } from "@mui/material";
 
 const COLOURS = ["#28ea16", "#70c626", "#a0d904", "#e0d021", "#ff9f0f",
   "#f07407", "#e00000"];
+const COLOURS_AMOUNT = COLOURS.length;
 
 const Workstation = props => {
   const [mounted, setMounted] = useState(false);
@@ -68,17 +70,21 @@ const Workstation = props => {
     />
   </>;
 
-  const cpuInt = Math.round(cpuAvg / (100 / COLOURS.length));
+  const cpuInt = Math.floor(
+    fit(cpuAvg / 100, 0, 0.999, 0, COLOURS_AMOUNT)
+  );
   const cpuColour = COLOURS[cpuInt];
 
-  const memInt = Math.round(memUsed / memTotal * COLOURS.length);
-  const memColour = COLOURS[cpuInt];
+  const memInt = Math.floor(
+    fit(memUsed / memTotal, 0, 0.999, 0, COLOURS_AMOUNT)
+  );
+  const memColour = COLOURS[memInt];
 
   const cpuStyle = {
     color: cpuColour,
     transition: "color 1s"
   };
-
+  console.log(cpuAvg, cpuInt, cpuColour);
   const memStyle = {
     color: memColour,
     transition: "color 1s"
