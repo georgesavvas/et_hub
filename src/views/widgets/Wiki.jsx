@@ -1,6 +1,7 @@
 /* eslint-disable react/no-unknown-property */
 import React from "react";
 import DataPlaceholder from "../../components/DataPlaceholder";
+import Widget from "./Widget";
 
 import styles from "./Wiki.module.css";
 

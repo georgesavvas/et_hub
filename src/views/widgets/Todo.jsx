@@ -5,7 +5,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ClearIcon from "@mui/icons-material/Clear";
 import RepeatIcon from "@mui/icons-material/Repeat";
-import {Divider, IconButton, LinearProgress, OutlinedInput, Typography} from "@mui/material";
+import {Divider, IconButton, LinearProgress, OutlinedInput, Typography, TextField} from "@mui/material";
 import React, {useState} from "react";
 import Tab from "@mui/material/Tab";
 import TabContext from "@mui/lab/TabContext";
@@ -15,6 +15,7 @@ import DataPlaceholder from "../../components/DataPlaceholder";
 import debounce from "lodash.debounce";
 import loadFromLS from "../../utils/loadFromLS";
 import saveToLS from "../../utils/saveToLS";
+import Widget from "./Widget";
 
 import styles from "./Todo.module.css";
 import { useEffect } from "react";
@@ -215,10 +216,36 @@ const tabStyle = {
   height: "10px"
 };
 
-const Todo = () => {
+const Todo = props => {
+  const [mounted, setMounted] = useState(false);
   const [tasks, setTasks] = useState([]);
   const [first, setFirst] = useState(true);
   const [tab, setTab] = useState("tasks");
+  const [widgetConfig, setWidgetConfig] = useState({});
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const title = widgetConfig.title;
+  const setTitle = value => handleConfigEdit("title", value);
+
+  const defaultConfig = {
+    selected: "",
+    filterValue: "",
+    title: "Apps"
+  };
+
+  useEffect(() => {
+    setMounted(true);
+    const savedConfig = loadFromLS(props.rglKey) || {...defaultConfig};
+    setWidgetConfig(savedConfig);
+  }, []);
+
+  const handleConfigEdit = (key, value) => {
+    setWidgetConfig(prev => {
+      const existing = {...prev};
+      existing[key] = value;
+      saveToLS(props.rglKey, existing);
+      return existing;
+    });
+  };
 
   useEffect(() => {
     if (first) {
@@ -258,61 +285,79 @@ const Todo = () => {
   };
   const [todayChecked, todayUnchecked] = getTodayTasks();
 
+  const Settings = <>
+    <TextField
+      label="Widget name"
+      value={title}
+      onChange={e => setTitle(e.target.value)}
+      size="small"
+    />
+  </>;
+
   return (
-    <div className={styles.container}>
-      <TabContext value={tab}>
-        <div className={styles.tabsContainer}>
-          <TabList onChange={(e, value) => setTab(value)}>
-            <Tab sx={tabStyle} label="Tasks" iconPosition="start"
-              icon={<FormatListBulletedIcon />} value="tasks" />
-            <Tab sx={tabStyle} label="Today" iconPosition="start"
-              icon={<EventAvailableIcon />} value="today" />
-            <Tab sx={tabStyle} label="Recurring" iconPosition="start"
-              icon={<RepeatIcon />} value="repeat" />
-          </TabList>
-        </div>
-        <TabPanel sx={{padding: 0, paddingTop: "10px"}} value="tasks">
-          <div className={styles.tasksContainer}>
-            {[...tasks, {}].map((task, index) =>
-              <Task index={index} task={task} key={index} setTasks={setTasks}
-                last={index == tasks.length}
-              />
-            )}
+    <Widget
+      settings={Settings}
+      settingsOpen={settingsOpen}
+      setSettingsOpen={setSettingsOpen}
+      title={title}
+      onRemove={props.onRemove}
+      rglKey={props.rglKey}
+    >
+      <div className={styles.container}>
+        <TabContext value={tab}>
+          <div className={styles.tabsContainer}>
+            <TabList onChange={(e, value) => setTab(value)}>
+              <Tab sx={tabStyle} label="Tasks" iconPosition="start"
+                icon={<FormatListBulletedIcon />} value="tasks" />
+              <Tab sx={tabStyle} label="Today" iconPosition="start"
+                icon={<EventAvailableIcon />} value="today" />
+              <Tab sx={tabStyle} label="Recurring" iconPosition="start"
+                icon={<RepeatIcon />} value="repeat" />
+            </TabList>
           </div>
-        </TabPanel>
-        <TabPanel value="today">
-          <div className={styles.todayContainer}>
-            {!todayChecked.length && !todayUnchecked.length
-              ? <DataPlaceholder text="No tasks for today..." />
-              : null
-            }
-            {todayUnchecked.length
-              ? <>
-                <Typography variant="h6">In Progress</Typography>
-                <div className={styles.todayUnchecked}>
-                  {todayUnchecked}
-                </div>
-              </>
-              : null
-            }
-            {todayChecked.length
-              ? <>
-                <Typography variant="h6" style={{marginTop: "15px"}}>Completed</Typography>
-                <div className={styles.todayChecked}>
-                  {todayChecked}
-                </div>
-              </>
-              : null
-            }
-          </div>
-        </TabPanel>
-        <TabPanel value="repeat">
-          <div className={styles.repeatContainer}>
-            <DataPlaceholder text="Coming soon!" />
-          </div>
-        </TabPanel>
-      </TabContext>
-    </div>
+          <TabPanel sx={{padding: 0, paddingTop: "10px"}} value="tasks">
+            <div className={styles.tasksContainer}>
+              {[...tasks, {}].map((task, index) =>
+                <Task index={index} task={task} key={index} setTasks={setTasks}
+                  last={index == tasks.length}
+                />
+              )}
+            </div>
+          </TabPanel>
+          <TabPanel value="today">
+            <div className={styles.todayContainer}>
+              {!todayChecked.length && !todayUnchecked.length
+                ? <DataPlaceholder text="No tasks for today..." />
+                : null
+              }
+              {todayUnchecked.length
+                ? <>
+                  <Typography variant="h6">In Progress</Typography>
+                  <div className={styles.todayUnchecked}>
+                    {todayUnchecked}
+                  </div>
+                </>
+                : null
+              }
+              {todayChecked.length
+                ? <>
+                  <Typography variant="h6" style={{marginTop: "15px"}}>Completed</Typography>
+                  <div className={styles.todayChecked}>
+                    {todayChecked}
+                  </div>
+                </>
+                : null
+              }
+            </div>
+          </TabPanel>
+          <TabPanel value="repeat">
+            <div className={styles.repeatContainer}>
+              <DataPlaceholder text="Coming soon!" />
+            </div>
+          </TabPanel>
+        </TabContext>
+      </div>
+    </Widget>
   );
 };
 

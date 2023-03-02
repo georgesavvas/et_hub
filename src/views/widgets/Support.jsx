@@ -1,5 +1,8 @@
-import { Divider, Link, Typography } from "@mui/material";
-import React from "react";
+import { Divider, Link, Typography, TextField } from "@mui/material";
+import React, {useState, useEffect} from "react";
+import Widget from "./Widget";
+import loadFromLS from "../../utils/loadFromLS";
+import saveToLS from "../../utils/saveToLS";
 
 import styles from "./Support.module.css";
 
@@ -41,7 +44,33 @@ const SECTIONS = [
   },
 ];
 
-const Support = () => {
+const Support = props => {
+  const [mounted, setMounted] = useState(false);
+  const [widgetConfig, setWidgetConfig] = useState({});
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const title = widgetConfig.title;
+  const setTitle = value => handleConfigEdit("title", value);
+
+  const defaultConfig = {
+    selected: "",
+    filterValue: "",
+    title: "Support"
+  };
+
+  useEffect(() => {
+    setMounted(true);
+    const savedConfig = loadFromLS(props.rglKey) || {...defaultConfig};
+    setWidgetConfig(savedConfig);
+  }, []);
+
+  const handleConfigEdit = (key, value) => {
+    setWidgetConfig(prev => {
+      const existing = {...prev};
+      existing[key] = value;
+      saveToLS(props.rglKey, existing);
+      return existing;
+    });
+  };
 
   const getSections = () => {
     const amount = SECTIONS.length;
@@ -67,10 +96,28 @@ const Support = () => {
     });
   };
 
+  const Settings = <>
+    <TextField
+      label="Widget name"
+      value={title}
+      onChange={e => setTitle(e.target.value)}
+      size="small"
+    />
+  </>;
+
   return (
-    <div className={styles.container}>
-      {getSections()}
-    </div>
+    <Widget
+      settings={Settings}
+      settingsOpen={settingsOpen}
+      setSettingsOpen={setSettingsOpen}
+      title={title}
+      onRemove={props.onRemove}
+      rglKey={props.rglKey}
+    >
+      <div className={styles.container}>
+        {getSections()}
+      </div>
+    </Widget>
   );
 };
 

@@ -1,5 +1,5 @@
 import { Button, IconButton, OutlinedInput, TextField, Tooltip, Typography } from "@mui/material";
-import React, {useState, useContext, useEffect} from "react";
+import React, {useState, useEffect} from "react";
 import DataPlaceholder from "../../components/DataPlaceholder";
 import {DataContext} from "../../contexts/DataContext";
 import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
@@ -7,9 +7,10 @@ import ClearIcon from "@mui/icons-material/Clear";
 import FilterField from "../../components/FilterField";
 import loadFromLS from "../../utils/loadFromLS";
 import saveToLS from "../../utils/saveToLS";
+import { useResizeDetector } from "react-resize-detector";
 
 import styles from "./Apps.module.css";
-import WidgetSettings from "./WidgetSettings";
+import Widget from "./Widget";
 
 
 const ICONS = {
@@ -58,17 +59,22 @@ const App = ({app, setSelected, style}) => {
 };
 
 const Apps = props => {
+  const {width, height, ref} = useResizeDetector();
   const [apps, setApps] = useState([]);
   const [widgetConfig, setWidgetConfig] = useState({});
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const selected = widgetConfig.selected;
   const setSelected = value => handleConfigEdit("selected", value);
   const filterValue = widgetConfig.filterValue;
   const setFilterValue = value => handleConfigEdit("filterValue", value);
+  const title = widgetConfig.title;
+  const setTitle = value => handleConfigEdit("title", value);
 
   const defaultConfig = {
     selected: "",
-    filterValue: ""
+    filterValue: "",
+    title: "Apps"
   };
 
   useEffect(() => {
@@ -86,7 +92,7 @@ const Apps = props => {
     });
   };
 
-  const small = props.size[0] < 250 || props.size[1] < 250;
+  const small = width < 250 || height < 250;
 
   const handleClose = () => handleConfigEdit("selected", "");
   const handleLaunch = () => {
@@ -94,66 +100,72 @@ const Apps = props => {
     handleConfigEdit("selected", "");
   };
 
+  const Settings = <>
+    <TextField
+      label="Widget name"
+      value={title}
+      onChange={e => setTitle(e.target.value)}
+      size="small"
+    />
+  </>;
+
   return (
-    <div className={styles.container}>
-      <WidgetSettings
-        open={props.settingsOpen}
-        onClose={props.onSettingsClose}
-        defaultTitle={props.defaultTitle}
-      >
-        <TextField
-          label="Widget name"
-          value={props.widgetName}
-          onChange={e => props.setWidgetName(e.target.value)}
-          size="small"
-        />
-      </WidgetSettings>
-      <div className={styles.containerInner}>
-        {/* {small || selected ? null :
-          <FilterField filterValue={filterValue}
-            setFilterValue={setFilterValue} />
-        } */}
-        {!selected ? null :
-          <div className={styles.overlay}>
-            <ClearIcon onClick={handleClose} className={styles.closeButton} />
-            <div className={styles.overlayApp}>
-              <App app={selected} style={{width: "50px"}} />
-              <Typography variant="h5">{selected.name}</Typography>
+    <Widget
+      settings={Settings}
+      settingsOpen={settingsOpen}
+      setSettingsOpen={setSettingsOpen}
+      title={title}
+      onRemove={props.onRemove}
+      rglKey={props.rglKey}
+    >
+      <div className={styles.container} ref={ref}>
+        <div className={styles.containerInner}>
+          {/* {small || selected ? null :
+            <FilterField filterValue={filterValue}
+              setFilterValue={setFilterValue} />
+          } */}
+          {!selected ? null :
+            <div className={styles.overlay}>
+              <ClearIcon onClick={handleClose} className={styles.closeButton} />
+              <div className={styles.overlayApp}>
+                <App app={selected} style={{width: "50px"}} />
+                <Typography variant="h5">{selected.name}</Typography>
+              </div>
             </div>
+          }
+          <div className={styles.gridContainer}>
+            {apps.filter(app => (app.name + app.executable).includes(filterValue)).map(app =>
+              <App key={app.package} app={app} setSelected={setSelected} />
+            )}
+          </div>
+          <div className={styles.layoutHelper} />
+        </div>
+        {small && !selected ? null :
+          <div className={styles.bottomBar}>
+            <OutlinedInput
+              size="small"
+              fullWidth
+              placeholder="Scene"
+              // value={filterValue}
+              // onChange={e => setFilterValue(e.target.value || "")}
+              // color={filterValue ? "error" : ""}
+            />
+            <OutlinedInput
+              size="small"
+              fullWidth
+              placeholder="Arguments"
+              // value={filterValue}
+              // onChange={e => setFilterValue(e.target.value || "")}
+              // color={filterValue ? "error" : ""}
+            />
+            <Button variant="contained" color="success" disabled={!selected}
+              onClick={handleLaunch}>
+              <RocketLaunchIcon />
+            </Button>
           </div>
         }
-        <div className={styles.gridContainer}>
-          {apps.filter(app => (app.name + app.executable).includes(filterValue)).map(app =>
-            <App key={app.package} app={app} setSelected={setSelected} />
-          )}
-        </div>
-        <div className={styles.layoutHelper} />
       </div>
-      {small && !selected ? null :
-        <div className={styles.bottomBar}>
-          <OutlinedInput
-            size="small"
-            fullWidth
-            placeholder="Scene"
-            // value={filterValue}
-            // onChange={e => setFilterValue(e.target.value || "")}
-            // color={filterValue ? "error" : ""}
-          />
-          <OutlinedInput
-            size="small"
-            fullWidth
-            placeholder="Arguments"
-            // value={filterValue}
-            // onChange={e => setFilterValue(e.target.value || "")}
-            // color={filterValue ? "error" : ""}
-          />
-          <Button variant="contained" color="success" disabled={!selected}
-            onClick={handleLaunch}>
-            <RocketLaunchIcon />
-          </Button>
-        </div>
-      }
-    </div>
+    </Widget>
   );
 };
 

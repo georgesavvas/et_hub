@@ -9,10 +9,32 @@ import {Button, DialogTitle, Slider, TextField, Typography} from "@mui/material"
 import Settings from "@mui/icons-material/Settings";
 import Modal from "../components/Modal";
 import CodeEditor from "@uiw/react-textarea-code-editor";
-
+import Farm from "./widgets/Farm/Farm";
+import Support from "./widgets/Support";
+import Projects from "./widgets/Projects";
+import Workstation from "./widgets/Workstation";
+import Wiki from "./widgets/Wiki";
+import Apps from "./widgets/Apps";
+import Todo from "./widgets/Todo";
+import Notes from "./widgets/Notes";
+import Licenses from "./widgets/Licenses";
+import Rundeck from "./widgets/Rundeck";
 
 import "/node_modules/react-grid-layout/css/styles.css";
 
+
+const widgets = {
+  projects: Projects,
+  workstation: Workstation,
+  farm: Farm,
+  support: Support,
+  wiki: Wiki,
+  apps: Apps,
+  todo: Todo,
+  notes: Notes,
+  licenses: Licenses,
+  rundeck: Rundeck
+};
 
 const RGL = WidthProvider(GridLayout);
 
@@ -196,12 +218,12 @@ const Dashboard = () => {
   };
 
   const handleDrop = (layout, layoutItem, e) => {
-    const view_type = e.dataTransfer.getData("text/hub_view");
-    if (view_type == "") return;
+    const widgetType = e.dataTransfer.getData("text/hub_view");
+    if (widgetType == "") return;
     const x = layout.length;
-    const defaultSize = defaultSizes[view_type];
+    const defaultSize = defaultSizes[widgetType];
     const widget = {
-      i: view_type + "_" + x,
+      i: widgetType + "_" + x,
       x: layoutItem.x,
       y: layoutItem.y,
       w: defaultSize.w,
@@ -230,9 +252,9 @@ const Dashboard = () => {
   const handleDropDragOver = e => {
     const data = e.dataTransfer.types.filter(d => d.includes("/hub_view/"));
     if (!data.length) return;
-    const view_type = data[0].split("/").at(-1);
-    const defaultSize = defaultSizes[view_type];
-    if (!view_type || !defaultSize) return;
+    const widgetType = data[0].split("/").at(-1);
+    const defaultSize = defaultSizes[widgetType];
+    if (!widgetType || !defaultSize) return;
     const widget = {
       w: defaultSize.w,
       h: defaultSize.h
@@ -284,11 +306,18 @@ const Dashboard = () => {
           onDragStart={handleDragStart}
           onResizeStart={handleResizeStart}
         >
-          {layout.map(w => 
-            <div key={w.i}>
-              <Widget widget={w.i.split("_")[0]} rglKey={w.i} onRemove={handleRemoveWidget} />
-            </div>
-          )}
+          {layout.map(w => {
+            const widgetType = w.i.split("_")[0];
+            const SelectedWidget = widgets[widgetType];
+            if (!(widgetType in widgets)) {
+              return <div key={w.i} />;
+            }
+            return (
+              <div key={w.i}>
+                <SelectedWidget rglKey={w.i} onRemove={handleRemoveWidget} />
+              </div>
+            );
+          })}
         </RGL>
       </div>
     </div>
