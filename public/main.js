@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-const {app, BrowserWindow, protocol, ipcMain, dialog, Tray, Menu, shell} = require("electron");
+const {app, BrowserWindow, protocol, ipcMain, dialog, Tray, Menu, shell, nativeTheme} = require("electron");
 const os = require("os");
 const fs = require("fs");
 const path = require("path");
@@ -39,6 +39,19 @@ const wsData = {};
 wsData.hostname = osu.os.hostname();
 wsData.ip = osu.os.ip();
 
+const fileHandler = (req, callback) => {
+  let requestedPath = req.url.substr(6);
+  let allowed = path.resolve(requestedPath).startsWith("/transfer/hub/");
+  if (!allowed) {
+    callback({error: -10});
+    return;
+  }
+
+  callback({
+    path: requestedPath
+  });
+};
+
 function createWindow (show=true) {
   const win = new BrowserWindow({
     width: 1920 + 200,
@@ -49,6 +62,7 @@ function createWindow (show=true) {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
+      webviewTag: true,
       preload: path.join(__dirname, "preload.js"),
       enableBlinkFeatures: "CSSGridTemplatePropertyInterpolation"
     }
@@ -62,6 +76,8 @@ function createWindow (show=true) {
     win.removeMenu();
     win.loadFile("build/index.html");
   }
+
+  nativeTheme.themeSource = "dark";
 
   win.on("close", e => {
     if (!appQuitting) {
@@ -186,6 +202,11 @@ app.whenReady().then(async () => {
     splash.destroy();
     window.show();
   });
+
+  protocol.registerFileProtocol(
+    "hub",
+    fileHandler,
+  );
 
   setInterval(() => {
     const cpuAvg = cpu.usage();

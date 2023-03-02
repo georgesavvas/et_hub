@@ -8,8 +8,6 @@ import styles from "./Licenses.module.css";
 import {DataContext} from "../../contexts/DataContext";
 
 
-
-
 const COLUMNS = [
   {
     field: "app",
@@ -50,9 +48,9 @@ const Licenses = props => {
   if (props.size[0] > 250) columns.splice(1, 0, userColumn);
   if (props.size[0] > 400) columns.splice(2, 0, wsColumn);
 
-  const data = licenses.data.map((d, i) => ({id: i, ...d})).filter(
+  const data = licenses.data?.map((d, i) => ({id: i, ...d})).filter(
     d => (d.app + d.user + d.ws).includes(filterValue)
-  );
+  ) || [];
 
   return (
     <div className={styles.container}>

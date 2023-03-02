@@ -4,6 +4,7 @@ import styles from "./Projects.module.css";
 import Carousel from "nuka-carousel/lib/carousel";
 import {Typography} from "@mui/material";
 import {DataContext} from "../../contexts/DataContext";
+import serverRequest from "../../services/serverRequest";
 
 
 const Projects = props => {
@@ -24,7 +25,7 @@ const Projects = props => {
       <Carousel autoplay wrapAround enableKeyboardControls withoutControls
         slidesToScroll={slidesToScroll} dragThreshold={0.25}
         slidesToShow={slidesAmount} autoplayInterval={5000} cellAlign="center">
-        {reels.map(file =>
+        {reels.data?.map(file =>
           <div key={file} className={styles.slide} style={slideStyle}>
             <div className={styles.overlay}>
               <Typography variant="body2" align="center"
@@ -33,7 +34,7 @@ const Projects = props => {
               </Typography>
             </div>
             <video muted loop autoPlay className={styles.video}
-              src={file} />
+              src={`hub://${file}`} />
           </div>
         )}
       </Carousel>

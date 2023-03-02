@@ -21,6 +21,7 @@
 .topBar {
   display: flex;
   padding: 5px;
+  gap: 5px;
 }
 
 .column {
@@ -39,7 +40,7 @@
   display: flex;
   overflow: hidden;
   gap: 5px;
-  padding: 6px 5px;
+  padding: 0 5px;
   transition: max-height 0.25s, padding 0.25s;
 }
 

@@ -62,19 +62,17 @@ const widgets = {
   }
 };
 
-const WidgetSettings = props => {
-  return (
-    <Modal {...props} />
-  );
-};
-
 const Widget = props => {
   const { width, height, ref } = useResizeDetector();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [selectedWidget, setSelectedWidget] = useState("");
+  const [widgetName, setWidgetName] = useState("");
 
   useEffect(() => {
-    setSelectedWidget(widgets[props.widget]);
+    const selected = widgets[props.widget];
+    if (!selected) return;
+    if (!widgetName) setWidgetName(selected.title);
+    setSelectedWidget(selected);
   }, [props.widget]);
 
   const handleOpenSettings = () => setSettingsOpen(true);
@@ -88,7 +86,6 @@ const Widget = props => {
 
   return (
     <div className={styles.view}>
-      <WidgetSettings open={settingsOpen} onClose={handleCloseSettings} title={props.rglKey} />
       <div className={styles.container}>
         <div className={styles.top}>
           <div className={styles.topLeft}>
@@ -96,7 +93,7 @@ const Widget = props => {
           </div>
           <div className={styles.topCentre}>
             <Typography className={styles.title} variant="body1">
-              {selectedWidget?.title}
+              {widgetName}
             </Typography>
           </div>
           <div className={styles.topRight}>
@@ -107,7 +104,17 @@ const Widget = props => {
           </div>
         </div>
         <div className={styles.content} ref={ref}>
-          {SelectedWidget ? <SelectedWidget size={[width, height]} /> : null}
+          {SelectedWidget ?
+            <SelectedWidget
+              size={[width, height]}
+              settingsOpen={settingsOpen}
+              onSettingsClose={handleCloseSettings}
+              rglKey={props.rglKey}
+              widgetName={widgetName}
+              setWidgetName={setWidgetName}
+            />
+            : null
+          }
         </div>
       </div>
     </div>

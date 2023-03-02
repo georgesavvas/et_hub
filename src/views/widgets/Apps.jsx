@@ -1,12 +1,15 @@
 import { Button, IconButton, OutlinedInput, TextField, Tooltip, Typography } from "@mui/material";
-import React, {useState, useContext} from "react";
+import React, {useState, useContext, useEffect} from "react";
 import DataPlaceholder from "../../components/DataPlaceholder";
 import {DataContext} from "../../contexts/DataContext";
 import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
 import ClearIcon from "@mui/icons-material/Clear";
 import FilterField from "../../components/FilterField";
+import loadFromLS from "../../utils/loadFromLS";
+import saveToLS from "../../utils/saveToLS";
 
 import styles from "./Apps.module.css";
+import WidgetSettings from "./WidgetSettings";
 
 
 const ICONS = {
@@ -55,20 +58,56 @@ const App = ({app, setSelected, style}) => {
 };
 
 const Apps = props => {
-  const {apps} = useContext(DataContext);
-  const [selected, setSelected] = useState("");
-  const [filterValue, setFilterValue] = useState("");
+  const [apps, setApps] = useState([]);
+  const [widgetConfig, setWidgetConfig] = useState({});
+  const [mounted, setMounted] = useState(false);
+  const selected = widgetConfig.selected;
+  const setSelected = value => handleConfigEdit("selected", value);
+  const filterValue = widgetConfig.filterValue;
+  const setFilterValue = value => handleConfigEdit("filterValue", value);
+
+  const defaultConfig = {
+    selected: "",
+    filterValue: ""
+  };
+
+  useEffect(() => {
+    setMounted(true);
+    const savedConfig = loadFromLS(props.rglKey) || {...defaultConfig};
+    setWidgetConfig(savedConfig);
+  }, []);
+
+  const handleConfigEdit = (key, value) => {
+    setWidgetConfig(prev => {
+      const existing = {...prev};
+      existing[key] = value;
+      saveToLS(props.rglKey, existing);
+      return existing;
+    });
+  };
 
   const small = props.size[0] < 250 || props.size[1] < 250;
 
-  const handleClose = () => setSelected();
+  const handleClose = () => handleConfigEdit("selected", "");
   const handleLaunch = () => {
-    console.log("Launching", selected.name);
-    setSelected();
+    console.log("Launching", widgetConfig.selected.name);
+    handleConfigEdit("selected", "");
   };
 
   return (
     <div className={styles.container}>
+      <WidgetSettings
+        open={props.settingsOpen}
+        onClose={props.onSettingsClose}
+        defaultTitle={props.defaultTitle}
+      >
+        <TextField
+          label="Widget name"
+          value={props.widgetName}
+          onChange={e => props.setWidgetName(e.target.value)}
+          size="small"
+        />
+      </WidgetSettings>
       <div className={styles.containerInner}>
         {/* {small || selected ? null :
           <FilterField filterValue={filterValue}

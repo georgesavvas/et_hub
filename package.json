@@ -36,6 +36,7 @@
     "react-sortablejs": "^6.1.4",
     "react-spring": "^9.5.2",
     "react-virtualized-auto-sizer": "^1.0.7",
+    "recharts": "^2.4.3",
     "sockette": "^2.0.6",
     "string-to-color": "^2.2.2",
     "uuid4": "^2.0.3",
@@ -48,7 +49,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "electron": "cross-env NODE_ENV=dev electron .",
+    "electron": "cross-env NODE_ENV=dev electron . --no-sandbox",
     "package-only": "electron-packager . --overwrite --prune=true --name=ETHub --asar --platform=linux --arch=x64 --out=dist",
     "release": "cp -f -r dist/et_hub-linux-x64 /transfer/hub/app/et_hub-linux-x64",
     "package-release": "npm run package && npm run release"

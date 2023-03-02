@@ -56,6 +56,9 @@ contextBridge.exposeInMainWorld("services", {
   get_env: env_name => {
     return ipcRenderer.invoke("get_env", env_name);
   },
+  onWorkstationData: callback => {
+    return ipcRenderer.on("workstationData", callback);
+  },
   get_version: () => {
     return ipcRenderer.invoke("get_version");
   },

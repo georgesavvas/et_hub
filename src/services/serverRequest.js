@@ -3,7 +3,7 @@ import fetch from "./fetch";
 const address = "192.168.11.20:8085";
 
 async function serverRequest(method, data=undefined) {
-  console.log("Server request:", address, method, data);
+  // console.log("Server request:", address, method, data);
   return await request(address, method, data);
 }
 
@@ -18,7 +18,7 @@ async function request(address, method, data, attempt=0) {
       body: JSON.stringify(data)
     });
     const resp2 = await resp.json();
-    console.log(`Server response (${attempt}):`, method, resp2);
+    // console.log(`Server response (${attempt}):`, method, resp2);
     return resp2;
   } catch (error) {
     if (error === "timeout") {
