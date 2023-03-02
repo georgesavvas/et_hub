@@ -19,10 +19,6 @@ const options = [
     name: "workstation"
   },
   {
-    label: "Rundeck",
-    name: "rundeck"
-  },
-  {
     label: "Farm",
     name: "farm"
   },

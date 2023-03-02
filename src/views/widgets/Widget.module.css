@@ -18,6 +18,14 @@
   justify-content: center;
 }
 
+.settingsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: flex-start;
+  height: 50vh;
+}
+
 .top {
   width: 100%;
   display: flex;

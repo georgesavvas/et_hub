@@ -1,13 +1,15 @@
-import { Button, IconButton, OutlinedInput, TextField, Tooltip, Typography } from "@mui/material";
+import { Button, Divider, IconButton, OutlinedInput, TextField, Tooltip, Typography } from "@mui/material";
 import React, {useState, useEffect} from "react";
 import DataPlaceholder from "../../components/DataPlaceholder";
 import {DataContext} from "../../contexts/DataContext";
 import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
 import ClearIcon from "@mui/icons-material/Clear";
 import FilterField from "../../components/FilterField";
+import DynamicList from "../../components/DynamicList";
 import loadFromLS from "../../utils/loadFromLS";
 import saveToLS from "../../utils/saveToLS";
 import { useResizeDetector } from "react-resize-detector";
+import CloseIcon from "@mui/icons-material/Close";
 
 import styles from "./Apps.module.css";
 import Widget from "./Widget";
@@ -30,10 +32,66 @@ const ICONS = {
   vscode: ["vscode"]
 };
 
+const defaultApps = [
+  {
+    name: "Houdini",
+    cmd: "houdinicore"
+  },
+  {
+    name: "Maya",
+    cmd: "maya"
+  },
+  {
+    name: "Mari",
+    cmd: "mari"
+  },
+  {
+    name: "Designer",
+    cmd: "designer"
+  },
+  {
+    name: "Nuke",
+    cmd: "nuke"
+  },
+  {
+    name: "After Effects",
+    cmd: "aftereffects"
+  },
+  {
+    name: "Blender",
+    cmd: "blender"
+  },
+  {
+    name: "DJV",
+    cmd: "djv"
+  },
+  {
+    name: "Illustrator",
+    cmd: "illustrator"
+  },
+  {
+    name: "Natron",
+    cmd: "natron"
+  },
+  {
+    name: "Painter",
+    cmd: "painter"
+  },
+  {
+    name: "Unreal Engine",
+    cmd: "unreal"
+  },
+  {
+    name: "VSCode",
+    cmd: "vscode"
+  }
+];
+
 const getIcon = app => {
   const defaultPath = "media/apps/unknown.png";
-  if (!app) return defaultPath;
-  const icon = Object.entries(ICONS).find(([,keys]) => keys.includes(app.executable)
+  if (!app || !app.cmd) return defaultPath;
+  const icon = Object.entries(ICONS).find(([,keys]) =>
+    keys.some(key => app.cmd.includes(key))
   );
   if (!icon) return defaultPath;
   const path = `media/apps/${icon[0] || "unknown"}.png`;
@@ -58,46 +116,78 @@ const App = ({app, setSelected, style}) => {
   );
 };
 
+const defaultConfig = {
+  apps: defaultApps,
+  title: "Apps",
+  filterValue: ""
+};
+
 const Apps = props => {
   const {width, height, ref} = useResizeDetector();
-  const [apps, setApps] = useState([]);
   const [widgetConfig, setWidgetConfig] = useState({});
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const selected = widgetConfig.selected;
-  const setSelected = value => handleConfigEdit("selected", value);
-  const filterValue = widgetConfig.filterValue;
-  const setFilterValue = value => handleConfigEdit("filterValue", value);
-  const title = widgetConfig.title;
-  const setTitle = value => handleConfigEdit("title", value);
-
-  const defaultConfig = {
-    selected: "",
-    filterValue: "",
-    title: "Apps"
-  };
+  const [apps, setApps] = useState(defaultConfig.apps);
+  const [selected, setSelected] = useState(defaultConfig.selected);
+  const [filterValue, setFilterValue] = useState(defaultConfig.filterValue);
+  const [title, setTitle] = useState(defaultConfig.title);
 
   useEffect(() => {
     setMounted(true);
-    const savedConfig = loadFromLS(props.rglKey) || {...defaultConfig};
-    setWidgetConfig(savedConfig);
+    const savedConfig = loadFromLS(props.rglKey);
+    setWidgetConfig(prev => ({...prev, ...savedConfig}));
   }, []);
 
-  const handleConfigEdit = (key, value) => {
+  useEffect(() => {
+    if (!mounted) return;
     setWidgetConfig(prev => {
-      const existing = {...prev};
-      existing[key] = value;
-      saveToLS(props.rglKey, existing);
+      const config = {
+        apps: apps,
+        selected: selected,
+        filterValue: filterValue,
+        title: title
+      };
+      const newConfig = {...prev, ...config};
+      saveToLS(props.rglKey, newConfig);
+      return newConfig;
+    });
+  }, [apps, selected, title, filterValue]);
+
+  const small = width < 250 || height < 250;
+
+  const handleClose = () => setSelected();
+  const handleLaunch = () => {
+    console.log("Launching", selected.name);
+    handleClose();
+  };
+
+  const filterApps = app => {
+    if (!app.cmd) return;
+    if (!filterValue) return true;
+    return (app.name + app.cmd).includes(filterValue);
+  };
+
+  const setApp = (index, field, value) => {
+    setApps(prev => {
+      const existing = [...prev];
+      existing[index][field] = value;
       return existing;
     });
   };
 
-  const small = width < 250 || height < 250;
+  const handleRemove = index => {
+    setApps(prev => {
+      const existing = [...prev];
+      existing.splice(index, 1);
+      return existing;
+    });
+  };
 
-  const handleClose = () => handleConfigEdit("selected", "");
-  const handleLaunch = () => {
-    console.log("Launching", widgetConfig.selected.name);
-    handleConfigEdit("selected", "");
+  const handleRevert = () => {
+    setApps(defaultConfig.apps);
+    setSelected(defaultConfig.selected);
+    setFilterValue(defaultConfig.filterValue);
+    setTitle(defaultConfig.title);
   };
 
   const Settings = <>
@@ -107,6 +197,36 @@ const Apps = props => {
       onChange={e => setTitle(e.target.value)}
       size="small"
     />
+    <Button variant="outlined" onClick={handleRevert} color="warning">
+      Revert settings
+    </Button>
+    <DynamicList
+      title="App List"
+      onAdd={() => setApps(prev => [...prev, {name: "", cmd: ""}])}
+      onRemove={() => handleRemove(-1)}
+    >
+      {apps.map((app, index) => {
+        return (
+          <div key={index} className={styles.settingsAppContainer}>
+            <OutlinedInput
+              placeholder="Name"
+              size="small"
+              value={app.name}
+              onChange={e => setApp(index, "name", e.target.value)}
+            />
+            <OutlinedInput
+              placeholder="Executable"
+              size="small"
+              fullWidth
+              multiline
+              value={app.cmd}
+              onChange={e => setApp(index, "cmd", e.target.value)}
+            />
+            <CloseIcon onClick={() => handleRemove(index)} />
+          </div>
+        );
+      })}
+    </DynamicList>
   </>;
 
   return (
@@ -120,10 +240,10 @@ const Apps = props => {
     >
       <div className={styles.container} ref={ref}>
         <div className={styles.containerInner}>
-          {/* {small || selected ? null :
+          {small ? null :
             <FilterField filterValue={filterValue}
               setFilterValue={setFilterValue} />
-          } */}
+          }
           {!selected ? null :
             <div className={styles.overlay}>
               <ClearIcon onClick={handleClose} className={styles.closeButton} />
@@ -134,8 +254,11 @@ const Apps = props => {
             </div>
           }
           <div className={styles.gridContainer}>
-            {apps.filter(app => (app.name + app.executable).includes(filterValue)).map(app =>
-              <App key={app.package} app={app} setSelected={setSelected} />
+            {apps.filter(filterApps).map((app, index) =>
+              <App key={app.name || index}
+                app={app}
+                setSelected={setSelected}
+              />
             )}
           </div>
           <div className={styles.layoutHelper} />

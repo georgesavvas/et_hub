@@ -9,6 +9,9 @@ import styles from "./Workstation.module.css";
 import { Divider, TextField } from "@mui/material";
 
 
+const COLOURS = ["#28ea16", "#70c626", "#a0d904", "#e0d021", "#ff9f0f",
+  "#f07407", "#e00000"];
+
 const Workstation = props => {
   const [mounted, setMounted] = useState(false);
   const {licenses} = useContext(DataContext);
@@ -17,6 +20,10 @@ const Workstation = props => {
   const [workstationData, setWorkstationData] = useState({});
   const title = widgetConfig.title;
   const setTitle = value => handleConfigEdit("title", value);
+
+  const cpuAvg = Math.round(workstationData.cpuAvg);
+  const memUsed = Math.round(workstationData.memUsed?.usedMemMb / 1000);
+  const memTotal = Math.round(workstationData.memUsed?.totalMemMb / 1000);
 
   const defaultConfig = {
     selected: "",
@@ -40,16 +47,13 @@ const Workstation = props => {
   };
 
   useEffect(() => {
-    window.services.onWorkstationData((evt, data) => {
+    const removeListener = window.services.onWorkstationData((evt, data) => {
       setWorkstationData(data.data);
     });
+    return () => {
+      if (removeListener) removeListener();
+    };
   }, []);
-
-  const formatMem = () => {
-    const used = Math.round(workstationData.memUsed?.usedMemMb / 1000);
-    const total = Math.round(workstationData.memUsed?.totalMemMb / 1000);
-    return `${used}/${total}GB`;
-  };
 
   const checkedOutLicenses = licenses.data?.filter(
     lic => ["ws20", "ws20.london.etc"].includes(lic.ws)
@@ -63,6 +67,22 @@ const Workstation = props => {
       size="small"
     />
   </>;
+
+  const cpuInt = Math.round(cpuAvg / (100 / COLOURS.length));
+  const cpuColour = COLOURS[cpuInt];
+
+  const memInt = Math.round(memUsed / memTotal * COLOURS.length);
+  const memColour = COLOURS[cpuInt];
+
+  const cpuStyle = {
+    color: cpuColour,
+    transition: "color 1s"
+  };
+
+  const memStyle = {
+    color: memColour,
+    transition: "color 1s"
+  };
 
   return (
     <Widget
@@ -81,24 +101,26 @@ const Workstation = props => {
           </div>
           <Divider orientation="vertical" variant="middle" flexItem />
           <div className={styles.metricContainer}>
-            <Typography variant="h5" color="success">
-              {Math.round(workstationData.cpuAvg)}%
+            <Typography variant="h5" style={cpuStyle}>
+              {cpuAvg}%
             </Typography>
-            <Typography>CPU</Typography>
+            <Typography style={cpuStyle}>CPU</Typography>
           </div>
           <Divider orientation="vertical" variant="middle" flexItem />
           <div className={styles.metricContainer}>
-            <Typography variant="h5" color="success">
-              {formatMem()}
+            <Typography variant="h5" style={memStyle}>
+              {`${memUsed}/${memTotal}GB`}
             </Typography>
-            <Typography>RAM</Typography>
+            <Typography style={memStyle}>RAM</Typography>
           </div>
         </div>
         {/* <Divider variant="middle" /> */}
         <div className={styles.containerLic}>
           {checkedOutLicenses.map(lic =>
             <div key={lic.app} className={styles.lic}>
-              <Typography align="center" variant="subtitle2">{lic.app}</Typography>
+              <Typography align="center" fontWeight="bold" variant="subtitle2">
+                {lic.app}
+              </Typography>
             </div>
           )}
         </div>

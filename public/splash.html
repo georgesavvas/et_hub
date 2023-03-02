@@ -13,16 +13,16 @@
   </head>
   <body>
     <script>
-      window.services.onAutoUpdater((event, data) => {
-        window.document.getElementById("loading-status").innerHTML = data.status;
-        if (data.progress) {
-          window.document.getElementById("loading-bar-bg")
-            .style.visibility = "visible";
-          window.document.getElementById("loading-bar")
-            .style.width = `${data.progress}%`;
-        } else window.document.getElementById("loading-bar-bg")
-          .style.visibility = "hidden";
-      })
+      // window.services.onAutoUpdater((event, data) => {
+      //   window.document.getElementById("loading-status").innerHTML = data.status;
+      //   if (data.progress) {
+      //     window.document.getElementById("loading-bar-bg")
+      //       .style.visibility = "visible";
+      //     window.document.getElementById("loading-bar")
+      //       .style.width = `${data.progress}%`;
+      //   } else window.document.getElementById("loading-bar-bg")
+      //     .style.visibility = "hidden";
+      // })
     </script>
     <div class="container">
       <div class="logo"></div>

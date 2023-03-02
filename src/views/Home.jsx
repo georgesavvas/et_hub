@@ -17,7 +17,6 @@ import Apps from "./widgets/Apps";
 import Todo from "./widgets/Todo";
 import Notes from "./widgets/Notes";
 import Licenses from "./widgets/Licenses";
-import Rundeck from "./widgets/Rundeck";
 
 
 const widgets = {
@@ -30,8 +29,7 @@ const widgets = {
   apps: Apps,
   todo: Todo,
   notes: Notes,
-  licenses: Licenses,
-  rundeck: Rundeck
+  licenses: Licenses
 };
 
 export default function Home() {

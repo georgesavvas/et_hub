@@ -10,6 +10,7 @@
   height: 100%;
   gap: 5px;
   position: relative;
+  overflow-y: auto;
 }
 
 .gridContainer {
@@ -91,4 +92,10 @@
   display: flex;
   gap: 10px;
   align-items: center;
+}
+
+.settingsAppContainer {
+  width: 100%;
+  display: flex;
+  gap: 5px;
 }

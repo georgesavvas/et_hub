@@ -41,23 +41,21 @@ contextBridge.exposeInMainWorld("api", {
 });
 
 contextBridge.exposeInMainWorld("services", {
-  client_progress: callback => ipcRenderer.on("client_progress", callback),
+  client_progress: callback => {
+    ipcRenderer.on("client_progress", callback);
+    return () => ipcRenderer.removeListener("client_progress", callback);
+  },
   onResourceUsage: callback => {
-    ipcRenderer.removeAllListeners("resource_usage");
+    // ipcRenderer.removeAllListeners("resource_usage");
     ipcRenderer.on("resource_usage", callback);
-  },
-  onAutoUpdater: callback => {
-    ipcRenderer.removeAllListeners("autoUpdater");
-    ipcRenderer.on("autoUpdater", callback);
-  },
-  check_backend: () => {
-    return ipcRenderer.invoke("check_backend");
+    return () => ipcRenderer.removeListener("resource_usage", callback);
   },
   get_env: env_name => {
     return ipcRenderer.invoke("get_env", env_name);
   },
   onWorkstationData: callback => {
-    return ipcRenderer.on("workstationData", callback);
+    ipcRenderer.on("workstationData", callback);
+    return () => ipcRenderer.removeListener("workstationData", callback);
   },
   get_version: () => {
     return ipcRenderer.invoke("get_version");

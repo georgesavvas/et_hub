@@ -10,7 +10,9 @@ import Modal from "../../components/Modal";
 
 const WidgetSettings = props => {
   return (
-    <Modal {...props} maxWidth="md" />
+    <Modal maxWidth="md" open={props.open} onClose={props.onClose}>
+      <div className={styles.settingsContainer}>{props.children}</div>
+    </Modal>
   );
 };
 

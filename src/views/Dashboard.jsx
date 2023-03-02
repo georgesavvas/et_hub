@@ -18,7 +18,6 @@ import Apps from "./widgets/Apps";
 import Todo from "./widgets/Todo";
 import Notes from "./widgets/Notes";
 import Licenses from "./widgets/Licenses";
-import Rundeck from "./widgets/Rundeck";
 
 import "/node_modules/react-grid-layout/css/styles.css";
 
@@ -32,8 +31,7 @@ const widgets = {
   apps: Apps,
   todo: Todo,
   notes: Notes,
-  licenses: Licenses,
-  rundeck: Rundeck
+  licenses: Licenses
 };
 
 const RGL = WidthProvider(GridLayout);
@@ -308,10 +306,10 @@ const Dashboard = () => {
         >
           {layout.map(w => {
             const widgetType = w.i.split("_")[0];
-            const SelectedWidget = widgets[widgetType];
-            if (!(widgetType in widgets)) {
+            if (!widgetType || !(widgetType in widgets)) {
               return <div key={w.i} />;
             }
+            const SelectedWidget = widgets[widgetType];
             return (
               <div key={w.i}>
                 <SelectedWidget rglKey={w.i} onRemove={handleRemoveWidget} />

@@ -18,7 +18,6 @@ const Projects = props => {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const title = widgetConfig.title;
   const setTitle = value => handleConfigEdit("title", value);
-  const rref = useRef();
 
   const defaultConfig = {
     selected: "",
@@ -71,7 +70,7 @@ const Projects = props => {
     >
       <div className={styles.container} ref={ref}>
         <Carousel autoplay wrapAround enableKeyboardControls withoutControls
-          slidesToScroll={slidesToScroll} dragThreshold={0.25} ref={rref}
+          slidesToScroll={slidesToScroll} dragThreshold={0.25}
           slidesToShow={slidesAmount} autoplayInterval={5000} cellAlign="center">
           {reels.data?.map(file =>
             <div key={file} className={styles.slide} style={slideStyle}>

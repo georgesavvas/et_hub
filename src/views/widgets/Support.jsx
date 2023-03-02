@@ -11,8 +11,20 @@ const SECTIONS = [
   {
     description: "Internal network page to raise support tickets of any topic.",
     name: "ETC Helpdesk",
-    icon: "external.png",
+    icon: "external.svg",
     url: "http://helpdesk.etc.com/"
+  },
+  {
+    description: "Engineering help centre for artists.",
+    name: "Engineering Docs",
+    icon: "external.svg",
+    url: "https://www.notion.so/etcvfx/Help-Center-ce39eae7a7da49afa25ad530db9fa4e6"
+  },
+  {
+    description: "Internal network page to run various tasks, such as rebooting your workstation.",
+    name: "Rundeck",
+    icon: "external.svg",
+    url: "https://rundeck.electrictheatre.tv/"
   },
   {
     description: "Engineering support",
