@@ -84,7 +84,7 @@ const Workstation = props => {
     color: cpuColour,
     transition: "color 1s"
   };
-  console.log(cpuAvg, cpuInt, cpuColour);
+
   const memStyle = {
     color: memColour,
     transition: "color 1s"

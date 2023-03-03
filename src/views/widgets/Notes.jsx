@@ -74,7 +74,10 @@ const Notes = props => {
       rglKey={props.rglKey}
     >
       <div className={styles.container}>
-        {!value || value === "<p><br></p>" ? <DataPlaceholder text="Notes" /> : null}
+        {!value || value === "<p><br></p>" ?
+          <DataPlaceholder text="Start scribbling..." />
+          : null
+        }
         <ReactQuill
           theme="bubble"
           value={value}

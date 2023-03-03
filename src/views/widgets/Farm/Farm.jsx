@@ -17,6 +17,7 @@ import Widget from "../Widget";
 import styles from "./Farm.module.css";
 import { Button, FormControlLabel, FormGroup, OutlinedInput, Switch, TextField } from "@mui/material";
 import TreeMap from "./nivo/NivoTreeMap";
+import RenderList from "./RenderList";
 // import TreeMap from "./TreeMap";
 
 
@@ -100,6 +101,36 @@ const Farm = props => {
   
   const bottomRowStyle = {
     maxHeight: expanded ? "100px" : 0
+  };
+
+  const getView = () => {
+    if (viewType === "overview") return (
+      <TreeMap
+        data={farm}
+        colours={COLOURS}
+        filtersEnabled={filtersEnabled}
+        selectedMetric={selectedMetric}
+        selectedArtists={selectedArtists}
+        selectedProjects={selectedProjects}
+        layerMask={layerMask}
+        selectedNode={selectedNode}
+        setSelectedNode={setSelectedNode}
+        labels={METRIC_LABELS}
+      />
+    );
+    if (viewType === "renders") return (
+      <RenderList
+        data={farm}
+        colours={COLOURS}
+        filtersEnabled={filtersEnabled}
+        selectedMetric={selectedMetric}
+        selectedArtists={selectedArtists}
+        selectedProjects={selectedProjects}
+        layerMask={layerMask}
+        labels={METRIC_LABELS}
+      />
+    );
+    return null;
   };
 
   const Settings = <>
@@ -211,21 +242,7 @@ const Farm = props => {
           </div> */}
         </div>
         <div className={styles.graphContainer}>
-          {viewType === "overview" ?
-            <TreeMap
-              data={farm}
-              colours={COLOURS}
-              filtersEnabled={filtersEnabled}
-              selectedMetric={selectedMetric}
-              selectedArtists={selectedArtists}
-              selectedProjects={selectedProjects}
-              layerMask={layerMask}
-              selectedNode={selectedNode}
-              setSelectedNode={setSelectedNode}
-              labels={METRIC_LABELS}
-            />
-            : null
-          }
+          {getView()}
         </div>
       </div>
     </Widget>

@@ -1,0 +1,42 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.renderContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background-color: rgb(30, 30, 30);
+  border-radius: 5px;
+  padding: 5px;
+  cursor: pointer;
+}
+
+.row {
+  display: flex;
+  gap: 5px;
+}
+
+.bottomRow {
+  max-height: 0;
+  transition: max-height 0.5s;
+  overflow: clip;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+}
+
+.expanded {
+  max-height: 250px;
+}
+
+.layerContainer {
+  padding: 5px 10px;
+  background-color: rgb(60, 60, 60);
+  border-radius: 5px;
+}

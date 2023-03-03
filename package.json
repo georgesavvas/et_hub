@@ -50,9 +50,9 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "electron": "cross-env NODE_ENV=dev electron . --no-sandbox",
-    "package-only": "electron-packager . --overwrite --prune=true --name=ETHub --asar --platform=linux --arch=x64 --out=dist",
-    "release": "cp -f -r dist/et_hub-linux-x64 /transfer/hub/app/et_hub-linux-x64",
-    "package-release": "npm run package && npm run release"
+    "package-only": "npm run build && electron-packager . --overwrite --prune=true --name=ETHub --asar --platform=linux --arch=x64 --out=dist",
+    "release": "cp -f -r dist/et_hub-linux-x64 /transfer/hub/app",
+    "package": "npm run package-only && npm run release"
   },
   "eslintConfig": {
     "extends": [

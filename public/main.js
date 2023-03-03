@@ -20,7 +20,7 @@ else if (appPath.endsWith("app.asar")) {
   appPath = path.dirname(app.getPath("exe"));
   appPath = path.join(appPath, "..");
 }
-console.log("appPath:", appPath);
+// console.log("appPath:", appPath);
 process.env.ETHUB_SESSION_ID = sessionID;
 let appQuitting = false;
 let tray = null;
@@ -218,7 +218,9 @@ app.whenReady().then(async () => {
     });
   }, 2000);
 
-  if (tray === null) tray = new Tray(`${public}/media/icon.png`);
+  if (tray === null) tray = new Tray(
+    path.join(__dirname, iconPaths[platformName])
+  );
   const contextMenu = Menu.buildFromTemplate([
     { label: "Show", click: () => window.show() },
     { label: "Exit", click: () => app.quit() },
