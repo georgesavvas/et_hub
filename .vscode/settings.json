@@ -3,5 +3,6 @@
         "ETHUB",
         "Jodit",
         "Rundeck"
-    ]
+    ],
+    "git.terminalAuthentication": false
 }
