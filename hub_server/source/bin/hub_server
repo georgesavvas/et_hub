@@ -1,0 +1,3 @@
+#!/bin/bash
+
+python python/hub_server/main.py

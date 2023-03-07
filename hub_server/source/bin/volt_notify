@@ -1,0 +1,5 @@
+#!/usr/bin/env python
+
+from et_hub_server.tasks import volt_notify
+
+volt_notify()

@@ -1,0 +1,35 @@
+#!/usr/bin/env python
+import os
+import sys
+from subprocess import Popen, PIPE
+from os.path import dirname, basename, expanduser
+
+sys.path.append(dirname(__file__))
+
+import ci_utils as ci  # NOQA
+
+
+def main():
+    cmd = "git diff-tree --no-commit-id " '--name-only -r `git log --format="%H" -n 1`'
+    build_files = ci.process_files(cmd)
+
+    cmd = "git log -m -1 --name-only " '--pretty="format:" `git log --format=%H -n 1`'
+    merged_files = ci.process_files(cmd)
+
+    files = list(set(build_files + merged_files))
+
+    pyfiles = [s for s in files if s.endswith(".py") and os.path.exists(s)]
+    if pyfiles:
+        print(pyfiles)
+        cmd = "pylint --py3k " + " ".join(pyfiles)
+        p = Popen(cmd, shell=True, universal_newlines=True)
+        p.communicate()
+        print("return code ", p.returncode)
+        return p.returncode
+    else:
+        print("No python files to lint")
+        return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

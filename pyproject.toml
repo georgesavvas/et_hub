@@ -1,0 +1,20 @@
+[tool.black]
+line-length = 88
+skip-string-normalization = true
+safe = true
+exclude = '''
+(
+  /(
+      \.git
+    | \.venv
+    | ci
+    | tasks.py
+    | tasks_nuke.py
+    | package.py
+    | docs
+    | build
+    | startup
+    | patch
+  )/
+)
+'''

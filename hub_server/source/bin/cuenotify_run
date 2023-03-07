@@ -1,0 +1,5 @@
+#!/usr/bin/env python
+
+from et_hub_server.tasks import cuenotify_run
+
+cuenotify_run()
