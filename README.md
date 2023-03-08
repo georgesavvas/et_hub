@@ -1,5 +1,22 @@
 # ET Hub
 
+## dev
+
+### Starting the backend server
+`python python/hub_server/main.py`
+or
+`rez env hub_server -- hub_server`
+
+### Starting up npm dev server
+
+Navigate to `et_hub/hub_ui/source`
+`npm run start`
+
+### Starting electron for dev
+
+Navigate to `et_hub/hub_ui/source`
+`npm run electron`
+
 ## On first checkout
 
 ### clone the project
@@ -36,3 +53,12 @@ The pre-commit hooks will run the following tests on your code before getting to
 - Make sure that there are no merge conflicts left and any files.
 - Verify that the Json and Yaml files are formatted correctly.
 - Run a flake8 with our settings against the file.
+
+### Installing node dependencies
+
+Navigate to `et_hub/hub_ui/source`
+`npm install`
+
+### Building for dev
+
+Only `hub_server` should be built, use `inv devbuild` at its root.

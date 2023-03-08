@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-name = "et_hub_server"
+name = "hub_server"
 
 version = open("VERSION").read().strip()
 
@@ -14,17 +14,20 @@ requires = [
     "volt_shell",
     "pycue",
     "python",
-    "uvicorn",
-    "fastapi",
     "argparse",
     "imutils",
-    "opencv_python",
-    "rq_scheduler",
     "bots",
+    "uvicorn",
+    "fastapi",
+    "redis",
+    "rq_scheduler",
+    "opencv_python",
     "timeago"
 ]
 
+build_command = "{root}/build.sh"
+
 
 def commands():
-    env.PATH.append('{root}/bin')
-    env.PYTHONPATH.append('{root}/python')
+    env.PATH.append("{root}/bin")
+    env.PYTHONPATH.append("{root}/python")

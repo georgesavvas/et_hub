@@ -1,0 +1,48 @@
+#!/usr/bin/env python
+from __future__ import print_function
+import os
+import sys
+from os.path import dirname
+
+
+sys.path.append(dirname(__file__))
+
+import ci_utils  # NOQA
+
+
+def main():
+    cmd = (
+        "git diff-tree --no-commit-id --name-only " "-r `git log --format=\"%H\" -n 1`"
+    )
+    changed_files = ci_utils.process_files(cmd)
+    cmd = "git log -m -1 --name-only " "--pretty=\"format:\" `git log --format=%H -n 1`"
+    merged_files = ci_utils.process_files(cmd)
+
+    changed_packages = ci_utils.find_internal_packages(changed_files)
+    merged_packages = ci_utils.find_internal_packages(merged_files)
+
+    files = list(set(changed_files + merged_files))
+    packages = list(set(changed_packages + merged_packages))
+    if not packages:
+        print("== No packages changed == ")
+        return 0
+
+    print("== Validating package versions have been bumped == ")
+    all_package_versions_bumped = True
+    for package in packages:
+        version_file = os.path.join(package, 'VERSION')
+        if version_file not in files:
+            print("FAIL: {} version has not been bumped".format(package))
+            all_package_versions_bumped = False
+        else:
+            print("{} Success".format(package))
+
+    if not all_package_versions_bumped:
+        return 1
+
+    print("== END == ")
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

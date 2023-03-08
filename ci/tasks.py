@@ -1,3 +1,4 @@
+# flake8: noqa
 from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
@@ -32,7 +33,7 @@ if sys.version_info > (3, 0):
 # name of the project
 NAME = basename(dirname(__file__))
 # execute packages package.py, this will set `version` and `name` variables
-execfile(join(dirname(__file__), "package.py"))
+execfile(join(dirname(__file__), "package.py"), globals())
 
 
 @task
@@ -72,7 +73,7 @@ def devbuild(ctx):
     for link in to_link:
         src = os.path.join(source_dir, 'source', link)
         target = os.path.join(location, link)
-        if os.path.islink(target):
+        if os.path.islink(target) or os.path.isfile(target):
             os.remove(target)
         else:
             shutil.rmtree(target)
@@ -100,11 +101,11 @@ def test(ctx, coverage='', path='', tests=''):
         "rez config local_packages_path", shell=True, universal_newlines=True,
     )
     local_path = local_path.strip()
-    coverage = coverage or '{0}/{1}'.format(local_path, NAME)
+    coverage = coverage or '{0}/{1}/{2}/python/*'.format(local_path, NAME, version)
     tests = " -k {} ".format(tests) if tests else ""
 
     ctx.run(
-        "rez env {0}-{1} pytest pytest_cov mock-1.0.1 "
+        "rez env {0}-{1} python-2 volt_test pytest pytest_cov mock-1.0.1 "
         "-- py.test --cov-report term-missing --cov {2} {3} {4}".format(
             NAME, version, coverage, path, tests
         )
@@ -150,16 +151,4 @@ def release(ctx, extra='--skip-repo-errors', force=False):
 
 def rel_wrapper(ctx, extra):
     run = ctx.run('sudo /software/bin/rez-release-wrapper {0}'.format(extra), warn=True)
-    if not run.exited:
-        print("Electron/react building")
-        # print("Building & packaging electron...")
-        # package(ctx)
     return run.exited
-
-
-@task
-def package(ctx):
-    location = '/software/rez/packages/int/{0}/{1}'.format(name, version)
-    ctx.run(
-        "cd {}/frontend && npm run package".format(location)
-    )

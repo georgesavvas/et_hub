@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+# -------------------------------------------------------------------------------
+# $ df -Th / 
+# Filesystem                             Type  Size  Used Avail Use% Mounted on
+# /dev/mapper/centos_ci--runner--02-root xfs    38G   18G   21G  46% /
+# -------------------------------------------------------------------------------
+
+if [ "$(df -Th / | pyp 'lines[1].split()[1]')" == "xfs" ]
+then
+    echo "1"
+else
+    echo "0"
+fi

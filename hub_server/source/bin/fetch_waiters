@@ -1,5 +1,0 @@
-#!/usr/bin/env python
-
-from et_hub_server.tasks import fetch_waiters
-
-fetch_waiters()

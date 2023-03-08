@@ -1,3 +1,3 @@
 #!/bin/bash
 
-python python/hub_server/main.py
+python $REZ_HUB_SERVER_ROOT/python/hub_server/main.py

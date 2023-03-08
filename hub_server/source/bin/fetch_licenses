@@ -1,5 +1,5 @@
 #!/usr/bin/env python
 
-from et_hub_server.tasks import fetch_licenses
+from hub_server.tasks.fetch_licenses import fetch_licenses
 
 fetch_licenses()

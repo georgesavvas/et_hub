@@ -8,10 +8,17 @@ NOTFOUND = re.compile(e)
 
 
 def find_root(path):
+    # specific ignore cases for the tvc-pipeline repo
+    def ignore_package(package_file):
+        project_tools = "volt_pipeline_config_tvc/source/project_tools/0.1.0"
+        if project_tools in package_file:
+            return True
+        return False
+
     while path != "" and not path == "/":
         parent = os.path.dirname(path)
         package_file = os.path.join(parent, "package.py")
-        if os.path.exists(package_file):
+        if os.path.exists(package_file) and not ignore_package(package_file):
             return os.path.dirname(path)
         path = parent
 

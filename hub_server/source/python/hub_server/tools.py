@@ -1,11 +1,12 @@
-import sys
 import os
 import logging
-import pymongo
 import re
 import glob
 
+import pymongo
+
 from hub_server.log_formatter import LogFormatter
+
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.DEBUG)
@@ -20,17 +21,9 @@ LOGGER.propagate = False
 def new_mongo_client():
     return pymongo.MongoClient(host=["slackbot"], port=27117)
 
+
 MONGODB = new_mongo_client()
-db = MONGODB["et_hub"]
-existing_collections = db.list_collection_names()
-for coll in ["store_farm", "store_licenses"]:
-    if coll not in existing_collections:
-        db.create_collection(
-            coll,
-            capped=True,
-            size=536870912,
-            max=100
-        )
+DB = MONGODB["et_hub"]
 
 HOME = os.environ["HOME"]
 
@@ -44,7 +37,6 @@ def get_logger(name):
     logger.handlers = []
     logger.addHandler(ch)
     logger.propagate = False
-
     return logger
 
 
@@ -59,13 +51,12 @@ def upversion_string(s):
         if len(upped) < len_orig:
             upped = upped.zfill(len_orig)
         s = s.replace(number, upped)
-
     return s
 
 
 def latest_from_path(path, pattern="*", name_only=False):
     if not os.path.isdir(path):
-        logging.error("Invalid path.")
+        LOGGER.error("Invalid path.")
         return
     contents = sorted(glob.glob(os.path.join(path, pattern)))
     if contents:
@@ -78,17 +69,15 @@ def latest_from_path(path, pattern="*", name_only=False):
 
 
 def get_db():
-    # client = MONGODB if os.fork() else new_mongo_client()
-    db = MONGODB["et_hub"]
-    return db
+    DB = MONGODB["et_hub"]
+    return DB
 
 
 def get_collection(name):
-    db = get_db()
-    coll = db[name]
+    DB = get_db()
+    coll = DB[name]
     return coll
 
 
 def get_mongo_client():
-    # client = MONGODB if os.fork() else new_mongo_client()
     return MONGODB

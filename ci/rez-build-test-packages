@@ -1,0 +1,143 @@
+#!/usr/bin/env python
+from __future__ import print_function
+
+import re
+import sys
+import argparse
+from copy import copy
+from shutil import rmtree
+from subprocess import Popen, PIPE, check_output
+from os.path import dirname, basename, expanduser
+
+sys.path.append(dirname(__file__))
+
+import ci_utils as ci  # NOQA
+
+coverage_re = re.compile(".*?(\d+) *?(\d+) *?\d+%")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Build and Test Software")
+    parser.add_argument("--build", help="Build the software.", action="store_true")
+    parser.add_argument("--merges", help="Include merges.", action="store_true")
+    parser.add_argument(
+        "--partial",
+        help="Test packages that have tests and need to be built",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--full", help="Test all software that have tests.", action="store_true",
+    )
+
+    args = parser.parse_args()
+
+    test_files = ci.process_files("find -wholename '*test/test_*'")
+    cmd = "git diff-tree --no-commit-id " '--name-only -r `git log --format="%H" -n 1`'
+    build_files = ci.process_files(cmd)
+
+    if args.merges:
+        cmd = (
+            "git log -m -1 --name-only " '--pretty="format:" `git log --format=%H -n 1`'
+        )
+        merged_files = ci.process_files(cmd)
+    else:
+        merged_files = []
+
+    build_packages = ci.find_internal_packages(build_files)
+    test_packages = ci.find_internal_packages(test_files)
+    merged_packages = ci.find_internal_packages(merged_files)
+
+    if args.full:
+        build_packages = list(set(build_packages + merged_packages + test_packages))
+    else:
+        build_packages = list(set(build_packages + merged_packages))
+
+    if args.build:
+        print("== about to build the following packages ==")
+        for s in build_packages:
+            print(s)
+        print("== END ==")
+        done, packages_build = ci.process_until_empty(
+            "rez build -i", copy(build_packages)
+        )
+
+        if not done:
+            print("there might be a issues and some packages can't be released")
+            remove_builds(packages_build)
+            return 1
+
+    if args.full or args.partial:
+        to_test_packages = list(
+            set(build_packages + merged_packages).intersection(test_packages)
+        )
+    else:
+        to_test_packages = []
+
+    any_failure = preform_tests(to_test_packages)
+    remove_builds(packages_build)
+
+    return any_failure
+
+
+def remove_builds(test_packages):
+    local_path = check_output(
+        "rez config local_packages_path", shell=True, universal_newlines=True,
+    )
+    local_path = local_path.strip()
+    for path in test_packages:
+        try:
+            rmtree(expanduser("{0}/{1}".format(local_path, path)))
+        except:
+            pass
+
+
+def preform_tests(test_packages):
+    if not test_packages:
+        return 0
+
+    print("== running test == ")
+    coverages = []
+    any_failure = 0
+    for path in test_packages:
+        covered, not_passed = run_test("cd {0};inv test".format(path))
+        coverages.append(covered)
+        if not_passed:
+            print(path, "FAILED")
+            any_failure = 1
+
+    total_lines = 0
+    missed_lines = 0
+    for cover in coverages:
+        if cover:
+            total_lines += float(cover[0])
+            missed_lines += float(cover[1])
+
+    try:
+        coverage = ((total_lines - missed_lines) / total_lines) * 100
+    except ZeroDivisionError:
+        coverage = 0
+
+    print("coverage: {0:d} %".format(int(coverage)))
+    return any_failure
+
+
+def run_test(command):
+    process = Popen(command, stdout=PIPE, shell=True)
+    coverage = None
+    while True:
+        output = process.stdout.readline()
+        if output == "" and process.poll() is not None:
+            break
+        if output:
+            line = output.strip()
+            print(line)
+            result = coverage_re.search(line)
+            if result:
+                coverage = (int(result.group(1)), int(result.group(2)))
+
+    process.poll()
+    return coverage, process.returncode not in [0, 5]
+
+
+if __name__ == "__main__":
+    sys.exit(main())

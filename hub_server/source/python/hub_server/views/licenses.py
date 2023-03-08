@@ -20,7 +20,7 @@ def format_licenses():
             "user": user,
             "ws": ws,
             "free": total - used,
-            "total": total 
+            "total": total
         }
         data_formatted.append(lic)
 

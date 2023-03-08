@@ -1,0 +1,5 @@
+#!/usr/bin/env python
+
+from hub_server.tasks.cue_notify import cue_notify
+
+cue_notify()

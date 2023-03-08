@@ -11,4 +11,4 @@ git lfs install || true
 git lfs pull
 git lfs uninstall
 export REZ_CONFIG_FILE=$PWD/ci/rezconfig.py
-inv release --force
+ci/rez-release-packages --force

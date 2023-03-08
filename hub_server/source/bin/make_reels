@@ -1,5 +1,5 @@
 #!/usr/bin/env python
 
-from et_hub_server.studio_jobs import make_reels
+from hub_server.tasks.make_reels import make_reels
 
 make_reels()
