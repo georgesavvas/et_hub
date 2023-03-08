@@ -3,19 +3,27 @@
 ## dev
 
 ### Starting the backend server
-```python python/hub_server/main.py```
+```bash
+python python/hub_server/main.py
+```
 or
-```rez env hub_server -- hub_server```
+```bash
+rez env hub_server -- hub_server
+```
 
 ### Starting up npm dev server
 
 Navigate to `et_hub/hub_ui/source`
-```npm run start```
+```bash
+npm run start
+```
 
 ### Starting electron for dev
 
 Navigate to `et_hub/hub_ui/source`
-```npm run electron```
+```bash
+npm run electron
+```
 
 ## On first checkout
 
@@ -57,7 +65,9 @@ The pre-commit hooks will run the following tests on your code before getting to
 ### Installing node dependencies
 
 Navigate to `et_hub/hub_ui/source`
-```npm install```
+```bash
+npm install
+```
 
 ### Building for dev
 
