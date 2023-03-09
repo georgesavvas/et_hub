@@ -9,6 +9,7 @@ import opencue.api as oc
 LOGGER = tools.get_logger(__name__)
 
 VERSION_PATTERN = re.compile(r"(_v\d{3}_)")
+COMP_VERSION_PATTERN = re.compile(r"(_v\d{3}$)")
 
 
 def get_cpu_times(job):
@@ -18,7 +19,7 @@ def get_cpu_times(job):
         name = layer.name()
         runtime = 0
         frames = layer.getFrames()
-        lowest = 9999999999
+        lowest = -1
         highest = 0
         amount = len(frames)
         for frame in frames:
@@ -29,7 +30,7 @@ def get_cpu_times(job):
                 continue
             cores = float(frame.resource().split("/")[1])
             frame_runtime = (stop_time - start_time) * cores
-            if frame_runtime < lowest:
+            if frame_runtime < lowest or lowest < 0:
                 lowest = frame_runtime
             if frame_runtime > highest:
                 highest = frame_runtime
@@ -48,7 +49,7 @@ def process_job(job, coll):
     name = job.name()
     state = job.state()
     existing = coll.find_one({"name": name}, {"_id": False})
-    if existing and existing["state"] == 1:
+    if existing and existing["state"] == "1":
         return existing
     data = {}
     data["name"] = name
@@ -60,7 +61,11 @@ def process_job(job, coll):
     data["priority"] = job.priority()
     data["state"] = str(state)
     m = re.search(VERSION_PATTERN, name)
-    data["version"] = m.group()[1:-1] if m else ""
+    if m:
+        data["version"] = m.group()[1:-1]
+    else:
+        m = re.search(COMP_VERSION_PATTERN, name)
+        data["version"] = m.group()[1:] if m else ""
     data["cpuTimes"] = get_cpu_times(job)
     layers = []
     for l in job.getLayers():
@@ -84,6 +89,17 @@ def process_job(job, coll):
     _id = coll.replace_one({"name": name}, data, upsert=True)
     LOGGER.info(f"Cached render at {_id}")
     return data
+
+
+def get_current_cores(layer):
+    frames = layer.getFrames()
+    total_cores = 0
+    for frame in frames:
+        if frame.state() != 2:
+            continue
+        host, cores, mem = frame.resource().split("/")
+        total_cores += int(float(cores))
+    return total_cores
 
 
 def farm_snapshot():
@@ -115,13 +131,18 @@ def farm_snapshot():
             layer["totalFrames"] = l.totalFrames()
             layer["deadFrames"] = l.deadFrames()
             layer["succeededFrames"] = l.succeededFrames()
-            layer["runningFrames"] = l.runningFrames()
+            running = l.runningFrames()
+            layer["runningFrames"] = running
             layer["pendingFrames"] = l.pendingFrames()
             layer["waitingFrames"] = l.waitingFrames()
             layer["succeededFrames"] = l.succeededFrames()
             layer["parent_paused"] = job.isPaused()
             layer["outputPaths"] = list(l.getOutputPaths())
             layer["percentCompleted"] = round(l.percentCompleted())
+            if running:
+                layer["currentCores"] = get_current_cores(l)
+            else:
+                layer["currentCores"] = 0
             layers.append(layer)
         data["layers"] = layers
         data["layerNames"] = [l["name"] for l in layers]

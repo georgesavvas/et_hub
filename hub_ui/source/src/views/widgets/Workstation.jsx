@@ -5,11 +5,11 @@ import {DataContext} from "../../contexts/DataContext";
 import Widget from "./Widget";
 import loadFromLS from "../../utils/loadFromLS";
 import saveToLS from "../../utils/saveToLS";
-import {fit} from "../../utils/math";
+import {fit, clamp} from "../../utils/math";
 import DataPlaceholder from "../../components/DataPlaceholder";
 
 import styles from "./Workstation.module.css";
-import { Divider, TextField } from "@mui/material";
+import { Divider, TextField, Tooltip } from "@mui/material";
 
 
 const COLOURS = ["#28ea16", "#70c626", "#a0d904", "#e0d021", "#ff9f0f",
@@ -84,12 +84,12 @@ const Workstation = props => {
   </>;
 
   const cpuInt = Math.floor(
-    fit(cpuAvg / 100, 0, 0.999, 0, COLOURS_AMOUNT)
+    fit(clamp(cpuAvg / 100, 0, 1), 0, 1, 0, COLOURS_AMOUNT)
   );
   const cpuColour = COLOURS[cpuInt];
 
   const memInt = Math.floor(
-    fit(memUsed / memTotal, 0, 0.999, 0, COLOURS_AMOUNT)
+    fit(clamp(memUsed / memTotal, 0, 1), 0, 1, 0, COLOURS_AMOUNT)
   );
   const memColour = COLOURS[memInt];
 
@@ -134,15 +134,25 @@ const Workstation = props => {
           </div>
         </div>
         {/* <Divider variant="middle" /> */}
-        <div className={styles.containerLic}>
-          {checkedOutLicenses.map(lic =>
-            <div key={lic.app} className={styles.lic}>
-              <Typography align="center" fontWeight="bold" variant="subtitle2">
-                {lic.app}
-              </Typography>
-            </div>
-          )}
-        </div>
+        <Tooltip
+          title={
+            <Typography>Current licenses used by workstation</Typography>
+          }
+        >
+          <div className={styles.containerLic}>
+            {checkedOutLicenses.map(lic =>
+              <div key={lic.app} className={styles.lic}>
+                <Typography
+                  align="center"
+                  fontWeight="bold"
+                  variant="subtitle2"
+                >
+                  {lic.app}
+                </Typography>
+              </div>
+            )}
+          </div>
+        </Tooltip>
       </div>
     </Widget>
   );

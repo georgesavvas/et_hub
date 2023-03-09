@@ -10,17 +10,27 @@ import loadFromLS from "../../utils/loadFromLS";
 import saveToLS from "../../utils/saveToLS";
 import {useResizeDetector} from "react-resize-detector";
 import CloseIcon from "@mui/icons-material/Close";
+import {packages, widgetDefaults} from "../../constants/widgetDefaults";
 
 import styles from "./Apps.module.css";
 import Widget from "./Widget";
 
 
 const ICONS = {
+  konsole: ["konsole"],
+  chrome: ["chrome"],
+  opencue: ["cuegui"],
+  gaffer: ["volt"],
+  ksysguard: ["ksysguard"],
+  assetlib: ["asset_library"],
+  dolphin: ["dolphin"],
   aftereffects: ["aftereffects", "afx", "afterfx"],
   blender: ["blender"],
   designer: ["designer"],
   djv: ["djv"],
-  houdini: ["houdini", "houdinicore", "hmaster", "hcore", "hescape", "houdiniescape"],
+  houdini: [
+    "houdini", "houdinicore", "hmaster", "hcore", "hescape", "houdiniescape"
+  ],
   illustrator: ["illustrator"],
   maya: ["maya"],
   natron: ["natron"],
@@ -29,69 +39,15 @@ const ICONS = {
   photoshop: ["photoshop"],
   premiere: ["premiere"],
   unreal: ["unreal"],
-  vscode: ["vscode"]
+  vscode: ["code"]
 };
-
-const defaultApps = [
-  {
-    name: "Houdini",
-    cmd: "houdinicore"
-  },
-  {
-    name: "Maya",
-    cmd: "maya"
-  },
-  {
-    name: "Mari",
-    cmd: "mari"
-  },
-  {
-    name: "Designer",
-    cmd: "designer"
-  },
-  {
-    name: "Nuke",
-    cmd: "nuke"
-  },
-  {
-    name: "After Effects",
-    cmd: "aftereffects"
-  },
-  {
-    name: "Blender",
-    cmd: "blender"
-  },
-  {
-    name: "DJV",
-    cmd: "djv"
-  },
-  {
-    name: "Illustrator",
-    cmd: "illustrator"
-  },
-  {
-    name: "Natron",
-    cmd: "natron"
-  },
-  {
-    name: "Painter",
-    cmd: "painter"
-  },
-  {
-    name: "Unreal Engine",
-    cmd: "unreal"
-  },
-  {
-    name: "VSCode",
-    cmd: "vscode"
-  }
-];
 
 const getIcon = app => {
   const defaultPath = "media/apps/unknown.png";
+  const cmd = app.cmd.replaceAll(/{.+?}/g, "");
   if (!app || !app.cmd) return defaultPath;
   const icon = Object.entries(ICONS).find(([,keys]) =>
-    keys.some(key => app.cmd.includes(key))
+    keys.some(key => cmd.includes(key))
   );
   if (!icon) return defaultPath;
   const path = `media/apps/${icon[0] || "unknown"}.png`;
@@ -117,7 +73,7 @@ const App = ({app, setSelected, style}) => {
 };
 
 const defaultConfig = {
-  apps: defaultApps,
+  apps: widgetDefaults.apps.apps,
   title: "Apps",
   filterValue: ""
 };
@@ -132,6 +88,8 @@ const Apps = props => {
   const [selected, setSelected] = useState(defaultConfig.selected);
   const [filterValue, setFilterValue] = useState(defaultConfig.filterValue);
   const [title, setTitle] = useState(defaultConfig.title);
+  const [scene, setScene] = useState("");
+  const [args, setArgs] = useState("");
 
   useEffect(() => {
     setMounted(true);
@@ -166,9 +124,21 @@ const Apps = props => {
     </Widget>
   );
 
-  const handleClose = () => setSelected();
+  const handleClose = () => {
+    setSelected();
+    setScene();
+    setArgs();
+  };
+
   const handleLaunch = () => {
-    console.log("Launching", selected.name);
+    const finalArgs = [];
+    if (args) finalArgs.push(args.split("-").map(s => s ? `-${s}` : ""));
+    if (scene) finalArgs.push(scene);
+    let cmd = selected.cmd;
+    Object.entries(packages).forEach(([pkg, pkgCmd]) => {
+      cmd = cmd.replaceAll(`{${pkg}}`, pkgCmd);
+    });
+    window.api.launch_dcc(cmd, finalArgs, {persist: true});
     handleClose();
   };
 
@@ -233,7 +203,10 @@ const Apps = props => {
               value={app.cmd}
               onChange={e => setApp(index, "cmd", e.target.value)}
             />
-            <CloseIcon onClick={() => handleRemove(index)} />
+            <CloseIcon
+              sx={{alignSelf: "center"}}
+              onClick={() => handleRemove(index)}
+            />
           </div>
         );
       })}
@@ -280,17 +253,15 @@ const Apps = props => {
               size="small"
               fullWidth
               placeholder="Scene"
-              // value={filterValue}
-              // onChange={e => setFilterValue(e.target.value || "")}
-              // color={filterValue ? "error" : ""}
+              value={scene}
+              onChange={e => setScene(e.target.value || "")}
             />
             <OutlinedInput
               size="small"
               fullWidth
               placeholder="Arguments"
-              // value={filterValue}
-              // onChange={e => setFilterValue(e.target.value || "")}
-              // color={filterValue ? "error" : ""}
+              value={args}
+              onChange={e => setArgs(e.target.value || "")}
             />
             <Button variant="contained" color="success" disabled={!selected}
               onClick={handleLaunch}>

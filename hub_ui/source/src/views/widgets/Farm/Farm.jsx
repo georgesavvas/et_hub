@@ -47,7 +47,18 @@ const METRIC_LABELS = {
   pendingFrames: "Waiting frames",
   deadFrames: "Dead frames",
   priority: "Priority",
-  percentCompleted: "Percent complete"
+  percentCompleted: "Percent complete",
+  currentCores: "Current cores"
+};
+
+const SORTING_LABELS = {
+  name: "Job name",
+  user: "User",
+  show: "Show",
+  shot: "Shot",
+  task: "Task",
+  workarea: "Workarea",
+  assetName: "Asset name"
 };
 
 const Farm = props => {
@@ -58,10 +69,11 @@ const Farm = props => {
   const [expanded, setExpanded] = useState(true);
   const [viewType, setViewType] = useState("overview");
   const [filtersEnabled, setFiltersEnabled] = useState(false);
-  const [selectedMetric, setSelectedMetric] = useState("runningFrames");
+  const [selectedMetric, setSelectedMetric] = useState("currentCores");
+  const [sortBy, setSortBy] = useState("name");
   const [selectedProjects, setSelectedProjects] = useState([]);
   const [selectedArtists, setSelectedArtists] = useState([]);
-  const [layerMask, setLayerMask] = useState("nk, ass, img");
+  const [layerMask, setLayerMask] = useState("nk, usd, ass, img");
   const [selectedNode, setSelectedNode] = useState("");
   const title = widgetConfig.title;
   const setTitle = value => handleConfigEdit("title", value);
@@ -77,6 +89,15 @@ const Farm = props => {
     const savedConfig = loadFromLS(props.rglKey) || {...defaultConfig};
     setWidgetConfig(savedConfig);
   }, []);
+
+  useEffect(() => {
+    if (viewType === "renders") return;
+    if (!Object.keys(METRIC_LABELS).includes(selectedMetric)) {
+      setSelectedMetric("currentCores");
+    }
+  }, [viewType]);
+
+  if (!farm) return <DataPlaceholder text="No data" />;
 
   const handleConfigEdit = (key, value) => {
     setWidgetConfig(prev => {
@@ -103,6 +124,27 @@ const Farm = props => {
     maxHeight: expanded ? "100px" : 0
   };
 
+  const isJobIncluded = job => {
+    if (!filtersEnabled) return true;
+    if (selectedProjects.length && !selectedProjects.includes(job.show)) return;
+    if (selectedArtists.length && !selectedArtists.includes(job.user)) return;
+    return true;
+  };
+
+  const allowedLayers = layerMask ?
+    layerMask.replaceAll(" ", "").split(",") : [];
+
+  const isLayerIncluded = layer => {
+    if (!allowedLayers.length) return true;
+    return allowedLayers.some(pref => layer.name.startsWith(pref + "."));
+  };
+
+  const dataFormatted = farm.data?.jobs.filter(isJobIncluded).map(j => {
+    const job = {...j};
+    job.layers = job.layers.filter(isLayerIncluded);
+    return job;
+  });
+
   const getView = () => {
     if (viewType === "overview") return (
       <TreeMap
@@ -120,18 +162,16 @@ const Farm = props => {
     );
     if (viewType === "renders") return (
       <RenderList
-        data={farm}
+        data={dataFormatted}
         colours={COLOURS}
-        filtersEnabled={filtersEnabled}
         selectedMetric={selectedMetric}
-        selectedArtists={selectedArtists}
-        selectedProjects={selectedProjects}
-        layerMask={layerMask}
         labels={METRIC_LABELS}
       />
     );
     return null;
   };
+
+  const metricLabel = viewType === "overview" ? "Metric" : "Sort by";
 
   const Settings = <>
     <TextField
@@ -167,12 +207,17 @@ const Farm = props => {
                 </Select>
               </FormControl>
               <FormControl sx={{width: "180px"}} size="small">
-                <InputLabel>Metric</InputLabel>
+                <InputLabel>{metricLabel}</InputLabel>
                 <Select
-                  label="Metric"
+                  label={metricLabel}
                   value={selectedMetric}
                   onChange={e => setSelectedMetric(e.target.value)}
                 >
+                  {viewType === "renders" ?
+                    Object.entries(SORTING_LABELS).map(([value, label]) =>
+                      <MenuItem key={value} value={value}>{label}</MenuItem>)
+                    : null
+                  }
                   {Object.entries(METRIC_LABELS).map(([value, label]) =>
                     <MenuItem key={value} value={value}>{label}</MenuItem>
                   )}

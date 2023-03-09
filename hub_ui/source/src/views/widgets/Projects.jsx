@@ -11,6 +11,7 @@ import saveToLS from "../../utils/saveToLS";
 import {formatURL} from "../../services/serverRequest";
 import {ConfigContext} from "../../contexts/ConfigContext";
 import { useInView } from "react-intersection-observer";
+import DataPlaceholder from "../../components/DataPlaceholder";
 
 
 const Project = ({src, width, height}) => {
@@ -18,7 +19,7 @@ const Project = ({src, width, height}) => {
   const {ref, inView} = useInView({root: widgetContainer, threshold: 0.5});
   const videoRef = useRef();
 
-  if (videoRef.current) {
+  if (videoRef.current && document.fullscreenElement === null) {
     inView ? videoRef.current.play() : videoRef.current.pause();
   }
 
@@ -30,12 +31,12 @@ const Project = ({src, width, height}) => {
   return (
     <div className={styles.slide} style={slideStyle} ref={ref}>
       <div className={styles.overlay}>
-        <Typography variant="body2" align="center"
+        <Typography variant="body1" align="center"
           className={styles.text}>
           {src.split("/").at(-1).split(".")[0]}
         </Typography>
       </div>
-      <video ref={videoRef} muted loop className={styles.video} src={src} />
+      <video ref={videoRef} muted loop className={styles.video} controls={inView} src={src} />
     </div>
   );
 };
@@ -43,7 +44,6 @@ const Project = ({src, width, height}) => {
 const Projects = props => {
   const [mounted, setMounted] = useState(false);
   const {isElectron} = useContext(ConfigContext);
-  const carouselRef = useRef();
   const {width, height, ref} = useResizeDetector();
   const {reels} = useContext(DataContext);
   const [widgetConfig, setWidgetConfig] = useState({});
@@ -62,6 +62,8 @@ const Projects = props => {
     const savedConfig = loadFromLS(props.rglKey) || {...defaultConfig};
     setWidgetConfig(savedConfig);
   }, []);
+
+  if (!reels) return <DataPlaceholder text="No data" />;
 
   const handleConfigEdit = (key, value) => {
     setWidgetConfig(prev => {
@@ -103,9 +105,11 @@ const Projects = props => {
       rglKey={props.rglKey}
     >
       <div id="widgetContainer" className={styles.container} ref={ref}>
-        <Carousel autoplay wrapAround enableKeyboardControls withoutControls
+        <Carousel wrapAround enableKeyboardControls withoutControls
           slidesToScroll={slidesToScroll} dragThreshold={0.25}
-          slidesToShow={slidesAmount} autoplayInterval={5000} cellAlign="center">
+          slidesToShow={slidesAmount} autoplayInterval={5000} cellAlign="center"
+          autoplay={document.fullscreenElement === null}
+        >
           {reels.data?.map(file =>
             <Project key={file}
               src={getReel(file)}

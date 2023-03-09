@@ -1,3 +1,6 @@
 #!/bin/bash
 
-python $REZ_HUB_SERVER_ROOT/python/hub_server/main.py
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+python $SCRIPT_DIR/../python/hub_server/schedule_jobs.py
+python $SCRIPT_DIR/../python/hub_server/main.py

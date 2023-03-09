@@ -1,4 +1,3 @@
-import datetime
 from pathlib import Path
 
 import uvicorn
@@ -6,15 +5,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from redis import Redis
-from rq_scheduler import Scheduler
-
 from hub_server import tools
 from hub_server.routers import data_v1
-from hub_server.tasks.farm_snapshot import farm_snapshot_extended, farm_snapshot
-from hub_server.tasks.make_reels import make_reels
-from hub_server.tasks.cue_notify import cue_notify
-from hub_server.tasks.fetch_licenses import fetch_licenses
 
 
 LOGGER = tools.get_logger(__name__)
@@ -31,34 +23,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-SCHEDULER = Scheduler(connection=Redis())
-
-
-def schedule_job(func, interval, timeout=600):
-    if func.__name__ in [j.func_name for j in remaining_jobs]:
-        return
-    SCHEDULER.schedule(
-        scheduled_time=datetime.datetime.utcnow(),
-        func=func,
-        args=None,
-        kwargs=None,
-        interval=interval,
-        repeat=None,
-        timeout=timeout
-    )
-
-
-for job in SCHEDULER.get_jobs():
-    SCHEDULER.cancel(job)
-
-
-remaining_jobs = list(SCHEDULER.get_jobs())
-schedule_job(farm_snapshot, 10)
-schedule_job(farm_snapshot_extended, 30)
-schedule_job(cue_notify, 10)
-schedule_job(fetch_licenses, 10)
-schedule_job(make_reels, 21600)
 
 
 def mount_reels():

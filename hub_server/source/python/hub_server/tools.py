@@ -1,7 +1,9 @@
+from pprint import pprint
 import os
 import logging
 import re
 import glob
+import json
 
 import pymongo
 
@@ -38,6 +40,15 @@ def get_logger(name):
     logger.addHandler(ch)
     logger.propagate = False
     return logger
+
+
+async def process_request(request):
+    cookies = json.loads(request.headers.get("cookies", {}))
+    pprint(cookies)
+    method = request.method
+    if method == "GET":
+        return
+    return await request.json()
 
 
 def upversion_string(s):

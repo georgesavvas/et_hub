@@ -10,7 +10,12 @@ import Modal from "../../components/Modal";
 
 const WidgetSettings = props => {
   return (
-    <Modal maxWidth="md" open={props.open} onClose={props.onClose}>
+    <Modal
+      maxWidth="md"
+      title={`Settings - ${props.title}`}
+      open={props.open}
+      onClose={props.onClose}
+    >
       <div className={styles.settingsContainer}>{props.children}</div>
     </Modal>
   );
@@ -26,6 +31,7 @@ const Widget = props => {
     <div className={styles.view}>
       {props.settings ?
         <WidgetSettings
+          title={props.rglKey}
           open={props.settingsOpen}
           onClose={() => props.setSettingsOpen(false)}
         >

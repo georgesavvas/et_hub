@@ -19,11 +19,11 @@ def cue_notify():
         secs = (sec % 3600) % 60
 
         if hours:
-            final = "{}h {}m {}s".format(hours, mins, secs)
+            final = f"{hours}h {mins}m {secs}s"
         elif mins:
-            final = "{}m {}s".format(mins, secs)
+            final = f"{mins}m {secs}s"
         else:
-            final = "{}s".format(secs)
+            final = f"{secs}s"
         return final
 
     def get_layer(job, when, processed_layers):
@@ -153,7 +153,7 @@ def cue_notify():
             if final_layer:
                 if job.state() != 1:
                     LOGGER.info(
-                        "Ignoring {job.name()} cause it's not finished yet."
+                        f"Ignoring {job.name()} cause it's not finished yet."
                     )
                     continue
                 then = job.stopTime()

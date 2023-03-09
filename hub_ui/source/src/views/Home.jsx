@@ -43,7 +43,10 @@ export default function Home() {
       <Menu />
       <Divider orientation="vertical" />
       <div ref={ref} className={styles.contents}>
-        {SelectedWidget ? <SelectedWidget size={[width, height]} /> : null}
+        {SelectedWidget ?
+          <SelectedWidget rglKey={`${activePage}_global`} size={[width, height]} />
+          : null
+        }
       </div>
     </div>
   );

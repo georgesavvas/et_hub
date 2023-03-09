@@ -37,8 +37,8 @@ contextBridge.exposeInMainWorld("api", {
   dirInput: async properties => {
     return await ipcRenderer.invoke("dir_input", properties);
   },
-  launch_dcc: async (cmd, args, env) => {
-    return await ipcRenderer.invoke("launch_dcc", cmd, args, env);
+  launch_dcc: async (cmd, args, options) => {
+    return await ipcRenderer.invoke("launch_dcc", cmd, args, options);
   },
 });
 

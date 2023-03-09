@@ -1,3 +1,4 @@
+/* eslint-disable quotes */
 /* eslint-disable @typescript-eslint/no-var-requires */
 
 const {app, BrowserWindow, protocol, ipcMain, dialog, Tray, Menu, shell, nativeTheme} = require("electron");
@@ -7,11 +8,13 @@ const path = require("path");
 require("v8-compile-cache");
 const uuid4 = require("uuid4");
 const osu = require("node-os-utils");
+const {spawn} = require("child_process");
 
 const sessionID = uuid4();
 const cpu = osu.cpu;
 const mem = osu.mem;
 let platformName = process.platform;
+const userHomeDir = os.homedir();
 let appPath = app.getAppPath();
 if (platformName === "win32") {
   appPath = path.dirname(app.getPath("exe"));
@@ -20,7 +23,7 @@ else if (appPath.endsWith("app.asar")) {
   appPath = path.dirname(app.getPath("exe"));
   appPath = path.join(appPath, "..");
 }
-// console.log("appPath:", appPath);
+
 process.env.ETHUB_SESSION_ID = sessionID;
 let appQuitting = false;
 let tray = null;
@@ -46,10 +49,21 @@ const fileHandler = (req, callback) => {
     callback({error: -10});
     return;
   }
-
   callback({
     path: requestedPath
   });
+};
+
+const commandBuilder = (
+  _cmd,
+  args,
+  options={shell: false, persist: false, title: ""}
+) => {
+  const cmd = [`konsole --nofork --workdir ${userHomeDir}`];
+  if (options.title) cmd.push(`-p tabtitle="${options.title}"`);
+  const hold_cmd = options.persist ? ";bash" : "";
+  cmd.push(`-e bash -c '${_cmd}${args.join(" ")}${hold_cmd}'`);
+  return cmd.join(" ");
 };
 
 function createWindow (show=true) {
@@ -155,10 +169,19 @@ function createWindow (show=true) {
     }
   });
 
-  // setInterval(async () => {
-  //   const data = await getResourceUsage();
-  //   win.webContents.send("resource_usage", data);
-  // }, 2000);
+  ipcMain.handle(
+    "launch_dcc",
+    async (e, _cmd, args, options={shell: false, persist: false}) => {
+      const cmd = commandBuilder(_cmd, args, options);
+      console.log("Running", `"${cmd}"`);
+      if (options.env) console.log("With env", options.env);
+      const proc = spawn(cmd, {shell: true, detached: true});
+      if (proc) {
+        proc.unref();
+        return true;
+      }
+    }
+  );
 
   return win;
 }
@@ -201,6 +224,7 @@ app.whenReady().then(async () => {
   window.once("ready-to-show", () => {
     splash.destroy();
     window.show();
+    window.maximize();
   });
 
   protocol.registerFileProtocol(
