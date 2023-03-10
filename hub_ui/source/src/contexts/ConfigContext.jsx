@@ -13,12 +13,14 @@ export const ConfigProvider = props => {
 
   useEffect(() => {
     setIsElectron(window.isElectron);
-    window.services.get_env("user").then(resp => {
-      if (resp) setUser(resp);
-    });
-    window.services.get_env("hostname").then(resp => {
-      if (resp) setHost(resp);
-    });
+    if (window.services) {
+      window.services.get_env("user").then(resp => {
+        if (resp) setUser(resp);
+      });
+      window.services.get_env("hostname").then(resp => {
+        if (resp) setHost(resp);
+      });
+    }
   }, []);
 
   return (

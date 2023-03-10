@@ -12,9 +12,13 @@ export function formatURL(method) {
 }
 
 async function request(address, method, data) {
-  const user = await window.services.get_env("USER");
-  const host = await window.services.get_env("HOSTNAME");
-  const cookie = {user: user, host: host};
+  const cookie = {user: "host"};
+  if (window.services) {
+    const user = await window.services.get_env("USER");
+    const host = await window.services.get_env("HOSTNAME");
+    cookie.user = user;
+    cookie.host = host;
+  }
   try {
     const resp = await fetch(`http://${address}/api/v1/${method}`, {
       method: !data ? "GET" : "POST",
