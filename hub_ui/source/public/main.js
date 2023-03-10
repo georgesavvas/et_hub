@@ -25,6 +25,7 @@ else if (appPath.endsWith("app.asar")) {
 }
 
 process.env.ETHUB_SESSION_ID = sessionID;
+process.env.REZ_CONFIG_FILE = "/transfer/hub/.config/software/rez/rezconfig.py";
 let appQuitting = false;
 let tray = null;
 let splash = null;
@@ -61,7 +62,7 @@ const commandBuilder = (
 ) => {
   const cmd = [`konsole --nofork --workdir ${userHomeDir}`];
   if (options.title) cmd.push(`-p tabtitle="${options.title}"`);
-  const hold_cmd = options.persist ? ";bash" : "";
+  const hold_cmd = options.persist && options.shell ? ";bash" : "";
   cmd.push(`-e bash -c '${_cmd}${args.join(" ")}${hold_cmd}'`);
   return cmd.join(" ");
 };
@@ -175,7 +176,8 @@ function createWindow (show=true) {
       const cmd = commandBuilder(_cmd, args, options);
       console.log("Running", `"${cmd}"`);
       if (options.env) console.log("With env", options.env);
-      const proc = spawn(cmd, {shell: true, detached: true});
+      const dccEnv = {...process.env, ...(options.env || {})};
+      const proc = spawn(cmd, {shell: true, detached: true, env: dccEnv});
       if (proc) {
         proc.unref();
         return true;

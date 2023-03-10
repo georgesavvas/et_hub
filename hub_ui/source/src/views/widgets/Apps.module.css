@@ -99,6 +99,17 @@
 .settingsAppContainer {
   width: 100%;
   display: flex;
-  /* align-items: center; */
+  gap: 15px;
+}
+
+.settingsAppColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex-grow: 1;
+}
+
+.settingsAppRow {
+  display: flex;
   gap: 5px;
 }

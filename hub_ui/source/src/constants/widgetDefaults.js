@@ -18,7 +18,8 @@ export const widgetDefaults = {
       },
       {
         name: "Volt",
-        cmd: "volt_ui"
+        cmd: "volt_ui",
+        shell: true
       },
       {
         name: "Cue",
@@ -38,31 +39,38 @@ export const widgetDefaults = {
       },
       {
         name: "Houdini",
-        cmd: "rez env --nl {volt} {voltHoudini} houdini-19.5.435 htoa-6.1.3.3 sidefx_labs-19.5 houdini_qlib-0.2.207 -- houdinifx -n -foreground -force-fx-license"
+        cmd: "rez env --nl {volt} {voltHoudini} houdini htoa sidefx_labs houdini_qlib -- houdinifx -n -foreground -force-fx-license",
+        shell: true
       },
       {
         name: "Maya",
-        cmd: "rez env --nl {volt} {voltMaya} maya-2022 mtoa-5.1.3.1 maya_studiolibrary-2.9.6 maya_animbot-2.1.7 maya_ragdoll-2022.03 -- TEMPDIR=$CACHE/maya maya"
+        cmd: "rez env --nl {volt} {voltMaya} maya-2022 mtoa-5.1.3.1 maya_studiolibrary-2.9.6 maya_animbot-2.1.7 maya_ragdoll-2022.03 -- TEMPDIR=$CACHE/maya maya",
+        shell: true
       },
       {
         name: "Mari",
-        cmd: "mari"
+        cmd: "mari",
+        shell: true
       },
       {
         name: "Designer",
-        cmd: "designer"
+        cmd: "designer",
+        shell: true
       },
       {
         name: "Nuke",
-        cmd: "rez env --nl {volt} {voltNuke} nuke-13.2 nuke_mmcolortarget-3.1 sfnuketools-1.1 nuke_ldpk-2.7 numpy-1.21.0 baselight_nuke-5.3.14806 et_nuke_toolsetmanager-0.1 et_nuke_gizmomanager-0.1 nuke_card_to_track-7.5 et_nuke_copy_paste-0.1 nuke_geotracker-2022.1 nuke_animationmaker-1.4 nuke_animatedSnap3D-1.1.0 nuke_vector_matrix-1.0.0 neatvideo_ofx-4.0.0 sapphireOFX-8.15 realsmartmotionblur-4.0 bokeh-1.4.8 nuke_survival_toolkit-2.1 nuke_gradienteditor-1.1 -- nuke"
+        cmd: "rez env --nl {volt} {voltNuke} nuke-13.2 nuke_mmcolortarget-3.1 sfnuketools-1.1 nuke_ldpk-2.7 numpy-1.21.0 baselight_nuke-5.3.14806 et_nuke_toolsetmanager-0.1 et_nuke_gizmomanager-0.1 nuke_card_to_track-7.5 et_nuke_copy_paste-0.1 nuke_geotracker-2022.1 nuke_animationmaker-1.4 nuke_animatedSnap3D-1.1.0 nuke_vector_matrix-1.0.0 neatvideo_ofx-4.0.0 sapphireOFX-8.15 realsmartmotionblur-4.0 bokeh-1.4.8 nuke_survival_toolkit-2.1 nuke_gradienteditor-1.1 -- nuke",
+        shell: true
       },
       {
         name: "After Effects",
-        cmd: "aftereffects"
+        cmd: "aftereffects",
+        shell: true
       },
       {
         name: "Blender",
-        cmd: "blender"
+        cmd: "blender",
+        shell: true
       },
       {
         name: "DJV",
@@ -70,19 +78,23 @@ export const widgetDefaults = {
       },
       {
         name: "Illustrator",
-        cmd: "illustrator"
+        cmd: "illustrator",
+        shell: true
       },
       {
         name: "Natron",
-        cmd: "natron"
+        cmd: "natron",
+        shell: true
       },
       {
         name: "Painter",
-        cmd: "painter"
+        cmd: "painter",
+        shell: true
       },
       {
         name: "Unreal Engine",
-        cmd: "unreal"
+        cmd: "unreal",
+        shell: true
       },
       {
         name: "VSCode",

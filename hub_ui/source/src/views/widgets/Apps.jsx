@@ -1,4 +1,4 @@
-import {Button, OutlinedInput, TextField, Tooltip, Typography} from "@mui/material";
+import {Button, Checkbox, Divider, FormControlLabel, OutlinedInput, TextField, Tooltip, Typography} from "@mui/material";
 import React, {useState, useEffect, useContext} from "react";
 import {ConfigContext} from "../../contexts/ConfigContext";
 import DataPlaceholder from "../../components/DataPlaceholder";
@@ -11,10 +11,13 @@ import saveToLS from "../../utils/saveToLS";
 import {useResizeDetector} from "react-resize-detector";
 import CloseIcon from "@mui/icons-material/Close";
 import {packages, widgetDefaults} from "../../constants/widgetDefaults";
+import debounce from "lodash.debounce";
 
 import styles from "./Apps.module.css";
 import Widget from "./Widget";
 
+
+const debounced = debounce(fn => fn(), 500);
 
 const ICONS = {
   konsole: ["konsole"],
@@ -74,14 +77,12 @@ const App = ({app, setSelected, style}) => {
 
 const defaultConfig = {
   apps: widgetDefaults.apps.apps,
-  title: "Apps",
-  filterValue: ""
+  title: "Apps"
 };
 
 const Apps = props => {
   const {isElectron} = useContext(ConfigContext);
   const {width, height, ref} = useResizeDetector();
-  const [widgetConfig, setWidgetConfig] = useState({});
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [apps, setApps] = useState(defaultConfig.apps);
@@ -94,23 +95,19 @@ const Apps = props => {
   useEffect(() => {
     setMounted(true);
     const savedConfig = loadFromLS(props.rglKey);
-    setWidgetConfig(prev => ({...prev, ...savedConfig}));
+    setApps(savedConfig.apps);
+    setTitle(savedConfig.title);
+    setFilterValue(savedConfig.filterValue);
   }, []);
 
   useEffect(() => {
     if (!mounted) return;
-    setWidgetConfig(prev => {
-      const config = {
-        apps: apps,
-        selected: selected,
-        filterValue: filterValue,
-        title: title
-      };
-      const newConfig = {...prev, ...config};
-      saveToLS(props.rglKey, newConfig);
-      return newConfig;
-    });
-  }, [apps, selected, title, filterValue]);
+    debounced(() => saveToLS(props.rglKey, {
+      apps: apps,
+      filterValue: filterValue,
+      title: title
+    }));
+  }, [apps, title, filterValue]);
 
   const small = width < 250 || height < 250;
 
@@ -138,7 +135,11 @@ const Apps = props => {
     Object.entries(packages).forEach(([pkg, pkgCmd]) => {
       cmd = cmd.replaceAll(`{${pkg}}`, pkgCmd);
     });
-    window.api.launch_dcc(cmd, finalArgs, {persist: true});
+    window.api.launch_dcc(
+      cmd,
+      finalArgs,
+      {shell: selected.shell, persist: selected.persist}
+    );
     handleClose();
   };
 
@@ -166,7 +167,6 @@ const Apps = props => {
 
   const handleRevert = () => {
     setApps(defaultConfig.apps);
-    setSelected(defaultConfig.selected);
     setFilterValue(defaultConfig.filterValue);
     setTitle(defaultConfig.title);
   };
@@ -189,20 +189,48 @@ const Apps = props => {
       {apps.map((app, index) => {
         return (
           <div key={index} className={styles.settingsAppContainer}>
-            <OutlinedInput
-              placeholder="Name"
-              size="small"
-              value={app.name}
-              onChange={e => setApp(index, "name", e.target.value)}
-            />
-            <OutlinedInput
-              placeholder="Executable"
-              size="small"
-              fullWidth
-              multiline
-              value={app.cmd}
-              onChange={e => setApp(index, "cmd", e.target.value)}
-            />
+            <div className={styles.settingsAppColumn}>
+              <div className={styles.settingsAppRow}>
+                <OutlinedInput
+                  placeholder="Name"
+                  size="small"
+                  value={app.name || ""}
+                  onChange={e => setApp(index, "name", e.target.value)}
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      sx={{ml: 1.5}}
+                      checked={app.shell || false}
+                      onChange={e => setApp(index, "shell", e.target.checked)}
+                    />
+                  }
+                  label="Shell"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      sx={{ml: 1.5}}
+                      disabled={!app.shell}
+                      checked={app.persist || false}
+                      onChange={e => setApp(index, "persist", e.target.checked)}
+                    />
+                  }
+                  label="Persist"
+                />
+              </div>
+              <div className={styles.settingsAppRow}>
+                <OutlinedInput
+                  placeholder="Executable"
+                  size="small"
+                  fullWidth
+                  multiline
+                  value={app.cmd || ""}
+                  onChange={e => setApp(index, "cmd", e.target.value)}
+                />
+              </div>
+            </div>
+            <Divider orientation="vertical" flexItem />
             <CloseIcon
               sx={{alignSelf: "center"}}
               onClick={() => handleRemove(index)}
@@ -225,7 +253,7 @@ const Apps = props => {
       <div className={styles.container} ref={ref}>
         <div className={styles.containerInner}>
           {small ? null :
-            <FilterField filterValue={filterValue}
+            <FilterField filterValue={filterValue || ""}
               setFilterValue={setFilterValue} />
           }
           {!selected ? null :
@@ -253,14 +281,14 @@ const Apps = props => {
               size="small"
               fullWidth
               placeholder="Scene"
-              value={scene}
+              value={scene || ""}
               onChange={e => setScene(e.target.value || "")}
             />
             <OutlinedInput
               size="small"
               fullWidth
               placeholder="Arguments"
-              value={args}
+              value={args || ""}
               onChange={e => setArgs(e.target.value || "")}
             />
             <Button variant="contained" color="success" disabled={!selected}
