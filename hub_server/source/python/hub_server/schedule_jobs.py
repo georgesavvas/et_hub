@@ -12,7 +12,7 @@ from hub_server.tasks.fetch_licenses import fetch_licenses
 SCHEDULER = Scheduler(connection=Redis())
 
 
-def schedule_job(func, interval, remaining_jobs):
+def schedule_job(func, interval, remaining_jobs, timeout=None):
     if func.__name__ in [j.func_name for j in remaining_jobs]:
         return
     SCHEDULER.schedule(
@@ -21,7 +21,8 @@ def schedule_job(func, interval, remaining_jobs):
         args=None,
         kwargs=None,
         interval=interval,
-        repeat=None
+        repeat=None,
+        timeout=timeout
     )
 
 
@@ -34,4 +35,4 @@ if __name__ == "__main__":
     schedule_job(farm_snapshot_extended, 30, remaining_jobs)
     schedule_job(cue_notify, 10, remaining_jobs)
     schedule_job(fetch_licenses, 10, remaining_jobs)
-    schedule_job(make_reels, 21600, remaining_jobs)
+    schedule_job(make_reels, 21600, remaining_jobs, timeout=1200)

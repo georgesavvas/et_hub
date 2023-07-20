@@ -1,7 +1,8 @@
 /* eslint-disable quotes */
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-const {app, BrowserWindow, protocol, ipcMain, dialog, Tray, Menu, shell, nativeTheme} = require("electron");
+const {app, BrowserWindow, protocol, ipcMain, dialog, Tray, Menu, shell,
+  nativeTheme} = require("electron");
 const os = require("os");
 const fs = require("fs");
 const path = require("path");
@@ -69,7 +70,7 @@ const commandBuilder = (
 
 function createWindow (show=true) {
   const win = new BrowserWindow({
-    width: 1920 + 200,
+    width: 1920,
     height: 1080,
     show: show,
     icon: path.join(__dirname, iconPaths[platformName]),
@@ -83,6 +84,8 @@ function createWindow (show=true) {
     }
   });
 
+  nativeTheme.themeSource = "dark";
+
   if (isDev) {
     console.log("Loading development environment...");
     win.loadURL("http://localhost:3000");
@@ -91,8 +94,6 @@ function createWindow (show=true) {
     win.removeMenu();
     win.loadFile("build/index.html");
   }
-
-  nativeTheme.themeSource = "dark";
 
   win.on("close", e => {
     if (!appQuitting) {
@@ -256,25 +257,6 @@ app.whenReady().then(async () => {
   tray.on("click", () => window.show());
   tray.on("double-click", () => window.show());
 });
-
-app.on("ready", async () => {
-  const protocolName = "ign";
-  protocol.registerFileProtocol(protocolName, (request, callback) => {
-    const url = request.url.replace(`${protocolName}://`, "");
-    try {
-      return callback(decodeURIComponent(url));
-    }
-    catch (error) {
-      console.error(error);
-    }
-  });
-});
-
-// app.on('window-all-closed', () => {
-//   if (process.platform !== 'darwin') {
-//     app.quit()
-//   }
-// })
 
 app.on("before-quit", () => {
   appQuitting = true;

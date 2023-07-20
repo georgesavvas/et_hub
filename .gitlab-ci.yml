@@ -1,0 +1,52 @@
+
+stages:
+  - build_backend
+  - deploy_backend
+  - build_frontend
+  - deploy_frontend
+
+build_backend:
+  stage: build_backend
+  script: ./ci/build.sh
+  tags:
+    - ws-vm02
+  rules:
+    - if: $CI_COMMIT_REF_NAME == "master"
+      when: manual
+      changes:
+        - hub_server/**/*
+
+deploy_backend:
+  stage: deploy_backend
+  script:
+    - ./ci/deploy.sh
+  tags:
+    - ws-vm02
+  rules:
+    - if: $CI_COMMIT_REF_NAME == "master"
+      when: manual
+      changes:
+        - hub_server/**/*
+
+build_frontend:
+  stage: build_frontend
+  script: hub_ui/ci/build.sh
+  tags:
+    - ws-vm02
+  rules:
+    - if: $CI_COMMIT_REF_NAME == "master"
+      when: manual
+      changes:
+        - hub_ui/**/*
+
+deploy_frontend:
+  stage: deploy_frontend
+  script:
+    - hub_ui/ci/deploy.sh
+  tags:
+    - ws-vm02
+  rules:
+    - if: $CI_COMMIT_REF_NAME == "master"
+      when: manual
+      changes:
+        - hub_ui/**/*

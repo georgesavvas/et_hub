@@ -8,8 +8,7 @@ uuid = "ddd1def2-e73f-4177-87eb-24aa176b36c8"
 
 description = ""
 
-requires = [
-]
+requires = []
 
 build_command = "{root}/build.sh"
 

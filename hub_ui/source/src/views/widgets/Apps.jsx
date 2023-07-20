@@ -95,9 +95,10 @@ const Apps = props => {
   useEffect(() => {
     setMounted(true);
     const savedConfig = loadFromLS(props.rglKey);
-    setApps(savedConfig.apps);
-    setTitle(savedConfig.title);
-    setFilterValue(savedConfig.filterValue);
+    if (!savedConfig || savedConfig === null) return;
+    if (savedConfig?.apps) setApps(savedConfig.apps);
+    if (savedConfig?.title) setTitle(savedConfig.title);
+    if (savedConfig?.filterValue) setFilterValue(savedConfig.filterValue);
   }, []);
 
   useEffect(() => {
