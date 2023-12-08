@@ -34,8 +34,8 @@ export const widgetDefaults = {
         cmd: "google-chrome"
       },
       {
-        name: "Asset Library",
-        cmd: "asset_library"
+        name: "Warehouse",
+        cmd: "warehouse"
       },
       {
         name: "Houdini",

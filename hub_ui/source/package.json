@@ -7,56 +7,56 @@
   "main": "public/main.js",
   "homepage": ".",
   "dependencies": {
-    "@emotion/react": "^11.8.2",
-    "@emotion/styled": "^11.8.1",
-    "@mui/icons-material": "^5.5.0",
-    "@mui/lab": "^5.0.0-alpha.120",
-    "@mui/material": "^5.5.0",
-    "@mui/x-data-grid": "^5.17.24",
-    "@nivo/bar": "^0.80.0",
-    "@nivo/core": "^0.80.0",
-    "@nivo/line": "^0.80.0",
-    "@nivo/pie": "^0.80.0",
-    "@nivo/tooltip": "^0.80.0",
-    "@nivo/treemap": "^0.80.0",
-    "@nivo/waffle": "^0.80.0",
-    "@uiw/react-textarea-code-editor": "^2.1.1",
-    "electron-packager": "^17.1.1",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.14.9",
+    "@mui/lab": "^5.0.0-alpha.145",
+    "@mui/material": "^5.14.10",
+    "@mui/x-data-grid": "^6.14.0",
+    "@nivo/bar": "^0.83.0",
+    "@nivo/core": "^0.83.0",
+    "@nivo/line": "^0.83.0",
+    "@nivo/pie": "^0.83.0",
+    "@nivo/tooltip": "^0.83.0",
+    "@nivo/treemap": "^0.83.0",
+    "@nivo/waffle": "^0.83.0",
+    "@uiw/react-textarea-code-editor": "^2.1.7",
     "electron-squirrel-startup": "^1.0.0",
     "lodash.debounce": "^4.0.8",
     "node-os-utils": "^1.3.7",
-    "notistack": "^2.0.4",
-    "nuka-carousel": "^5.4.1",
+    "notistack": "^3.0.1",
+    "nuka-carousel": "^6.0.3",
     "react": "^18.2.0",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^18.2.0",
-    "react-error-boundary": "^3.1.4",
-    "react-grid-layout": "^1.3.4",
-    "react-intersection-observer": "^9.4.3",
+    "react-error-boundary": "^4.0.11",
+    "react-grid-layout": "^1.4.1",
+    "react-intersection-observer": "^9.5.2",
     "react-quill": "^2.0.0",
-    "react-reflex": "^4.0.6",
-    "react-resize-detector": "^8.0.4",
+    "react-reflex": "^4.1.0",
+    "react-resize-detector": "^9.1.0",
     "react-sortablejs": "^6.1.4",
-    "react-spring": "^9.5.2",
-    "react-virtualized-auto-sizer": "^1.0.7",
-    "recharts": "^2.4.3",
+    "react-spring": "^9.7.2",
+    "react-virtualized-auto-sizer": "^1.0.20",
+    "recharts": "^2.8.0",
     "sockette": "^2.0.6",
     "string-to-color": "^2.2.2",
     "uuid4": "^2.0.3",
-    "v8-compile-cache": "^2.3.0",
-    "valtio": "^1.5.2",
-    "web-vitals": "^3.1.0"
+    "v8-compile-cache": "^2.4.0",
+    "valtio": "^1.11.2",
+    "web-vitals": "^3.4.0"
   },
   "scripts": {
-    "start": "PORT=3001 react-scripts start",
+    "start": "PORT=3000 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "electron": "cross-env NODE_ENV=dev electron . --no-sandbox",
-    "package-only": "npm run build && electron-packager . --overwrite --prune=true --name=ETHub --asar --platform=linux --arch=x64 --out=dist",
-    "release": "cp -f -r dist/et_hub-linux-x64 /transfer/hub/app",
-    "package": "npm run package-only && npm run release"
+    "electron": "cross-env NODE_ENV=dev electron . --no-sandbox --disable-gpu-memory-buffer-video-frames",
+    "package": "npm run build && electron-packager . --overwrite --prune=true --name=ETHub --asar --platform=linux --arch=x64 --out=dist",
+    "release": "cp -f dist/et_hub-linux-x64/resources/app.asar /software/dump/hub/dist/resources/ && chmod 777 /software/dump/hub/dist /software/dump/hub/dist/et_hub",
+    "release-clean": "rm -rf /software/dump/hub/dist && cp -f -a dist/et_hub-linux-x64/. /software/dump/hub/dist/ && chmod 777 /software/dump/hub/dist /software/dump/hub/dist/et_hub",
+    "package-release": "npm run package && npm run release"
   },
   "eslintConfig": {
     "extends": [
@@ -79,12 +79,40 @@
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.38.0",
     "@typescript-eslint/parser": "^5.38.0",
-    "concurrently": "^7.2.2",
+    "concurrently": "^8.2.1",
     "cross-env": "^7.0.3",
-    "electron": "^23.1.1",
-    "eslint": "^8.24.0",
-    "eslint-plugin-react": "^7.31.8",
+    "electron": "^26.2.1",
+    "electron-packager": "^17.1.2",
+    "eslint": "^8.49.0",
+    "eslint-plugin-react": "^7.33.2",
     "react-scripts": "^5.0.1"
+  },
+  "config": {
+    "forge": {
+      "packagerConfig": {},
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "ui"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ]
+    }
   },
   "build": {
     "appId": "georgesavvas.ethub",
@@ -100,7 +128,7 @@
       "buildResources": "assets"
     },
     "linux": {
-      "icon": "public/media/desktop_icon/linux/icon.png",
+      "icon": "public/media/desktop_icon/linux/icon_dark.png",
       "target": [
         "AppImage",
         "deb"

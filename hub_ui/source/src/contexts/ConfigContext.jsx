@@ -1,7 +1,5 @@
 import React, {useState, createContext, useEffect} from "react";
 
-// import {useSnackbar} from "notistack";
-
 
 export const ConfigContext = createContext();
 

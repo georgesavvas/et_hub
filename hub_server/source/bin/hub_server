@@ -2,5 +2,7 @@
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-python $SCRIPT_DIR/../python/hub_server/schedule_jobs.py
-python $SCRIPT_DIR/../python/hub_server/main.py
+cd $SCRIPT_DIR/../python;
+# python $SCRIPT_DIR/../python/hub_server/schedule_jobs.py
+python3 -m hub_server.main
+# gunicorn hub_server.main:app --workers ${1:-1} --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8080

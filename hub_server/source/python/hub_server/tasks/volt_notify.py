@@ -1,5 +1,5 @@
 from hub_server import tools
-import bots.api
+from .. import slack
 
 
 LOGGER = tools.get_logger(__name__)
@@ -35,9 +35,4 @@ def volt_notify():
             f"Sending slack message with {int(len(blocks) * 0.5)} assets to "
             f"{channel_id}"
         )
-        bots.api.send_slack_message(
-            service="volt",
-            text="Volt Notify",
-            blocks=blocks,
-            channel=channel_id
-        )
+        slack.send_message(service="volt", text="Volt Notify", blocks=blocks, channel=channel_id)

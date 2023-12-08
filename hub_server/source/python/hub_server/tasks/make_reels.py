@@ -16,15 +16,15 @@ import imutils
 
 from hub_server.filesystem import upversion_string, latest_from_path
 from hub_server import tools
-import opencue.api as oc
-import volt_shell as vs
+from .. import volt
+from .. import cue
 
 
 LOGGER = tools.get_logger(__name__)
 
 EXTS = ("jpg", "jpeg", "png", "tif", "tiff")
-
 TASK_ORDER = ["matchmove", "layout", "animate", "fx", "light", "comp"]
+FFMPEG = "/software/rez/packages/ext/ffmpeg/4.2.1/platform-linux/arch-x86_64/ffmpeg"
 
 
 def copy_file(src, dest):
@@ -41,34 +41,31 @@ def get_frame(path):
             return frame
 
 
-def get_active_projects():
-    jobs = oc.getJobs(include_finished=True)
-    unique_shows = list(set([j.show() for j in jobs]))
-    unique_shows = [show for show in unique_shows if show]
-    return unique_shows
-
-
 def get_project_renders(project_name):
-    project = vs.get_project_by_name(project_name)
+    project = volt.get_project_by_name(project_name)
     if not project:
         LOGGER.warning(f"Couldn't find {project_name} on volt, ignoring.")
         return {}
 
-    layer_assets = vs.find_assets(kind_name="layer", project_or_uri=project)
+    project = project["uri"]
+    layer_assets = volt.volt_shell(
+        "find_assets",
+        {"kind_name": "layer", "project_or_uri": project}
+    )["data"]
     renders = []
     uris = []
     for la in layer_assets:
-        av = la.latest_published
+        av = la["latest_published"]
         if not av:
             continue
 
-        dt = av.created_date.astimezone(timezone.utc)
+        dt = datetime.fromisoformat(av["created_date"]).astimezone(timezone.utc)
         today = datetime.today().astimezone(timezone.utc)
         days_old = (today - dt).days
         if days_old > 7:
             continue
 
-        uri = la.task.uri
+        uri = la["task"]["uri"]
         uri_short = uri.split(f"/{project_name}/")[1].replace("sequence/", "")
 
         renders.append(av)
@@ -115,12 +112,12 @@ def filter_renders(renders):
                         rejected += 1
                         continue
                     for i in illegal:
-                        if i in render.name.lower():
+                        if i in render["name"].lower():
                             _renders.remove(render)
                             rejected += 1
                             break
                     else:
-                        uris_comps[render.uri] = comp
+                        uris_comps[render["uri"]] = comp
                         final += 1
                 if not _renders:
                     continue
@@ -179,7 +176,7 @@ def analyse_sequence(sequence, min_frames=0, max_frames=0):
 
 def encode_mp4(input_path, output_path):
     cmd = (
-        f"ffmpeg -start_number 1001 -pattern_type glob -i {input_path} "
+        f"{FFMPEG} -start_number 1001 -pattern_type glob -i {input_path} "
         "-c:v libx264 -r 25 -vf scale=1280:720:force_original_aspect_ratio="
         f"decrease,pad=1280:720:-1:-1:color=black {output_path}"
     )
@@ -191,8 +188,8 @@ def encode_mp4(input_path, output_path):
 
 
 def is_comp_valid(comp):
-    path = comp.path
-    if not comp.is_sequence:
+    path = comp["path"]
+    if not comp["is_sequence"]:
         return
     if "[" not in path:
         return
@@ -204,20 +201,26 @@ def is_comp_valid(comp):
     return True
 
 
+def get_av_component(av, name):
+    for comp in av["components"]:
+        if comp["name"] == name:
+            return comp
+
+
 def get_component(av):
-    comp = av.get_component("view")
+    comp = get_av_component(av, "view")
     if not comp or not is_comp_valid(comp):
-        comps = av.components
+        comps = av["components"]
         for c in comps:
             if not is_comp_valid(c):
                 continue
-            path = c.path
+            path = c["path"]
             if path.split(" ")[0].split(".")[-1] in EXTS:
                 comp = c
                 break
         else:
             return
-    return comp.path
+    return comp["path"]
 
 
 def get_component_range(
@@ -252,7 +255,7 @@ def get_shot_range_from_avs(tasks_ordered, tasks, uris_comps):
     longest = 0
     longest_range = None
     for av in avs:
-        uri = av.uri
+        uri = av["uri"]
         comp = uris_comps[uri]
         _range = comp.split("[")[1].split(",")[0].split("]")[0]
         _range = _range.split("-")
@@ -280,7 +283,11 @@ def uris_durations_from_filtered(renders, uris_comps):
             if sequence in ("sandbox", "build"):
                 max_frames = 50
             av = list(tasks.values())[0][0]
-            shot_meta = av.workareaversion.parent.parent.parent.metadata
+            wav = volt.volt_shell(
+                "find",
+                {"uri_or_vri_or_path": av["workareaversion"]["uri"]}
+            )["data"]
+            shot_meta = wav["shot"]["metadata"]
             head_in = shot_meta.get("head_in")
             tail_out = shot_meta.get("tail_out")
             cut_in = shot_meta.get("cut_in")
@@ -307,13 +314,13 @@ def uris_durations_from_filtered(renders, uris_comps):
                 to_remove = [random.randrange(remove) for i in range(remove)]
                 for av_index, av in enumerate(avs):
                     if av_index in to_remove:
-                        LOGGER.info(" " * 15 + f"{av.name} (randomly removed)")
-                    uri = av.uri
+                        LOGGER.info(" " * 15 + f"{av['name']} (randomly removed)")
+                    uri = av["uri"]
                     comp = uris_comps[uri]
                     if not comp:
                         continue
                     _range = get_component_range(
-                        av.name,
+                        av["name"],
                         comp,
                         shot_meta,
                         task_amount,
@@ -471,9 +478,17 @@ def make_project_reel(work_dir, project):
 
     output_mp4 = output_dir / f"{project}.mp4"
     LOGGER.info("Encoding...")
-    encode_mp4((output_dir / "reel.*.jpg").as_posix(), output_mp4)
-    LOGGER.info(f"Exported to {output_dir}")
-    return output_mp4
+    try:
+        encode_mp4((output_dir / "reel.*.jpg").as_posix(), output_mp4)
+        LOGGER.info(f"Exported to {output_dir}")
+        LOGGER.info("Cleaning up...")
+        for file in output_dir.glob("reel.*.jpg"):
+            file.unlink()
+        return output_mp4
+    except Exception as e:
+        LOGGER.error(f"Failed to encode {project}")
+        LOGGER.error(e)
+        return None
 
 
 def make_reels():
@@ -481,9 +496,11 @@ def make_reels():
     date_dir = root_dir / datetime.now().strftime("%d_%m_%Y")
     work_dir = date_dir / "work"
 
-    projects = get_active_projects()
+    projects = cue.get_active_shows()
     for project in projects:
-        # if "nda" in project.lower():
+        if project == "pipeline_tvc_dev_e000002":
+            continue
+        # if "nda_" in project.lower():
         #     LOGGER.warning("Working on NDA project {}".format(project))
         #     LOGGER.warning("Ignoring NDA project {}".format(project))
         #     continue

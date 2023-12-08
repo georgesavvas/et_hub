@@ -48,6 +48,10 @@ contextBridge.exposeInMainWorld("services", {
     ipcRenderer.on("client_progress", callback);
     return () => ipcRenderer.removeListener("client_progress", callback);
   },
+  update_available: callback => {
+    ipcRenderer.on("update_available", callback);
+    return () => ipcRenderer.removeListener("update_available", callback);
+  },
   onResourceUsage: callback => {
     // ipcRenderer.removeAllListeners("resource_usage");
     ipcRenderer.on("resource_usage", callback);
@@ -62,6 +66,9 @@ contextBridge.exposeInMainWorld("services", {
   },
   get_version: () => {
     return ipcRenderer.invoke("get_version");
+  },
+  restart: () => {
+    return ipcRenderer.invoke("restart");
   },
   uuid: () => {
     return ipcRenderer.invoke("uuid");

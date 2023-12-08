@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import os
+import logging
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -52,11 +54,30 @@ def startup_event():
     mount_reels()
 
 
+class EndpointFilter(logging.Filter):
+    def __init__(
+        self,
+        path,
+        *args,
+        **kwargs,
+    ):
+        super().__init__(*args, **kwargs)
+        self._path = path
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        return record.getMessage().find(self._path) == -1
+
+
+uvicorn_logger = logging.getLogger("uvicorn.access")
+uvicorn_logger.addFilter(EndpointFilter(path="/metrics"))
+
+
 if __name__ == "__main__":
     uvicorn.run(
-        "main:app",
+        f"{__name__}:app",
         host="0.0.0.0",
-        port=8085,
+        port=8080,
         log_level="info",
-        workers=8
+        workers=4,
+        reload=True,
     )

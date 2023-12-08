@@ -1,6 +1,6 @@
 import fetch from "./fetch";
 
-const address = "192.168.11.20:8085";
+const address = "ws-vm02:8085";
 
 async function serverRequest(method, data=undefined) {
   // console.log("Server request:", address, method, data);

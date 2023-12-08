@@ -1,6 +1,7 @@
 import React, {useEffect, useState, useContext} from "react";
 
 import Divider from "@mui/material/Divider";
+import Typography from "@mui/material/Typography";
 import { useResizeDetector } from "react-resize-detector";
 
 import styles from "./Home.module.css";
@@ -34,19 +35,45 @@ const widgets = {
 
 export default function Home() {
   const { width, height, ref } = useResizeDetector();
-  const {activePage} = useContext(ConfigContext);
+  const {isElectron, activePage} = useContext(ConfigContext);
+  const [updateAvailable, setUpdateAvailable] = useState(false);
+
+  useEffect(() => {
+    if (!isElectron) return;
+    const cleanupUpdatesListener = window.services.update_available(() => {
+      console.log("Home publish listener called");
+      setUpdateAvailable(true);
+    });
+    return () => {
+      cleanupUpdatesListener();
+    };
+  }, []);
 
   const SelectedWidget = widgets[activePage];
 
+  const handleUpdateClicked = () => {
+    window.services.restart();
+  };
+
   return (
     <div className={styles.container}>
-      <Menu />
-      <Divider orientation="vertical" />
-      <div ref={ref} className={styles.contents}>
-        {SelectedWidget ?
-          <SelectedWidget rglKey={`${activePage}_global`} size={[width, height]} />
-          : null
-        }
+      {updateAvailable ?
+        <div className={styles.updateContainer} onClick={handleUpdateClicked}>
+          <Typography fontWeight="bold">
+            There is an available update, click here to restart the app when you are ready
+          </Typography>
+        </div>
+        : null
+      }
+      <div className={styles.row}>
+        <Menu />
+        <Divider orientation="vertical" />
+        <div ref={ref} className={styles.contents}>
+          {SelectedWidget ?
+            <SelectedWidget rglKey={`${activePage}_global`} size={[width, height]} />
+            : null
+          }
+        </div>
       </div>
     </div>
   );

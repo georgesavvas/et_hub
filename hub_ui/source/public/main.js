@@ -17,6 +17,7 @@ const mem = osu.mem;
 let platformName = process.platform;
 const userHomeDir = os.homedir();
 let appPath = app.getAppPath();
+const resourcesPath = process.resourcesPath;
 if (platformName === "win32") {
   appPath = path.dirname(app.getPath("exe"));
 }
@@ -24,6 +25,8 @@ else if (appPath.endsWith("app.asar")) {
   appPath = path.dirname(app.getPath("exe"));
   appPath = path.join(appPath, "..");
 }
+console.log("appPath:", appPath);
+console.log("resourcesPath", resourcesPath);
 
 process.env.ETHUB_SESSION_ID = sessionID;
 process.env.REZ_CONFIG_FILE = "/transfer/hub/.config/software/rez/rezconfig.py";
@@ -33,11 +36,12 @@ let splash = null;
 let window = null;
 const isDev = process.env.NODE_ENV === "dev";
 const public = path.join(__dirname, "..", isDev ? "public" : "build");
+let modtime = -1;
 
 const iconPaths = {
-  "win32": "media/desktop_icon/win/icon.ico",
-  "darwin": "media/desktop_icon/mac/icon.icns",
-  "linux": "media/desktop_icon/linux/icon.png"
+  "win32": "media/desktop_icon/win/icon_dark.ico",
+  "darwin": "media/desktop_icon/mac/icon_dark.icns",
+  "linux": "media/desktop_icon/linux/icon_dark.png"
 };
 
 const wsData = {};
@@ -186,6 +190,11 @@ function createWindow (show=true) {
     }
   );
 
+  ipcMain.handle("restart", () => {
+    app.relaunch();
+    app.exit();
+  });
+
   return win;
 }
 
@@ -221,6 +230,19 @@ else {
   });
 }
 
+const checkForUpdates = window => {
+  fs.promises.stat(path.join(resourcesPath, "app.asar")).then(stats => {
+    if (modtime < 0) {
+      modtime = stats.mtime;
+    }
+    else if (modtime < stats.mtime) {
+      setTimeout(() => checkForUpdates(window), 1000 * 60 * 5);
+      return;
+    }
+    else window.webContents.send("update_available", true);
+  }).catch(error => console.log(error));
+};
+
 app.whenReady().then(async () => {
   splash = createSplash();
   window = createWindow(false);
@@ -229,6 +251,8 @@ app.whenReady().then(async () => {
     window.show();
     window.maximize();
   });
+
+  if (!isDev) checkForUpdates(window);
 
   protocol.registerFileProtocol(
     "hub",

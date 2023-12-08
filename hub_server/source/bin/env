@@ -1,0 +1,6 @@
+export MONGO_URL="ws-vm02:27117"
+export RABBITMQ_URL="ws-vm02:5672"
+export REDIS_URL="ws-vm02:6379"
+export HUB_SERVER_URL="ws-vm02:8085"
+export VOLT_API_URL="ws-vm02:8086"
+export CUE_API_URL="ws-vm02:8087"

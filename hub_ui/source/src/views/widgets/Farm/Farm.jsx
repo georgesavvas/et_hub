@@ -97,7 +97,7 @@ const Farm = props => {
     }
   }, [viewType]);
 
-  if (!farm) return <DataPlaceholder text="No data" />;
+  if (!farm || !farm.data) return <DataPlaceholder text="No data" />;
 
   const handleConfigEdit = (key, value) => {
     setWidgetConfig(prev => {
@@ -119,7 +119,7 @@ const Farm = props => {
     setSelectedProjects([]);
     setSelectedArtists([]);
   };
-  
+
   const bottomRowStyle = {
     maxHeight: expanded ? "100px" : 0
   };
@@ -276,7 +276,7 @@ const Farm = props => {
                 onClick={handleFiltersClear}>
                 Clear
               </Button>
-            </div>          
+            </div>
           </div>
           {/* <div className={styles.expandButton}
             onClick={() => setExpanded(prev => !prev)}>

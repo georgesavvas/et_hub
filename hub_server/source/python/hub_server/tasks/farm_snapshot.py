@@ -3,7 +3,7 @@ import re
 import datetime
 
 from hub_server import tools
-import opencue.api as oc
+from .. import cue
 
 
 LOGGER = tools.get_logger(__name__)
@@ -48,7 +48,7 @@ def get_cpu_times(job):
 def process_job(job, coll):
     name = job.name()
     state = job.state()
-    existing = coll.find_one({"name": name}, {"_id": False})
+    existing = coll.find_one({"finished.name": name}, {"_id": False})
     if existing and existing["state"] == "1":
         return existing
     data = {}
@@ -103,55 +103,7 @@ def get_current_cores(layer):
 
 
 def farm_snapshot():
-    jobs = []
-    finished = []
-    for job in oc.getJobs(include_finished=True):
-        name = job.name()
-        state = job.state()
-        data = {}
-        data["name"] = name
-        data["user"] = job.user()
-        data["deadFrames"] = job.deadFrames()
-        data["isPaused"] = job.isPaused()
-        data["show"] = str(job.show())
-        data["shot"] = str(job.shot())
-        data["priority"] = job.priority()
-        data["state"] = str(state)
-        m = re.search(VERSION_PATTERN, name)
-        data["version"] = m.group()[1:-1] if m else ""
-        if state == 1:
-            finished.append(data)
-            continue
-        layers = []
-        for l in job.getLayers():
-            layer = {}
-            layer["name"] = l.name()
-            services = l.data.services
-            layer["service"] = services[0] if services else ""
-            layer["totalFrames"] = l.totalFrames()
-            layer["deadFrames"] = l.deadFrames()
-            layer["succeededFrames"] = l.succeededFrames()
-            running = l.runningFrames()
-            layer["runningFrames"] = running
-            layer["pendingFrames"] = l.pendingFrames()
-            layer["waitingFrames"] = l.waitingFrames()
-            layer["succeededFrames"] = l.succeededFrames()
-            layer["parent_paused"] = job.isPaused()
-            layer["outputPaths"] = list(l.getOutputPaths())
-            layer["percentCompleted"] = round(l.percentCompleted())
-            if running:
-                layer["currentCores"] = get_current_cores(l)
-            else:
-                layer["currentCores"] = 0
-            layers.append(layer)
-        data["layers"] = layers
-        data["layerNames"] = [l["name"] for l in layers]
-        jobs.append(data)
-
-    data = {
-        "jobs": jobs,
-        "finished": finished
-    }
+    data = cue.get_jobs(include_finished=True)
 
     coll = tools.get_collection("store_farm")
     now = datetime.datetime.utcnow()
@@ -161,14 +113,25 @@ def farm_snapshot():
         "data": data
     }).inserted_id
 
+    coll = tools.get_collection("store_renders")
+    for job in data["finished"]:
+        coll.replace_one({"name": job["name"]}, job, upsert=True)
+        LOGGER.info(f"Cached render {job['name']}")
+    # for job in data["jobs"]:
+    #     _id = coll.replace_one({"name": job["name"]}, job, upsert=True)
+    #     LOGGER.info(f"Cached render at {_id}")
+
+    LOGGER.info(datetime.datetime.now())
     LOGGER.info("Cached farm snapshot at {}".format(_id))
 
 
 def farm_snapshot_extended():
     store_renders = tools.get_collection("store_renders")
-    all_jobs = oc.getJobs(include_finished=True)
-    job_amount = len(all_jobs)
-    store_renders_ = [store_renders] * job_amount
-    with ThreadPoolExecutor(max_workers=16) as executor:
-        executor.map(process_job, all_jobs, store_renders_)
+    all_jobs = cue.get_jobs(include_finished=True)
+    for job in all_jobs:
+        process_job(job, store_renders)
+    # job_amount = len(all_jobs)
+    # store_renders_ = [store_renders] * job_amount
+    # with ThreadPoolExecutor(max_workers=16) as executor:
+    #     executor.map(process_job, all_jobs, store_renders_)
     LOGGER.info("Cached farm snapshot extended.")

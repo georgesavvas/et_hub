@@ -2,9 +2,8 @@ import os
 import datetime
 
 from hub_server import tools
-import bots.api
-import opencue.api as oc
-import volt_shell as vs
+from hub_server import volt
+from .. import slack
 
 
 LOGGER = tools.get_logger(__name__)
@@ -28,27 +27,26 @@ def cue_notify():
 
     def get_layer(job, when, processed_layers):
         layers = [
-            l for l in job.getLayers()
-            if not l.name().startswith("cuenotify.")
+            l for l in job["layers"]
+            if not l["name"].startswith("cuenotify.")
         ]
         final_layer = layers[-1]
         if when == "whole_job":
-            pref = ("img.", "jpg.", "geo.", "ale.", "ass.")
-            for layer in layers:
-                for p in pref:
-                    if layer.name().startswith(p):
+            pref = ("img.", "nk.", "jpg.", "geo.", "ale.", "ass.")
+            for p in pref:
+                for layer in layers:
+                    if layer["name"].startswith(p):
                         return layer, True
-            else:
-                return layers[0], True
+            return layers[0], True
         else:
             for layer in layers:
-                if layer.runningFrames() or layer.pendingFrames():
+                if layer["runningFrames"] or layer["pendingFrames"]:
                     continue
-                if layer.name() in processed_layers:
+                if layer["name"] in processed_layers:
                     continue
                 if when == "each_layer":
                     return layer, layer == final_layer
-                elif layer.name().startswith("{}.".format(when)):
+                elif layer["name"].startswith("{}.".format(when)):
                     return layer, True
         return None, False
 
@@ -60,29 +58,29 @@ def cue_notify():
         if not final_layer:
             layers = [layer]
         else:
-            layers = job.getLayers()
+            layers = job["layers"]
         data = {}
         for layer in layers:
-            s = layer.name().split(".")[0] + "."
+            s = layer["name"].split(".")[0] + "."
             if s in ignore:
                 continue
             runtime = 0
-            frames = layer.getFrames()
+            frames = layer["frames"]
             lowest = 9999999999
             highest = 0
             for frame in frames:
-                start_time = frame.startTime()
-                stop_time = frame.stopTime()
+                start_time = frame["startTime"]
+                stop_time = frame["stopTime"]
                 if not start_time or not stop_time:
                     continue
-                cores = float(frame.resource().split("/")[1])
+                cores = float(frame["resource"].split("/")[1])
                 frame_runtime = (stop_time - start_time) * cores
                 if frame_runtime < lowest:
                     lowest = frame_runtime
                 if frame_runtime > highest:
                     highest = frame_runtime
                 runtime += frame_runtime
-            data[layer.name()] = {
+            data[layer["name"]] = {
                 "sum": runtime,
                 "avg": runtime / len(frames),
                 "lowest": lowest,
@@ -91,8 +89,8 @@ def cue_notify():
         return data
 
     def get_running_time(job):
-        start = job.startTime()
-        stop = job.stopTime()
+        start = job["startTime"]
+        stop = job["stopTime"]
         td = stop - start
         return td
 
@@ -108,23 +106,23 @@ def cue_notify():
         return vri
 
     def get_volt_info(job, vri=""):
-        layers = job.getLayers()
+        layers = job["layers"]
         paths = []
         for layer in layers:
-            paths += layer.getOutputPaths()
+            paths += layer["outputPaths"]
         wav = None
         output_path = ""
         for path in paths:
-            av = vs.find(os.path.dirname(path))
+            av = volt.volt_shell("find", {"uri_or_vri_or_path": os.path.dirname(path)}).get("data")
             if av:
                 output_path = path
                 break
         else:
             return {}
-        wav = av.workareaversion
+        wav = av["workareaversion"]
         data = {}
-        data["shot"] = wav.task.parent.name
-        data["vs"] = "v" + str(av.version).zfill(3)
+        data["shot"] = wav["shot"]["name"]
+        data["vs"] = "v" + str(av["version"]).zfill(3)
         data["output_path"] = output_path
         return data
 
@@ -137,6 +135,10 @@ def cue_notify():
     now = datetime.datetime.now()
     now_ts = datetime.datetime.timestamp(now)
 
+    farm_coll = tools.get_collection("store_farm")
+    farm_data = farm_coll.find_one(sort=[("_id", -1)])["data"]
+    running_jobs = [j["name"] for j in farm_data["jobs"]]
+    renders_coll = tools.get_collection("store_renders")
     to_send = {}
     for doc in docs:
         data = doc.get("data")
@@ -147,114 +149,126 @@ def cue_notify():
             LOGGER.error(f"Issues (no job name) with {job_name}, removing.")
             remove_job(doc)
             continue
-        jobs = oc.getJobs(job=[job_name], include_finished=True)
-        if jobs:
-            job = jobs[0]
-            if final_layer:
-                if job.state() != 1:
-                    LOGGER.info(
-                        f"Ignoring {job.name()} cause it's not finished yet."
-                    )
-                    continue
-                then = job.stopTime()
-                mins = abs(now_ts - then) / 60
-                if mins > 5:
-                    doc["success"] = False
-                    inserted_id = coll_history.insert_one(doc).inserted_id
-                    remove_job(doc)
-                    LOGGER.info(f"Cached cuenotify history at {inserted_id}")
-                    LOGGER.warning(
-                        f"Ignoring {job.name()} as it finished long time ago "
-                        f"({mins} mins)..."
-                    )
-                    continue
-
-            processed_layers = data.get("processed_layers", [])
-            layer, final_layer = get_layer(job, when, processed_layers)
-            if not layer:
-                if final_layer:
-                    LOGGER.error(
-                        f"Issues (whole job/no layer) with {job_name}, "
-                        "removing."
-                    )
-                    remove_job(doc)
-                if job.state() == 1:
-                    LOGGER.warning(
-                        f"Issues (no layer/finished job) with {job_name}, "
-                        "removing."
-                    )
-                    remove_job(doc)
-                LOGGER.info(
-                    f"Ignoring {job.name()}, couldn't find a matching finished "
-                    "layer."
-                )
-                continue
-            print(f"processed_layers - {processed_layers}")
-            print(layer.name(), final_layer)
-            layer_name = layer.name()
-            if not final_layer:
-                coll_active.update_one(
-                    {"_id": doc.get("_id")},
-                    {"$addToSet": {"data.processed_layers": layer_name}}
-                )
-
-            targets = data.get("targets")
-            if not targets:
-                LOGGER.warning(
-                    f"Issues (no targets) with {job_name}, removing."
-                )
-                remove_job(doc)
-                continue
-            entry = f"{job_name}_{layer_name}"
-            if entry in to_send.keys():
-                existing_targets = to_send[entry]["targets"]
-                new_targets = existing_targets
-                for target in targets:
-                    if target not in existing_targets:
-                        new_targets.append(target)
-                if existing_targets != new_targets:
-                    to_send[entry]["targets"] = new_targets
-                LOGGER.info(
-                    f"Updated {entry} targets from {existing_targets} to "
-                    f"{new_targets}"
-                )
-                continue
-
-            path = (
-                next(iter(layer.getOutputPaths()), None) or
-                data.get("output_path")
+        if job_name in running_jobs:
+            LOGGER.info(
+                f"Ignoring {job_name} cause it's not finished yet."
             )
-            vri = get_vri(path)
-            volt_info = data.get("volt_info") or get_volt_info(job, vri)
-
-            job_data = {
-                "targets": targets,
-                "job": job,
-                "job_name": job_name,
-                "vri": vri,
-                "layer_name": layer_name,
-                "path": path,
-                "range": layer.range().split("x")[0],
-                "dead": layer.deadFrames(),
-                "running_time": get_running_time(job),
-                "cpu_times": get_cpu_times(job, layer, final_layer),
-                "scene_info": data.get("scene_info", {}),
-                "volt_info": volt_info,
-                "final_layer": final_layer
-            }
-
-            to_send[entry] = job_data
-
-            if final_layer:
-                doc["success"] = True
+            continue
+        job = renders_coll.find_one({"name": job_name})
+        if not job:
+            LOGGER.error(f"Couldn't find {job_name} in database, ignoring...")
+            # doc["success"] = False
+            # inserted_id = coll_history.insert_one(doc).inserted_id
+            # remove_job(doc)
+            # LOGGER.info(f"Cached cuenotify history at {inserted_id}")
+            continue
+        if final_layer:
+            then = job["stopTime"]
+            mins = abs(now_ts - then) / 60
+            if mins > 5:
+                LOGGER.warning(
+                    f"Ignoring {job['name']} as it finished long time ago ({mins} mins) "
+                )
+                doc["success"] = False
                 inserted_id = coll_history.insert_one(doc).inserted_id
                 remove_job(doc)
-                LOGGER.info(
-                    f"Cached cuenotify history at {inserted_id}"
+                LOGGER.info(f"Cached cuenotify history at {inserted_id}")
+                continue
+
+        processed_layers = data.get("processed_layers", [])
+        layer, final_layer = get_layer(job, when, processed_layers)
+        if not layer:
+            if final_layer:
+                LOGGER.error(
+                    f"Issues (whole job/no layer) with {job_name}, "
+                    "removing."
                 )
-        else:
-            LOGGER.warning(f"No jobs found for {job_name}, removing...")
+                remove_job(doc)
+            if job["state"] == 1:
+                LOGGER.warning(
+                    f"Issues (no layer/finished job) with {job_name}, "
+                    "removing."
+                )
+                remove_job(doc)
+            LOGGER.info(
+                f"Ignoring {job['name']}, couldn't find a matching finished "
+                "layer."
+            )
+            continue
+        # print(f"processed_layers - {processed_layers}")
+        # print(layer["name"], final_layer)
+        layer_name = layer["name"]
+        if not final_layer:
+            coll_active.update_one(
+                {"_id": doc.get("_id")},
+                {"$addToSet": {"data.processed_layers": layer_name}}
+            )
+
+        targets = data.get("targets")
+        if not targets:
+            LOGGER.warning(
+                f"Issues (no targets) with {job_name}, removing."
+            )
+            doc["success"] = False
+            inserted_id = coll_history.insert_one(doc).inserted_id
             remove_job(doc)
+            LOGGER.info(
+                f"Cached cuenotify history at {inserted_id}"
+            )
+            continue
+        entry = f"{job_name}_{layer_name}"
+        if entry in to_send.keys():
+            existing_targets = to_send[entry]["targets"]
+            new_targets = existing_targets
+            for target in targets:
+                if target not in existing_targets:
+                    new_targets.append(target)
+            if existing_targets != new_targets:
+                to_send[entry]["targets"] = new_targets
+            LOGGER.info(
+                f"Updated {entry} targets from {existing_targets} to "
+                f"{new_targets}"
+            )
+            doc["success"] = True
+            inserted_id = coll_history.insert_one(doc).inserted_id
+            remove_job(doc)
+            LOGGER.info(
+                f"Cached cuenotify history at {inserted_id}"
+            )
+            continue
+
+        path = (
+            next(iter(layer["outputPaths"]), None) or
+            data.get("output_path")
+        )
+        vri = get_vri(path)
+        volt_info = data.get("volt_info") or get_volt_info(job, vri)
+
+        job_data = {
+            "targets": targets,
+            "job": job,
+            "job_name": job_name,
+            "vri": vri,
+            "layer_name": layer_name,
+            "path": path,
+            "range": layer["range"].split("x")[0],
+            "dead": layer["deadFrames"],
+            "running_time": get_running_time(job),
+            "cpu_times": job["cpuTimes"],
+            "scene_info": data.get("scene_info", {}),
+            "volt_info": volt_info,
+            "final_layer": final_layer
+        }
+
+        to_send[entry] = job_data
+
+        if final_layer:
+            doc["success"] = True
+            inserted_id = coll_history.insert_one(doc).inserted_id
+            remove_job(doc)
+            LOGGER.info(
+                f"Cached cuenotify history at {inserted_id}"
+            )
 
     if not to_send:
         LOGGER.info("Nothing to send.")
@@ -263,7 +277,7 @@ def cue_notify():
     for job_data in to_send.values():
         final_layer = job_data.get("final_layer", False)
         volt_info = job_data.get("volt_info")
-        job_name = job_data.get("job").name()
+        job_name = job_data.get("job")["name"]
         shot = volt_info.get("shot")
         version = volt_info.get("vs")
         layer = job_data.get("layer_name").split(".")[-1]
@@ -306,4 +320,4 @@ def cue_notify():
         LOGGER.info(f"Sending slack message to {user}")
         text = "\n".join(sections)
         LOGGER.info(text)
-        bots.api.send_slack_message(service="cue", text=text, user=user)
+        slack.send_message(service="cue", text=text, user=user)

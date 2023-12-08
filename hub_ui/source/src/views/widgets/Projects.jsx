@@ -1,7 +1,7 @@
 import React, {useContext, useState, useEffect, useRef} from "react";
 
 import styles from "./Projects.module.css";
-import Carousel from "nuka-carousel/lib/carousel";
+import Carousel from "nuka-carousel";
 import {Typography, TextField} from "@mui/material";
 import {DataContext} from "../../contexts/DataContext";
 import {useResizeDetector} from "react-resize-detector";
