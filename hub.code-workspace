@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "old_ui/source",
+			"name": "OLD"
+		}
+		{
+			"path": "frontend/source/src",
+			"name": "NEW"
+		}
+	],
+	"settings": {}
+}

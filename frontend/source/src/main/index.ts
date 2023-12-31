@@ -1,13 +1,43 @@
-import { app, shell, BrowserWindow } from 'electron'
+import { BrowserWindow, app, dialog, ipcMain, nativeTheme, shell } from 'electron'
+import { electronApp, is, optimizer } from '@electron-toolkit/utils'
+
+import fs from "fs";
+import icon from '../../resources/icon_dark.png?asset'
 import { join } from 'path'
-import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import icon from '../../resources/icon.png?asset'
+import os from "os";
+import osu from "node-os-utils";
+import path from "path";
+import uuid4 from "uuid4";
+
+nativeTheme.themeSource = "dark";
+const sessionID = uuid4();
+const cpu = osu.cpu;
+const mem = osu.mem;
+const userHomeDir = os.homedir();
+
+process.env.ETHUB_SESSION_ID = sessionID;
+process.env.REZ_CONFIG_FILE = "/transfer/hub/.config/software/rez/rezconfig.py";
+
+const wsData = {};
+wsData.hostname = osu.os.hostname();
+wsData.ip = osu.os.ip();
+
+const fileHandler = (req, callback) => {
+  let requestedPath = req.url.substr(6);
+  let allowed = path.resolve(requestedPath).startsWith("/transfer/hub/");
+  if (!allowed) {
+    callback({error: -10});
+    return;
+  }
+  callback({
+    path: requestedPath
+  });
+};
 
 function createWindow(): void {
-  // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+    width: 1920,
+    height: 1080,
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -16,6 +46,9 @@ function createWindow(): void {
       sandbox: false
     }
   })
+
+  if (is.dev) mainWindow.webContents.openDevTools();
+  else mainWindow.removeMenu();
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
@@ -26,25 +59,26 @@ function createWindow(): void {
     return { action: 'deny' }
   })
 
-  // HMR for renderer base on electron-vite cli.
-  // Load the remote URL for development or the local html file for production.
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
+  ipcMain.handle("dir_input", async (e, properties=[]) => {
+    const settings = {properties: ["openDirectory", ...properties]};
+    return await dialog.showOpenDialog(mainWindow, settings);
+  });
+
+  ipcMain.handle("file_input", async (e, properties=[]) => {
+    const settings = {properties: ["openFile", ...properties]};
+    return await dialog.showOpenDialog(mainWindow, settings);
+  });
 }
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-  // Set app user model id for windows
-  electronApp.setAppUserModelId('com.electron')
+  electronApp.setAppUserModelId('com.ethub')
 
-  // Default open or close DevTools by F12 in development
-  // and ignore CommandOrControl + R in production.
-  // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
@@ -52,20 +86,92 @@ app.whenReady().then(() => {
   createWindow()
 
   app.on('activate', function () {
-    // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 })
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
 })
 
-// In this file you can include the rest of your app"s specific main process
-// code. You can also put them in separate files and require them here.
+
+
+ipcMain.handle("store_data", async (_, filename, data) => {
+  const filepath = path.join(os.homedir(), ".ethub", filename);
+  fs.promises.writeFile(filepath, data, (err) => {
+    if (err) throw err;
+    else return true;
+  });
+});
+
+ipcMain.handle("load_data", async (_, filename) => {
+  const filepath = path.join(os.homedir(), ".ethub", filename);
+  fs.promises.readFile(filepath, (err) => {
+    if (err) throw err;
+    return true;
+  });
+});
+
+ipcMain.handle("open_url", async (_, url) => {
+  shell.openExternal(url);
+});
+
+ipcMain.handle("get_version", () => {
+  return app.getVersion();
+});
+
+ipcMain.handle("check_path", async (_, filepath) => {
+  let valid = true;
+  try {
+    await fs.promises.access(filepath);
+  } catch (err) {
+    valid = false;
+  }
+  return valid;
+});
+
+ipcMain.handle("get_env", (e, env_name) => {
+  return process.env[env_name];
+});
+
+ipcMain.handle("uuid", () => {
+  return uuid4();
+});
+
+// ipcMain.on("ondragstart", (event, filePath) => {
+//   event.sender.startDrag({
+//     file: join(__dirname, filePath),
+//   });
+// });
+
+ipcMain.handle("set_env", (e, env_name, env_value) => {
+  process.env[env_name] = env_value;
+});
+
+ipcMain.handle("set_envs", (e, data) => {
+  for (const [env_name, env_value] of Object.entries(data)) {
+    process.env[env_name] = env_value;
+  }
+});
+
+// ipcMain.handle(
+//   "launch_dcc",
+//   async (e, _cmd, args, options={shell: false, persist: false}) => {
+//     const cmd = commandBuilder(_cmd, args, options);
+//     console.log("Running", `"${cmd}"`);
+//     if (options.env) console.log("With env", options.env);
+//     const dccEnv = {...process.env, ...(options.env || {})};
+//     const proc = spawn(cmd, {shell: true, detached: true, env: dccEnv});
+//     if (proc) {
+//       proc.unref();
+//       return true;
+//     }
+//   }
+// );
+
+ipcMain.handle("restart", () => {
+  app.relaunch();
+  app.exit();
+});

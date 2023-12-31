@@ -1,0 +1,26 @@
+.container {
+  /* height: 100%; */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sectionContainer {
+  background: linear-gradient(270deg, rgb(20, 20, 20) 0%, rgb(24, 26, 37) 100%);
+  padding: 10px;
+  border-radius: 5px;
+  flex-grow: 1;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  filter: drop-shadow(5px 5px 5px rgba(13, 14, 20, 0.25));
+  cursor: pointer;
+}
+
+.text {
+  flex-grow: 1;
+}
+
+.icon {
+  max-height: 30px;
+}

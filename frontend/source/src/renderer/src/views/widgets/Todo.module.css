@@ -1,0 +1,125 @@
+.container {
+}
+
+.itemContainerRow {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex-grow: 1;
+  padding: 5px;
+}
+
+.tabsContainer {
+  display: flex;
+  justify-content: center;
+}
+
+.tasksContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.subItemListContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  transition: max-height 0.25s, padding 0.25s;
+}
+
+.bottomBar {
+  display: flex;
+  gap: 5px;
+  justify-content: space-between;
+  /* padding: 0 10px 5px; */
+}
+
+.dueDateContainer {
+  background-color: rgb(30, 30, 30);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 20px;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.dueDateContainer:hover {
+  background-color: rgb(60, 60, 60);
+}
+
+.tagContainer {
+  background-color: rgb(30, 30, 30);
+  padding: 5px;
+}
+
+.itemContainer {
+  border: solid rgb(50, 50, 50) 1px;
+  background-color: rgb(30, 30, 30);
+  border-radius: 3px;
+  min-height: 60px;
+  display: flex;
+  overflow: hidden;
+  /* filter: drop-shadow(5px 5px 5px rgba(0, 0, 0, 0.25)); */
+}
+
+.todayContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.todayChecked {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.todayUnchecked {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.compactContainer {
+  border: solid rgb(50, 50, 50) 1px;
+  background-color: rgb(30, 30, 30);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+}
+
+.firstRow {
+  display: flex;
+  gap: 5px;
+}
+
+.row {
+  display: flex;
+  gap: 5px;
+  width: 100%;
+  flex-grow: 10;
+  overflow: auto;
+}
+
+.expandButton {
+  background-color: rgb(50, 50, 50);
+  width: 25px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.expandButton:hover {
+  background-color: rgb(100, 100, 100);
+}
+
+.subItemContainer {
+  padding-left: 35px;
+  display: flex;
+  gap: 5px;
+  width: 100%;
+  flex-grow: 10;
+  overflow: clip;
+}

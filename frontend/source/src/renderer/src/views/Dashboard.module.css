@@ -1,0 +1,39 @@
+.container {
+  /* width: 100%;
+  height: 100%; */
+}
+
+.top {
+  box-sizing: border-box;
+  width: 100%;
+  height: 50px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 5px;
+  padding-top: 10px;
+  gap: 5px;
+}
+
+.settingsButton {
+  color: rgba(200, 200, 200);
+  opacity: 0.25;
+  cursor: pointer;
+  font-size: 35px !important;
+}
+
+.settingsButton:hover {
+  opacity: 1;
+}
+
+.settingsColumn {
+  display: flex;
+  flex-direction: column;
+  max-width: 300px;
+}
+
+.settingsRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
