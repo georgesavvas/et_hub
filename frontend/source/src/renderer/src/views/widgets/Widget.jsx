@@ -1,8 +1,9 @@
+import React, {useEffect, useState} from "react";
+
 // import Close from "@mui/icons-material/Close";
 // import Settings from "@mui/icons-material/Settings";
 // import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
-import React, {useEffect, useState} from "react";
-
+import { HolderOutlined } from "@ant-design/icons";
 // import Modal from "../../components/Modal";
 import { Typography } from "antd";
 import styles from "./Widget.module.css";
@@ -45,7 +46,7 @@ const Widget = props => {
       <div className={styles.container}>
         <div className={styles.top}>
           <div className={styles.topLeft}>
-            {/* <DragIndicatorIcon className={"dragHandle " + styles.dragHandle} /> */}
+            <HolderOutlined className={"dragHandle " + styles.dragHandle} />
           </div>
           <div className={styles.topCentre}>
             <Text className={styles.title}>

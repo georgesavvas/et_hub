@@ -3,15 +3,17 @@
   width: 180px;
   height: 100%;
   position: relative;
-  padding: 20px;
-  display: flex;
-  align-items: center;
-}
-
-.menuContainer {
-  margin-top: 50px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
+  gap: 5px;
+  /* align-items: center; */
+}
+
+.row {
+  display: flex;
+  gap: 5px;
+  width: 100%;
 }
 
 .optionContainer {
