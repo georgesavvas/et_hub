@@ -38,70 +38,93 @@ const widgets = {
 
 const RGL = WidthProvider(GridLayout);
 
+// const defaultLayout = [
+//   {
+//     "w": 4,
+//     "h": 2,
+//     "x": 2,
+//     "y": 1,
+//     "i": "projects_1"
+//   },
+//   {
+//     "w": 2,
+//     "h": 1,
+//     "x": 6,
+//     "y": 0,
+//     "i": "workstation_2"
+//   },
+//   {
+//     "w": 2,
+//     "h": 2,
+//     "x": 0,
+//     "y": 0,
+//     "i": "licenses_3"
+//   },
+//   {
+//     "w": 4,
+//     "h": 3,
+//     "x": 2,
+//     "y": 3,
+//     "i": "farm_4"
+//   },
+//   {
+//     "w": 2,
+//     "h": 3,
+//     "x": 6,
+//     "y": 1,
+//     "i": "todo_5"
+//   },
+//   {
+//     "w": 2,
+//     "h": 2,
+//     "x": 6,
+//     "y": 4,
+//     "i": "notes_6"
+//   },
+//   {
+//     "w": 4,
+//     "h": 1,
+//     "x": 2,
+//     "y": 0,
+//     "i": "apps_7"
+//   },
+//   {
+//     "w": 2,
+//     "h": 2,
+//     "x": 0,
+//     "y": 2,
+//     "i": "wiki_8"
+//   },
+//   {
+//     "w": 2,
+//     "h": 2,
+//     "x": 0,
+//     "y": 4,
+//     "i": "support_9"
+//   }
+// ];
 const defaultLayout = [
   {
-    "w": 4,
-    "h": 2,
-    "x": 2,
-    "y": 1,
+    "w": 1,
+    "h": 1,
+    "x": 0,
+    "y": 0,
     "i": "projects_1"
   },
   {
-    "w": 2,
+    "w": 1,
     "h": 1,
-    "x": 6,
-    "y": 0,
-    "i": "workstation_2"
-  },
-  {
-    "w": 2,
-    "h": 2,
     "x": 0,
-    "y": 0,
-    "i": "licenses_3"
-  },
-  {
-    "w": 4,
-    "h": 3,
-    "x": 2,
-    "y": 3,
-    "i": "farm_4"
-  },
-  {
-    "w": 2,
-    "h": 3,
-    "x": 6,
     "y": 1,
-    "i": "todo_5"
+    "i": "projects_2"
   },
   {
-    "w": 2,
+    "w": 1,
     "h": 2,
-    "x": 6,
-    "y": 4,
-    "i": "notes_6"
-  },
-  {
-    "w": 4,
-    "h": 1,
     "x": 2,
-    "y": 0,
-    "i": "apps_7"
-  },
-  {
-    "w": 2,
-    "h": 2,
-    "x": 0,
     "y": 2,
-    "i": "wiki_8"
+    "i": "projects_3"
   },
-  {
-    "w": 2,
-    "h": 2,
-    "x": 0,
-    "y": 4,
-    "i": "support_9"
-  }
 ];
 
 const defaultSizes = {
@@ -278,15 +301,8 @@ const Dashboard = () => {
             variant="outlined" color="warning">
             Reset Layout
           </Button>
-        ]} />
-      <div className={styles.top}>
-        {/* <Button onClick={handleResetLayout} variant="outlined" color="secondary"
-          size="small">
-          Reset Layout
-        </Button> */}
-        {/* <Settings className={styles.settingsButton}
-          onClick={handleOpenSettings} /> */}
-      </div>
+        ]}
+      />
       <div>
         <RGL
           layout={layout}

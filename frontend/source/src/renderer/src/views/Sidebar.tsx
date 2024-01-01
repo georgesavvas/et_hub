@@ -45,29 +45,33 @@ const Sidebar = () => {
 
   return (
     <div className={styles.container}>
-      <Flex style={{ width: "100%", marginBottom: "20px" }} gap="small">
-        <Button style={{ width: "100%" }} icon={<SettingFilled />}></Button>
-        <Button style={{ width: "100%" }} icon={<QuestionCircleFilled />}></Button>
-      </Flex>
-      <Space>
-        <Button type="text">
-          <Avatar size={50} icon={<UserOutlined />} />
-          <Text>George Savvas</Text>
+      <Flex style={{ width: "100%" }} gap="small">
+        <Button style={{ width: "100%" }}>
+          <SettingFilled />
         </Button>
-      </Space>
-      <Divider>Layouts</Divider>
+        <Button style={{ width: "100%" }}>
+          <QuestionCircleFilled />
+        </Button>
+      </Flex>
+      <div className={styles.avatarButton}>
+        <Avatar size="large" icon={<UserOutlined />} />
+        <Text style={{ width: "max-content" }}>George Savvas</Text>
+      </div>
+      <Divider style={{ margin: "8px 0" }}>Layout</Divider>
       <Space direction="vertical">
-        <Button type="text">Layout 1</Button>
-        <Button type="text">Layout 1</Button>
-        <Button type="text">Layout 1</Button>
+        <Button style={{ width: "100%" }}>Save</Button>
+        <Button style={{ width: "100%" }}>Reset</Button>
+        <Button style={{ width: "100%" }}>Manage Layouts</Button>
+        <Button type="text">Generic</Button>
+        <Button type="text">Farm</Button>
       </Space>
-      <Divider>Widgets</Divider>
+      <Divider style={{ margin: "8px 0" }}>Widgets</Divider>
       <Space direction="vertical">
         <Button type="text">App Launcher</Button>
         <Button type="text">Projects</Button>
         <Button type="text">Notes</Button>
       </Space>
-      {/* <Menu mode="inline" items={items} style={{ backgroundColor: "none" }} /> */}
+      {/* <Menu items={items} style={{ backgroundColor: "none" }} /> */}
     </div>
   );
 };
