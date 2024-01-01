@@ -1,13 +1,11 @@
-import { Typography } from "@mui/material";
+import LogoImg from "../assets/logo.png";
 import React from "react";
-
 import styles from "./Logo.module.css";
-
 
 const Logo = () => {
   return (
     <div>
-      <img className={styles.img} src="media/logo.png" alt="Hub Logo" />
+      <img className={styles.img} src={LogoImg} alt="Hub Logo" />
     </div>
   );
 };

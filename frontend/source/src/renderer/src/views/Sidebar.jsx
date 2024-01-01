@@ -1,9 +1,11 @@
-import { Divider, MenuItem, Typography } from "@mui/material";
+import { Divider, Typography } from "antd";
 import React, {useContext} from "react";
-import Logo from "../components/Logo";
 
-import styles from "./Menu.module.css";
 import {ConfigContext} from "../contexts/ConfigContext";
+import Logo from "../components/Logo";
+import styles from "./Sidebar.module.css";
+
+const { Title, Paragraph, Text, Link } = Typography;
 
 const options = [
   {
@@ -52,16 +54,16 @@ const MenuOption = props => {
   };
 
   return (
-    <MenuItem className={styles.optionContainer} onClick={handleClick} draggable
+    <div className={styles.optionContainer} onClick={handleClick}
       onDragStart={handleDragStart}>
-      <Typography variant="h5">
+      <Text>
         {props.label}
-      </Typography>
-    </MenuItem>
+      </Text>
+    </div>
   );
 };
 
-const Menu = () => {
+const Sidebar = () => {
   const {setActivePage} = useContext(ConfigContext);
 
   return (
@@ -70,16 +72,19 @@ const Menu = () => {
         <Logo />
       </div>
       <div className={styles.menuContainer}>
-        <MenuOption key="DashBoard" label="Dashboard"
-          setActivePage={setActivePage} />
+        <MenuOption key="Settings" label="Settings" />
+        <MenuOption key="Avatar" label="Avatar" />
         <Divider />
-        {options.map(o =>
+        <MenuOption key="Layouts" label="Layouts" />
+        <Divider />
+        <MenuOption key="Widgets" label="Widgets" />
+        {/* {options.map(o =>
           <MenuOption key={o.label} label={o.label} name={o.name}
             setActivePage={setActivePage} />
-        )}
+        )} */}
       </div>
     </div>
   );
 };
 
-export default Menu;
+export default Sidebar;

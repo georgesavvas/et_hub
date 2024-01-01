@@ -1,14 +1,14 @@
 import React, {useContext, useEffect, useState} from "react";
 
+import Dashboard from "./Dashboard";
+import { Divider } from "antd";
+// import serverRequest from "../services/serverRequest";
+import Sidebar from "./Sidebar";
 // import {ConfigContext} from "../contexts/ConfigContext";
 import styles from "./Home.module.css";
-// import Divider from "@mui/material/Divider";
 // import Typography from "@mui/material/Typography";
 import { useResizeDetector } from "react-resize-detector";
 
-// import serverRequest from "../services/serverRequest";
-// import Menu from "./Menu";
-// import Dashboard from "./Dashboard";
 // import Farm from "./widgets/Farm/Farm";
 // import Support from "./widgets/Support";
 // import Projects from "./widgets/Projects";
@@ -66,8 +66,9 @@ export function Home() {
         : null
       } */}
       <div className={styles.row}>
-        {/* <Menu /> */}
-        {/* <Divider orientation="vertical" /> */}
+        <Sidebar />
+        <Divider type="vertical" style={{ height: "100%" }} />
+        <Dashboard />
         <div ref={ref} className={styles.contents}>
           {/* {SelectedWidget ?
             <SelectedWidget rglKey={`${activePage}_global`} size={[width, height]} />

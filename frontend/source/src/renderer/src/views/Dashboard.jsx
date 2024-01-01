@@ -1,36 +1,39 @@
-import React, {useState, useEffect} from "react";
+// import "/node_modules/react-grid-layout/css/styles.css";
 
-import styles from "./Dashboard.module.css";
 import GridLayout, {WidthProvider} from "react-grid-layout";
+import React, {useEffect, useState} from "react";
+
+import { Button } from "antd";
+// import {Button, DialogTitle, Slider, Typography} from "@mui/material";
+// import Settings from "@mui/icons-material/Settings";
+// import Modal from "../components/Modal";
+import CodeEditor from "@uiw/react-textarea-code-editor";
+// import Support from "./widgets/Support";
+import Projects from "./widgets/Projects";
+// import Farm from "./widgets/Farm/Farm";
 import loadFromLS from "../utils/loadFromLS";
 import saveToLS from "../utils/saveToLS";
-import {Button, DialogTitle, Slider, Typography} from "@mui/material";
-import Settings from "@mui/icons-material/Settings";
-import Modal from "../components/Modal";
-import CodeEditor from "@uiw/react-textarea-code-editor";
-import Farm from "./widgets/Farm/Farm";
-import Support from "./widgets/Support";
-import Projects from "./widgets/Projects";
-import Workstation from "./widgets/Workstation";
-import Wiki from "./widgets/Wiki";
-import Apps from "./widgets/Apps";
-import Todo from "./widgets/Todo";
-import Notes from "./widgets/Notes";
-import Licenses from "./widgets/Licenses";
+import styles from "./Dashboard.module.css";
 
-import "/node_modules/react-grid-layout/css/styles.css";
+// import Workstation from "./widgets/Workstation";
+// import Wiki from "./widgets/Wiki";
+// import Apps from "./widgets/Apps";
+// import Todo from "./widgets/Todo";
+// import Notes from "./widgets/Notes";
+// import Licenses from "./widgets/Licenses";
 
 
+// const widgets = {};
 const widgets = {
   projects: Projects,
-  workstation: Workstation,
-  farm: Farm,
-  support: Support,
-  wiki: Wiki,
-  apps: Apps,
-  todo: Todo,
-  notes: Notes,
-  licenses: Licenses
+  // workstation: Workstation,
+  // farm: Farm,
+  // support: Support,
+  // wiki: Wiki,
+  // apps: Apps,
+  // todo: Todo,
+  // notes: Notes,
+  // licenses: Licenses
 };
 
 const RGL = WidthProvider(GridLayout);
@@ -133,62 +136,63 @@ const DashboardSettings = props => {
     props.onClose();
   };
 
-  const modalButtons = [
-    <Button key="close" onClick={props.onClose} size="small"
-      variant="outlined" color="error">
-      Cancel
-    </Button>,
-    ...props.buttons, 
-    <Button key="confirm" onClick={handleConfirm} size="small"
-      variant="outlined" color="success">
-      Confirm
-    </Button>
-  ];
+  // const modalButtons = [
+  //   <Button key="close" onClick={props.onClose} size="small"
+  //     variant="outlined" color="error">
+  //     Cancel
+  //   </Button>,
+  //   ...props.buttons,
+  //   <Button key="confirm" onClick={handleConfirm} size="small"
+  //     variant="outlined" color="success">
+  //     Confirm
+  //   </Button>
+  // ];
 
   return (
-    <Modal title="Dashboard Settings" open={props.open} onClose={props.onClose}
-      fullHeight buttons={modalButtons}>
-      <DialogTitle>Layout</DialogTitle>
-      <div className={styles.settingsColumn}>
-        <div className={styles.settingsRow}>
-          <Typography>Rows</Typography>
-          <Slider
-            size="small"
-            valueLabelDisplay="auto"
-            step={1}
-            marks
-            min={4}
-            max={16}
-            value={rows}
-            onChange={e => setRows(e.target.value)}
-          />
-        </div>
-        <div className={styles.settingsRow}>
-          <Typography>Columns</Typography>
-          <Slider
-            size="small"
-            valueLabelDisplay="auto"
-            step={1}
-            marks
-            min={4}
-            max={12}
-            value={columns}
-            onChange={e => setColumns(e.target.value)}
-          />
-        </div>
-      </div>
-      <DialogTitle>Widget Config</DialogTitle>
-      <CodeEditor
-        value={layoutCode}
-        language="js"
-        onChange={e => setLayoutCode(e.target.value)}
-        padding={15}
-        data-color-mode="dark"
-        style={{
-          fontSize: 12
-        }}
-      />
-    </Modal>
+    <div />
+    // <Modal title="Dashboard Settings" open={props.open} onClose={props.onClose}
+    //   fullHeight buttons={modalButtons}>
+    //   <DialogTitle>Layout</DialogTitle>
+    //   <div className={styles.settingsColumn}>
+    //     <div className={styles.settingsRow}>
+    //       <Typography>Rows</Typography>
+    //       <Slider
+    //         size="small"
+    //         valueLabelDisplay="auto"
+    //         step={1}
+    //         marks
+    //         min={4}
+    //         max={16}
+    //         value={rows}
+    //         onChange={e => setRows(e.target.value)}
+    //       />
+    //     </div>
+    //     <div className={styles.settingsRow}>
+    //       <Typography>Columns</Typography>
+    //       <Slider
+    //         size="small"
+    //         valueLabelDisplay="auto"
+    //         step={1}
+    //         marks
+    //         min={4}
+    //         max={12}
+    //         value={columns}
+    //         onChange={e => setColumns(e.target.value)}
+    //       />
+    //     </div>
+    //   </div>
+    //   <DialogTitle>Widget Config</DialogTitle>
+    //   <CodeEditor
+    //     value={layoutCode}
+    //     language="js"
+    //     onChange={e => setLayoutCode(e.target.value)}
+    //     padding={15}
+    //     data-color-mode="dark"
+    //     style={{
+    //       fontSize: 12
+    //     }}
+    //   />
+    // </Modal>
   );
 };
 
@@ -276,12 +280,12 @@ const Dashboard = () => {
           </Button>
         ]} />
       <div className={styles.top}>
-        <Button onClick={handleResetLayout} variant="outlined" color="secondary"
+        {/* <Button onClick={handleResetLayout} variant="outlined" color="secondary"
           size="small">
           Reset Layout
-        </Button>
-        <Settings className={styles.settingsButton}
-          onClick={handleOpenSettings} />
+        </Button> */}
+        {/* <Settings className={styles.settingsButton}
+          onClick={handleOpenSettings} /> */}
       </div>
       <div>
         <RGL

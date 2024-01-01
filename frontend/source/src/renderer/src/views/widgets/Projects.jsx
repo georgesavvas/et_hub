@@ -1,22 +1,21 @@
-import React, {useContext, useState, useEffect, useRef} from "react";
+import React, {useContext, useEffect, useRef, useState} from "react";
 
-import styles from "./Projects.module.css";
-import Carousel from "nuka-carousel";
-import {Typography, TextField} from "@mui/material";
+import {ConfigContext} from "../../contexts/ConfigContext";
+// import Carousel from "nuka-carousel";
+// import {Typography, TextField} from "@mui/material";
 import {DataContext} from "../../contexts/DataContext";
-import {useResizeDetector} from "react-resize-detector";
+// import { useInView } from "react-intersection-observer";
+import DataPlaceholder from "../../components/DataPlaceholder";
+// import {useResizeDetector} from "react-resize-detector";
 import Widget from "./Widget";
+import {formatURL} from "../../services/serverRequest";
 import loadFromLS from "../../utils/loadFromLS";
 import saveToLS from "../../utils/saveToLS";
-import {formatURL} from "../../services/serverRequest";
-import {ConfigContext} from "../../contexts/ConfigContext";
-import { useInView } from "react-intersection-observer";
-import DataPlaceholder from "../../components/DataPlaceholder";
-
+import styles from "./Projects.module.css";
 
 const Project = ({src, width, height}) => {
   const widgetContainer = document.getElementById("widgetContainer");
-  const {ref, inView} = useInView({root: widgetContainer, threshold: 0.5});
+  // const {ref, inView} = useInView({root: widgetContainer, threshold: 0.5});
   const videoRef = useRef();
 
   if (videoRef.current && document.fullscreenElement === null) {
@@ -44,7 +43,8 @@ const Project = ({src, width, height}) => {
 const Projects = props => {
   const [mounted, setMounted] = useState(false);
   const {isElectron} = useContext(ConfigContext);
-  const {width, height, ref} = useResizeDetector();
+  // const {width, height, ref} = useResizeDetector();
+  const {width, height, ref} = {width: 100, height: 100, ref: null};
   const {reels} = useContext(DataContext);
   const [widgetConfig, setWidgetConfig] = useState({});
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -87,12 +87,12 @@ const Projects = props => {
   };
 
   const Settings = <>
-    <TextField
+    {/* <TextField
       label="Widget name"
       value={title}
       onChange={e => setTitle(e.target.value)}
       size="small"
-    />
+    /> */}
   </>;
 
   return (
@@ -105,7 +105,7 @@ const Projects = props => {
       rglKey={props.rglKey}
     >
       <div id="widgetContainer" className={styles.container} ref={ref}>
-        <Carousel wrapAround enableKeyboardControls withoutControls
+        {/* <Carousel wrapAround enableKeyboardControls withoutControls
           slidesToScroll={slidesToScroll} dragThreshold={0.25}
           slidesToShow={slidesAmount} autoplayInterval={5000} cellAlign="center"
           autoplay={document.fullscreenElement === null}
@@ -117,7 +117,7 @@ const Projects = props => {
               height={slideHeight}
             />
           )}
-        </Carousel>
+        </Carousel> */}
       </div>
     </Widget>
   );

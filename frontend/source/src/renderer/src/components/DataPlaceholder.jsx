@@ -1,6 +1,7 @@
 import React from "react";
+import { Typography } from "antd";
 
-import Typography from "@mui/material/Typography";
+const { Text } = Typography;
 
 
 const containerStyle = {
@@ -25,7 +26,7 @@ const typeStyle = {
 const DataPlaceholder = props => {
   return (
     <div style={{...containerStyle, ...props.style}}>
-      <Typography variant={props.variant || "h4"} style={typeStyle}>{props.text || "Placeholder"}</Typography>
+      <Text style={typeStyle}>{props.text || "Placeholder"}</Text>
     </div>
   );
 };

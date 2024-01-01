@@ -6,7 +6,6 @@
   padding: 0px;
   display: flex;
   flex-direction: column;
-  border: red 2px solid;
 }
 
 .row {

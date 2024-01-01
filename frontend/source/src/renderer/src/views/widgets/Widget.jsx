@@ -1,11 +1,14 @@
-import styles from "./Widget.module.css";
-import Close from "@mui/icons-material/Close";
-import Settings from "@mui/icons-material/Settings";
-import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
+// import Close from "@mui/icons-material/Close";
+// import Settings from "@mui/icons-material/Settings";
+// import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import React, {useEffect, useState} from "react";
-import { Typography } from "@mui/material";
 
-import Modal from "../../components/Modal";
+// import Modal from "../../components/Modal";
+import { Typography } from "antd";
+import styles from "./Widget.module.css";
+
+const { Text } = Typography;
+
 
 
 const WidgetSettings = props => {
@@ -29,7 +32,7 @@ const Widget = props => {
 
   return (
     <div className={styles.view}>
-      {props.settings ?
+      {/* {props.settings ?
         <WidgetSettings
           title={props.rglKey}
           open={props.settingsOpen}
@@ -38,22 +41,22 @@ const Widget = props => {
           {props.settings}
         </WidgetSettings>
         : null
-      }
+      } */}
       <div className={styles.container}>
         <div className={styles.top}>
           <div className={styles.topLeft}>
-            <DragIndicatorIcon className={"dragHandle " + styles.dragHandle} />
+            {/* <DragIndicatorIcon className={"dragHandle " + styles.dragHandle} /> */}
           </div>
           <div className={styles.topCentre}>
-            <Typography className={styles.title} variant="body1">
+            <Text className={styles.title}>
               {props.title}
-            </Typography>
+            </Text>
           </div>
           <div className={styles.topRight}>
-            <Settings className={styles.settingsButton}
+            {/* <Settings className={styles.settingsButton}
               onClick={() => props.setSettingsOpen(true)} />
             <Close className={styles.closeButton}
-              onClick={handleRemovePressed} />
+              onClick={handleRemovePressed} /> */}
           </div>
         </div>
         <div className={styles.content}>
