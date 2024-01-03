@@ -1,5 +1,6 @@
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 
+import { ConfigContext } from "../../contexts/ConfigContext";
 // import Close from "@mui/icons-material/Close";
 // import Settings from "@mui/icons-material/Settings";
 // import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
@@ -26,13 +27,21 @@ const WidgetSettings = props => {
 };
 
 const Widget = props => {
+  const {appLook}  = useContext(ConfigContext);
+
+  const widgetStyle = {
+    backgroundColor: `rgba(${appLook.widgetColour.r}, ${appLook.widgetColour.g}, ${
+      appLook.widgetColour.b
+    }, ${1 - appLook.widgetTranslucency})`,
+    backdropFilter: `blur(${appLook.widgetBlur}px)`,
+  };
 
   const handleRemovePressed = () => {
     props.onRemove(props.rglKey);
   };
 
   return (
-    <div className={styles.view}>
+    <div className={styles.view} style={widgetStyle}>
       {/* {props.settings ?
         <WidgetSettings
           title={props.rglKey}
@@ -45,20 +54,20 @@ const Widget = props => {
       } */}
       <div className={styles.container}>
         <div className={styles.top}>
-          <div className={styles.topLeft}>
+          {/* <div className={styles.topLeft}>
             <HolderOutlined className={"dragHandle " + styles.dragHandle} />
-          </div>
+          </div> */}
           <div className={styles.topCentre}>
             <Text className={styles.title}>
-              {props.title}
+              {props.title || "No Title"}
             </Text>
           </div>
-          <div className={styles.topRight}>
-            {/* <Settings className={styles.settingsButton}
+          {/* <div className={styles.topRight}>
+            <Settings className={styles.settingsButton}
               onClick={() => props.setSettingsOpen(true)} />
             <Close className={styles.closeButton}
-              onClick={handleRemovePressed} /> */}
-          </div>
+              onClick={handleRemovePressed} />
+          </div> */}
         </div>
         <div className={styles.content}>
           {props.children}

@@ -20,19 +20,19 @@ export const DataProvider = props => {
   const [licenses, setLicenses] = useState({});
   const [farm, setFarm] = useState({});
 
-  // const fetchData = () => {
-  //   serverRequest(URLS.licenses).then(resp => setLicenses(resp));
-  //   serverRequest(URLS.projects).then(resp => setReels(resp));
-  //   serverRequest(URLS.farm).then(resp => setFarm(resp));
-  // };
+  const fetchData = () => {
+    serverRequest(URLS.licenses).then(resp => setLicenses(resp));
+    serverRequest(URLS.projects).then(resp => setReels(resp));
+    serverRequest(URLS.farm).then(resp => setFarm(resp));
+  };
 
-  // useEffect(() => {
-  //   fetchData();
-  //   const fetchDataInterval = setInterval(() => {
-  //     fetchData();
-  //   }, 5000);
-  //   return () => clearInterval(fetchDataInterval);
-  // }, []);
+  useEffect(() => {
+    fetchData();
+    const fetchDataInterval = setInterval(() => {
+      fetchData();
+    }, 5000);
+    return () => clearInterval(fetchDataInterval);
+  }, []);
 
   return (
     <DataContext.Provider value={{

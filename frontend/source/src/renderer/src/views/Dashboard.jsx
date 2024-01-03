@@ -1,15 +1,18 @@
-// import "/node_modules/react-grid-layout/css/styles.css";
+import "react-grid-layout/css/styles.css";
+import "react-resizable/css/styles.css";
 
-import GridLayout, {WidthProvider} from "react-grid-layout";
-import React, {useEffect, useState} from "react";
+import { Button, Col, Divider, Input, InputNumber, Row, Slider, Space, Switch, Typography } from "antd";
+import GridLayout, { WidthProvider } from "react-grid-layout";
+import React, {useContext, useEffect, useState} from "react";
 
-import { Button } from "antd";
 // import {Button, DialogTitle, Slider, Typography} from "@mui/material";
 // import Settings from "@mui/icons-material/Settings";
 // import Modal from "../components/Modal";
 import CodeEditor from "@uiw/react-textarea-code-editor";
+import { ConfigContext } from "../contexts/ConfigContext";
 // import Support from "./widgets/Support";
 import Projects from "./widgets/Projects";
+import Widget from "./widgets/Widget";
 // import Farm from "./widgets/Farm/Farm";
 import loadFromLS from "../utils/loadFromLS";
 import saveToLS from "../utils/saveToLS";
@@ -22,6 +25,7 @@ import styles from "./Dashboard.module.css";
 // import Notes from "./widgets/Notes";
 // import Licenses from "./widgets/Licenses";
 
+const { Text } = Typography;
 
 // const widgets = {};
 const widgets = {
@@ -103,29 +107,6 @@ const RGL = WidthProvider(GridLayout);
 //     "i": "support_9"
 //   }
 // ];
-const defaultLayout = [
-  {
-    "w": 1,
-    "h": 1,
-    "x": 0,
-    "y": 0,
-    "i": "projects_1"
-  },
-  {
-    "w": 1,
-    "h": 1,
-    "x": 0,
-    "y": 1,
-    "i": "projects_2"
-  },
-  {
-    "w": 1,
-    "h": 2,
-    "x": 2,
-    "y": 2,
-    "i": "projects_3"
-  },
-];
 
 const defaultSizes = {
   apps: {w: 3, h: 1},
@@ -220,18 +201,21 @@ const DashboardSettings = props => {
 };
 
 const Dashboard = () => {
-  const [layout, setLayout] = useState([]);
-  const [rows, setRows] = useState(6);
-  const [columns, setColumns] = useState(8);
+  const {layout, setLayout, layoutEditable, rows, setRows, columns, setColumns, resetLayout}  = useContext(ConfigContext);
   const [mounted, setMounted] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+
+  const topBarStyle = {
+    minHeight: layoutEditable ? "50px" : 0,
+    maxHeight: layoutEditable ? "50px" : 0,
+    padding: layoutEditable ? "5px 15px 0 15px" : 0,
+  };
 
   useEffect(() => {
     setMounted(true);
     const savedLayout = loadFromLS("layout") || [...defaultLayout];
     setLayout(savedLayout);
   }, []);
-
 
   const handleOpenSettings = () => setSettingsOpen(true);
   const handleCloseSettings = () => setSettingsOpen(false);
@@ -265,17 +249,12 @@ const Dashboard = () => {
   };
 
   const margin = 10;
-  const rowHeight = (window.innerHeight - 50 - margin * (rows + 1)) / rows;
-
-  const handleResetLayout = () => {
-    setLayout(defaultLayout);
-    setRows(6);
-    setColumns(8);
-  };
+  const rowHeight = (window.innerHeight - (layoutEditable ? 50 : 0) - margin * (rows + 1)) / rows;
 
   const handleDropDragOver = e => {
     const data = e.dataTransfer.types.filter(d => d.includes("/hub_view/"));
     if (!data.length) return;
+    console.log(data);
     const widgetType = data[0].split("/").at(-1);
     const defaultSize = defaultSizes[widgetType];
     if (!widgetType || !defaultSize) return;
@@ -293,50 +272,58 @@ const Dashboard = () => {
 
   return (
     <div className={styles.container}>
-      <DashboardSettings open={settingsOpen} onClose={handleCloseSettings}
-        layout={layout} setLayout={setLayout} rows={rows} setRows={setRows}
-        columns={columns} setColumns={setColumns}
-        buttons={[
-          <Button key="reset" onClick={handleResetLayout} size="small"
-            variant="outlined" color="warning">
-            Reset Layout
-          </Button>
-        ]}
-      />
-      <div>
-        <RGL
-          layout={layout}
-          onLayoutChange={handleLayoutChange}
-          width={1200}
-          onDropDragOver={handleDropDragOver}
-          onDrop={handleDrop}
-          isDroppable={true}
-          rowHeight={rowHeight}
-          margin={[margin, margin]}
-          cols={columns}
-          compactType={"vertical"}
-          draggableHandle=".dragHandle"
-          measureBeforeMount={false}
-          useCSSTransforms={mounted}
-          isBounded
-          // resizeHandles={["se", "sw"]}
-          onDragStart={handleDragStart}
-          onResizeStart={handleResizeStart}
-        >
-          {layout.map(w => {
-            const widgetType = w.i.split("_")[0];
-            if (!widgetType || !(widgetType in widgets)) {
-              return <div key={w.i} />;
-            }
-            const SelectedWidget = widgets[widgetType];
-            return (
-              <div key={w.i}>
-                <SelectedWidget rglKey={w.i} onRemove={handleRemoveWidget} />
-              </div>
-            );
-          })}
-        </RGL>
+      <div className={styles.topBar} style={topBarStyle}>
+        <Text>Rows</Text>
+        <Slider min={2} max={12} style={{flexGrow: 1, maxWidth: 200}} value={rows} onChange={setRows} />
+        <InputNumber min={2} max={12} style={{ width: "60px", margin: "0 4px" }} value={rows} onChange={setRows} />
+        <Divider type="vertical" />
+        <Text>Columns</Text>
+        <Slider min={2} max={12} style={{flexGrow: 1, maxWidth: 200}} value={columns} onChange={setColumns} />
+        <InputNumber min={2} max={12} style={{ width: "60px", margin: "0 4px" }} value={columns} onChange={setColumns} />
+        <Divider type="vertical" />
+        <Input placeholder="Layout Name" style={{width: "fit-content"}} />
+        <Divider type="vertical" />
+        <Switch />
+        <Text>Make public</Text>
+        <Divider type="vertical" />
+        <Button onClick={resetLayout}>Reset to default</Button>
+        <Button onClick={resetLayout}>Reset to last saved</Button>
+        <Button style={{width: "100px"}} type="primary">Save</Button>
       </div>
+      <RGL
+        layout={layout}
+        onLayoutChange={handleLayoutChange}
+        onDropDragOver={handleDropDragOver}
+        onDrop={handleDrop}
+        isDroppable={layoutEditable}
+        rowHeight={rowHeight}
+        margin={[margin, margin]}
+        cols={columns}
+        autoSize={false}
+        measureBeforeMount={true}
+        useCSSTransforms={mounted}
+        isBounded={true}
+        onDragStart={handleDragStart}
+        onResizeStart={handleResizeStart}
+        compactType="vertical"
+        isDraggable={layoutEditable}
+        isResizable={layoutEditable}
+        style={{height: "100%", width: "100%"}}
+        resizeHandles={layoutEditable ? ["s", "se", "n", "ne", "e"] : []}
+      >
+        {layout.map(w => {
+          const widgetType = w.i.split("_")[0];
+          if (!widgetType || !(widgetType in widgets)) {
+            return <div key={w.i} />;
+          }
+          const SelectedWidget = widgets[widgetType];
+          return (
+            <div key={w.i}>
+              <SelectedWidget rglKey={w.i} onRemove={handleRemoveWidget} />
+            </div>
+          );
+        })}
+      </RGL>
     </div>
   );
 };

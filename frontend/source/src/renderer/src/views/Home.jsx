@@ -4,6 +4,7 @@ import Dashboard from "./Dashboard";
 import { Divider } from "antd";
 // import serverRequest from "../services/serverRequest";
 import Sidebar from "./Sidebar";
+import bgImg from "../assets/bg.png";
 // import {ConfigContext} from "../contexts/ConfigContext";
 import styles from "./Home.module.css";
 // import Typography from "@mui/material/Typography";
@@ -33,8 +34,20 @@ import { useResizeDetector } from "react-resize-detector";
 //   licenses: Licenses
 // };
 
+const bgStyle = {
+  position: "absolute",
+  width: "100%",
+  height: "100%",
+  zIndex: -1,
+  backgroundImage: `url(${bgImg})`,
+  filter: "brightness(25%)",
+}
+
 export function Home() {
   const { width, height, ref } = useResizeDetector();
+  const [backgroundImage, setBackgroundImage] = useState(() => {
+    return localStorage.getItem("backgroundImage") || null;
+  });
   // const {isElectron, activePage} = useContext(ConfigContext);
   // const [updateAvailable, setUpdateAvailable] = useState(false);
 
@@ -67,7 +80,7 @@ export function Home() {
       } */}
       <div className={styles.row}>
         <Sidebar />
-        <Divider type="vertical" style={{ height: "100%" }} />
+        <Divider type="vertical" style={{ height: "100%", marginRight: 0 }} />
         <Dashboard />
         <div ref={ref} className={styles.contents}>
           {/* {SelectedWidget ?
@@ -76,6 +89,7 @@ export function Home() {
           } */}
         </div>
       </div>
+      <div style={bgStyle} />
     </div>
   );
 }

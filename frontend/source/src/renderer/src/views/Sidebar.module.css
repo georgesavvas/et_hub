@@ -4,6 +4,7 @@
   height: 100%;
   position: relative;
   padding: 5px;
+  padding-left: 12px;
   display: flex;
   flex-direction: column;
   gap: 5px;
@@ -14,6 +15,12 @@
   display: flex;
   gap: 5px;
   width: 100%;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
 .avatarButton {
@@ -30,6 +37,12 @@
   background-color: rgb(40, 40, 40);
 }
 
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .optionContainer {
   padding: 5px;
   padding-left: 10px;
@@ -43,4 +56,23 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.settingsBgImg {
+  position: absolute;
+}
+
+.previewContainer {
+  width: 90%;
+  margin: auto;
+  aspect-ratio: 16 / 9;
+  background-size: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.previewWidget {
+  width: 75%;
+  height: 75%;
 }

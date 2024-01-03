@@ -1,6 +1,6 @@
 import fetch from "./fetch";
 
-const address = "http://0ace-212-115-157-45.ngrok-free.app";
+const address = "0ace-212-115-157-45.ngrok-free.app";
 // const address = "ws-vm02:8085";
 
 async function serverRequest(method, data=undefined) {
