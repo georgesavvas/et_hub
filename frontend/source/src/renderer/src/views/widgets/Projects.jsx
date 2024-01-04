@@ -6,12 +6,15 @@ import {ConfigContext} from "../../contexts/ConfigContext";
 import {DataContext} from "../../contexts/DataContext";
 // import { useInView } from "react-intersection-observer";
 import DataPlaceholder from "../../components/DataPlaceholder";
+import { Typography } from "antd";
 // import {useResizeDetector} from "react-resize-detector";
 import Widget from "./Widget";
 import {formatURL} from "../../services/serverRequest";
 import loadFromLS from "../../utils/loadFromLS";
 import saveToLS from "../../utils/saveToLS";
 import styles from "./Projects.module.css";
+
+const { Title, Text } = Typography;
 
 const Project = ({src, width, height}) => {
   const widgetContainer = document.getElementById("widgetContainer");
@@ -105,6 +108,7 @@ const Projects = props => {
       rglKey={props.rglKey}
     >
       <div id="widgetContainer" className={styles.container} ref={ref}>
+        {reels.data?.map(file => <p key={file}>{file}</p>)}
         {/* <Carousel wrapAround enableKeyboardControls withoutControls
           slidesToScroll={slidesToScroll} dragThreshold={0.25}
           slidesToShow={slidesAmount} autoplayInterval={5000} cellAlign="center"

@@ -201,9 +201,15 @@ const DashboardSettings = props => {
 };
 
 const Dashboard = () => {
-  const {layout, setLayout, layoutEditable, rows, setRows, columns, setColumns, resetLayout}  = useContext(ConfigContext);
+  const {layout, setLayout, layoutEditable, resetLayout, appLook, setAppLook}  = useContext(ConfigContext);
   const [mounted, setMounted] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+
+  const {rows, columns} = layout;
+
+  const setLayoutKey = (key, value) => {
+    setLayout((prev) => ({ ...prev, [key]: value }));
+  };
 
   const topBarStyle = {
     minHeight: layoutEditable ? "50px" : 0,
@@ -213,37 +219,38 @@ const Dashboard = () => {
 
   useEffect(() => {
     setMounted(true);
-    const savedLayout = loadFromLS("layout") || [...defaultLayout];
-    setLayout(savedLayout);
   }, []);
 
   const handleOpenSettings = () => setSettingsOpen(true);
   const handleCloseSettings = () => setSettingsOpen(false);
 
-  const handleLayoutChange = newLayout => {
+  const handleLayoutChange = widgets => {
+    const newLayout = {...layout, widgets: widgets};
     setLayout(newLayout);
     saveToLS("layout", newLayout);
   };
 
-  const handleDrop = (layout, layoutItem, e) => {
+  const handleDrop = (widgets, item, e) => {
     const widgetType = e.dataTransfer.getData("text/hub_view");
     if (widgetType == "") return;
-    const x = layout.length;
+    const x = widgets.length;
     const defaultSize = defaultSizes[widgetType];
     const widget = {
       i: widgetType + "_" + x,
-      x: layoutItem.x,
-      y: layoutItem.y,
+      x: item.x,
+      y: item.y,
       w: defaultSize.w,
       h: defaultSize.h
     };
-    layout[x - 1] = widget;
-    setLayout(layout);
-    saveToLS("layout", layout);
+    widgets[x - 1] = widget;
+    const newLayout = {...layout, widgets: widgets};
+    setLayout(newLayout);
+    saveToLS("layout", newLayout);
   };
 
   const handleRemoveWidget = i => {
-    const newLayout = layout.filter(w => w.i != i);
+    const newWidgets = layout.filter(w => w.i != i);
+    const newLayout = {...layout, widgets: newWidgets};
     setLayout(newLayout);
     saveToLS("layout", layout);
   };
@@ -254,7 +261,6 @@ const Dashboard = () => {
   const handleDropDragOver = e => {
     const data = e.dataTransfer.types.filter(d => d.includes("/hub_view/"));
     if (!data.length) return;
-    console.log(data);
     const widgetType = data[0].split("/").at(-1);
     const defaultSize = defaultSizes[widgetType];
     if (!widgetType || !defaultSize) return;
@@ -274,16 +280,16 @@ const Dashboard = () => {
     <div className={styles.container}>
       <div className={styles.topBar} style={topBarStyle}>
         <Text>Rows</Text>
-        <Slider min={2} max={12} style={{flexGrow: 1, maxWidth: 200}} value={rows} onChange={setRows} />
-        <InputNumber min={2} max={12} style={{ width: "60px", margin: "0 4px" }} value={rows} onChange={setRows} />
+        <Slider min={2} max={12} style={{flexGrow: 1, maxWidth: 200}} value={rows} onChange={(value) => setLayoutKey("rows", value)} />
+        <InputNumber min={2} max={12} style={{ width: "60px", margin: "0 4px" }} value={rows} onChange={(value) => setLayoutKey("rows", value)} />
         <Divider type="vertical" />
         <Text>Columns</Text>
-        <Slider min={2} max={12} style={{flexGrow: 1, maxWidth: 200}} value={columns} onChange={setColumns} />
-        <InputNumber min={2} max={12} style={{ width: "60px", margin: "0 4px" }} value={columns} onChange={setColumns} />
+        <Slider min={2} max={12} style={{flexGrow: 1, maxWidth: 200}} value={columns} onChange={(value) => setLayoutKey("columns", value)} />
+        <InputNumber min={2} max={12} style={{ width: "60px", margin: "0 4px" }} value={columns} onChange={(value) => setLayoutKey("columns", value)} />
         <Divider type="vertical" />
-        <Input placeholder="Layout Name" style={{width: "fit-content"}} />
+        <Input placeholder="Layout Name" style={{width: "fit-content"}} value={layout.name} onChange={(value) => setLayoutKey("name", value)} />
         <Divider type="vertical" />
-        <Switch />
+        <Switch value={layout.public} onChange={(value) => setLayoutKey("public", value)} />
         <Text>Make public</Text>
         <Divider type="vertical" />
         <Button onClick={resetLayout}>Reset to default</Button>
@@ -291,7 +297,7 @@ const Dashboard = () => {
         <Button style={{width: "100px"}} type="primary">Save</Button>
       </div>
       <RGL
-        layout={layout}
+        layout={layout.widgets}
         onLayoutChange={handleLayoutChange}
         onDropDragOver={handleDropDragOver}
         onDrop={handleDrop}
@@ -311,7 +317,7 @@ const Dashboard = () => {
         style={{height: "100%", width: "100%"}}
         resizeHandles={layoutEditable ? ["s", "se", "n", "ne", "e"] : []}
       >
-        {layout.map(w => {
+        {layout.widgets.map(w => {
           const widgetType = w.i.split("_")[0];
           if (!widgetType || !(widgetType in widgets)) {
             return <div key={w.i} />;

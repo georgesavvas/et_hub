@@ -1,32 +1,10 @@
 import React, {createContext, useEffect, useState} from "react";
 
+import _ from "lodash";
+import loadFromLS from "../utils/loadFromLS";
+
 export const ConfigContext = createContext();
 
-const defaultRows = 8;
-const defaultColumns = 12;
-const defaultLayout = [
-  {
-    w: 3,
-    h: 2,
-    x: 0,
-    y: 0,
-    i: "projects_1",
-  },
-  {
-    w: 3,
-    h: 2,
-    x: 1,
-    y: 3,
-    i: "projects_2",
-  },
-  {
-    w: 3,
-    h: 2,
-    x: 2,
-    y: 5,
-    i: "projects_3",
-  },
-];
 const defaultAppLook = {
   bgImage: "",
   bgBrightness: 100,
@@ -35,17 +13,45 @@ const defaultAppLook = {
   widgetTranslucency: 0.5,
   widgetBlur: 5,
 }
+const defaultLayout = {
+  user: "george",
+  public: false,
+  rows: 8,
+  columns: 12,
+  widgets: [
+    {
+      w: 3,
+      h: 2,
+      x: 0,
+      y: 0,
+      i: "projects_1",
+    },
+    {
+      w: 3,
+      h: 2,
+      x: 1,
+      y: 3,
+      i: "projects_2",
+    },
+    {
+      w: 3,
+      h: 2,
+      x: 2,
+      y: 5,
+      i: "projects_3",
+    },
+  ],
+  look: {},
+};
 
 export const ConfigProvider = props => {
   const [isElectron, setIsElectron] = useState(false);
   const [user, setUser] = useState("unknown");
   const [host, setHost] = useState("unknown");
   const [activePage, setActivePage] = useState("dashboard");
-  const [layout, setLayout] = useState([]);
+  const [layout, setLayout] = useState(defaultLayout);
   const [layoutEditable, setLayoutEditable] = useState(false);
-  const [rows, setRows] = useState(8);
-  const [columns, setColumns] = useState(6);
-  const [appLook, setAppLook] = useState(defaultAppLook)
+  const [appLook, setAppLook] = useState(defaultAppLook);
 
   useEffect(() => {
     setIsElectron(window.isElectron);
@@ -57,12 +63,12 @@ export const ConfigProvider = props => {
         if (resp) setHost(resp);
       });
     }
+    const savedLayout = loadFromLS("layout");
+    setLayout(savedLayout || _.cloneDeep(defaultLayout));
   }, []);
 
   const resetLayout = () => {
     setLayout(defaultLayout);
-    setRows(defaultRows);
-    setColumns(defaultColumns);
   }
 
   return (
@@ -77,10 +83,6 @@ export const ConfigProvider = props => {
       resetLayout,
       layoutEditable,
       setLayoutEditable,
-      rows,
-      setRows,
-      columns,
-      setColumns,
       appLook,
       setAppLook,
     }}>
