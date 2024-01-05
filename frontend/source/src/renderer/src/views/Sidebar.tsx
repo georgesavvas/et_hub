@@ -209,8 +209,14 @@ const SettingsModal = ({ open, onOk, onCancel }) => {
 };
 
 const Sidebar = () => {
-  const { layoutEditable, setLayoutEditable, layouts, selectedLayout, setSelectedLayout } =
-    useContext(ConfigContext);
+  const {
+    layoutEditable,
+    setLayoutEditable,
+    layouts,
+    selectedLayout,
+    setSelectedLayout,
+    pinnedLayouts,
+  } = useContext(ConfigContext);
   const { setActivePage } = useContext(ConfigContext);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [manageLayoutsOpen, setManageLayoutsOpen] = useState(false);
@@ -273,9 +279,9 @@ const Sidebar = () => {
           style={{ display: "flex", flexDirection: "column" }}
         >
           {/* <Radio value="Default">Default</Radio> */}
-          {Object.entries(layouts).map(([id, l]) => (
+          {pinnedLayouts.map((id) => (
             <Radio value={id} key={id}>
-              {l.data.name}
+              {layouts[id]?.data.name}
             </Radio>
           ))}
         </Radio.Group>

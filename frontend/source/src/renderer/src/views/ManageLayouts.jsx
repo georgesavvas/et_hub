@@ -58,7 +58,7 @@ const ManageLayouts = props => {
     const otherLayouts = [];
     Object.entries(layouts).forEach(([id, layout]) => {
       if (layout.user == user) userLayouts.push([id, layout]);
-      else otherLayouts.push([id, layout]);
+      else if (layout.public) otherLayouts.push([id, layout]);
     });
     return [userLayouts, otherLayouts];
   }, [layouts]);

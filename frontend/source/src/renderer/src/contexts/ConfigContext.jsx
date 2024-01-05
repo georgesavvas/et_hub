@@ -142,7 +142,7 @@ export const ConfigProvider = props => {
     setLayout(layouts[selectedLayout]?.data || {});
     saveToLS("selectedLayout", selectedLayout);
     const ids = Object.keys(layouts);
-    setPinnedLayouts(prev => prev.filter(l => ids.includes(l.id)));
+    setPinnedLayouts(prev => prev.filter(id => ids.includes(id)));
   }, [layouts, selectedLayout]);
 
   useEffect(() => {
