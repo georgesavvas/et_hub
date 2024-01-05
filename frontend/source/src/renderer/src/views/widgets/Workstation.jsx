@@ -1,16 +1,13 @@
-import React, {useState, useContext, useEffect} from "react";
-import Typography from "@mui/material/Typography";
+import React, {useContext, useEffect, useState} from "react";
+import {clamp, fit} from "../../utils/math";
+
 import {ConfigContext} from "../../contexts/ConfigContext";
 import {DataContext} from "../../contexts/DataContext";
+import DataPlaceholder from "../../components/DataPlaceholder";
 import Widget from "./Widget";
 import loadFromLS from "../../utils/loadFromLS";
 import saveToLS from "../../utils/saveToLS";
-import {fit, clamp} from "../../utils/math";
-import DataPlaceholder from "../../components/DataPlaceholder";
-
 import styles from "./Workstation.module.css";
-import { Divider, TextField, Tooltip } from "@mui/material";
-
 
 const COLOURS = ["#28ea16", "#70c626", "#a0d904", "#e0d021", "#ff9f0f",
   "#f07407", "#e00000"];

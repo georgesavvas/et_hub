@@ -1,25 +1,12 @@
-import Checkbox from "@mui/material/Checkbox";
-import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
-import EventAvailableIcon from "@mui/icons-material/EventAvailable";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import ClearIcon from "@mui/icons-material/Clear";
-import RepeatIcon from "@mui/icons-material/Repeat";
-import {Divider, IconButton, LinearProgress, OutlinedInput, Typography, TextField} from "@mui/material";
 import React, {useState} from "react";
-import Tab from "@mui/material/Tab";
-import TabContext from "@mui/lab/TabContext";
-import TabList from "@mui/lab/TabList";
-import TabPanel from "@mui/lab/TabPanel";
+
 import DataPlaceholder from "../../components/DataPlaceholder";
-import debounce from "lodash.debounce";
+import Widget from "./Widget";
+import debounce from "lodash/debounce";
 import loadFromLS from "../../utils/loadFromLS";
 import saveToLS from "../../utils/saveToLS";
-import Widget from "./Widget";
-
 import styles from "./Todo.module.css";
 import { useEffect } from "react";
-
 
 const debounced = debounce(fn => fn(), 500);
 

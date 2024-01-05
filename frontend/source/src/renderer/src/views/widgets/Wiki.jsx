@@ -1,13 +1,11 @@
 /* eslint-disable react/no-unknown-property */
-import React, {useState, useEffect} from "react";
+import React, {useEffect, useState} from "react";
+
 import DataPlaceholder from "../../components/DataPlaceholder";
 import Widget from "./Widget";
 import loadFromLS from "../../utils/loadFromLS";
 import saveToLS from "../../utils/saveToLS";
-import { Divider, Link, Typography, TextField } from "@mui/material";
-
 import styles from "./Wiki.module.css";
-
 
 const SECTIONS = [
   {

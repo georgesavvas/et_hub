@@ -1,11 +1,5 @@
 import React from "react";
-
-import FormControl from "@mui/material/FormControl";
-import OutlinedInput from "@mui/material/OutlinedInput";
-import Typography from "@mui/material/Typography";
-
 import styles from "./FilterField.module.css";
-
 
 const FilterField = ({filterValue, setFilterValue, children}) => {
   return (

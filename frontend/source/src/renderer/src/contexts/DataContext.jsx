@@ -2,10 +2,6 @@ import React, {createContext, useEffect, useState} from "react";
 
 import serverRequest from "../services/serverRequest";
 
-// import {useSnackbar} from "notistack";
-
-
-
 export const DataContext = createContext();
 
 const URLS = {
@@ -28,10 +24,10 @@ export const DataProvider = props => {
 
   useEffect(() => {
     fetchData();
-    const fetchDataInterval = setInterval(() => {
-      fetchData();
-    }, 5000);
-    return () => clearInterval(fetchDataInterval);
+    // const fetchDataInterval = setInterval(() => {
+    //   fetchData();
+    // }, 5000);
+    // return () => clearInterval(fetchDataInterval);
   }, []);
 
   return (

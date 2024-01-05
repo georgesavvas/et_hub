@@ -1,21 +1,16 @@
-import {Button, Checkbox, Divider, FormControlLabel, OutlinedInput, TextField, Tooltip, Typography} from "@mui/material";
-import React, {useState, useEffect, useContext} from "react";
+import React, {useContext, useEffect, useState} from "react";
+import {packages, widgetDefaults} from "../../constants/widgetDefaults";
+
 import {ConfigContext} from "../../contexts/ConfigContext";
 import DataPlaceholder from "../../components/DataPlaceholder";
-import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
-import ClearIcon from "@mui/icons-material/Clear";
-import FilterField from "../../components/FilterField";
 import DynamicList from "../../components/DynamicList";
+import FilterField from "../../components/FilterField";
+import Widget from "./Widget";
+import debounce from "lodash/debounce";
 import loadFromLS from "../../utils/loadFromLS";
 import saveToLS from "../../utils/saveToLS";
-import {useResizeDetector} from "react-resize-detector";
-import CloseIcon from "@mui/icons-material/Close";
-import {packages, widgetDefaults} from "../../constants/widgetDefaults";
-import debounce from "lodash.debounce";
-
 import styles from "./Apps.module.css";
-import Widget from "./Widget";
-
+import {useResizeDetector} from "react-resize-detector";
 
 const debounced = debounce(fn => fn(), 500);
 

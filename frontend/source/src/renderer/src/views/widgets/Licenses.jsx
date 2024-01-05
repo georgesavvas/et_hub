@@ -1,17 +1,13 @@
-import React, {useState, useContext, useEffect} from "react";
+import React, {useContext, useEffect, useState} from "react";
 
+import {DataContext} from "../../contexts/DataContext";
 import DataPlaceholder from "../../components/DataPlaceholder";
 import FilterField from "../../components/FilterField";
-import { DataGrid } from "@mui/x-data-grid";
-import { useResizeDetector } from "react-resize-detector";
+import Widget from "./Widget";
 import loadFromLS from "../../utils/loadFromLS";
 import saveToLS from "../../utils/saveToLS";
-import {Typography, TextField} from "@mui/material";
-
 import styles from "./Licenses.module.css";
-import {DataContext} from "../../contexts/DataContext";
-import Widget from "./Widget";
-
+import { useResizeDetector } from "react-resize-detector";
 
 const COLUMNS = [
   {

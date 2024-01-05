@@ -1,112 +1,22 @@
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 
-import { Button, Col, Divider, Input, InputNumber, Row, Slider, Space, Switch, Typography } from "antd";
+import { Button, Col, Divider, Input, InputNumber, Row, Slider, Space, Switch, Typography, message } from "antd";
 import GridLayout, { WidthProvider } from "react-grid-layout";
 import React, {useContext, useEffect, useState} from "react";
 
-// import {Button, DialogTitle, Slider, Typography} from "@mui/material";
-// import Settings from "@mui/icons-material/Settings";
-// import Modal from "../components/Modal";
 import CodeEditor from "@uiw/react-textarea-code-editor";
 import { ConfigContext } from "../contexts/ConfigContext";
-// import Support from "./widgets/Support";
-import Projects from "./widgets/Projects";
-import Widget from "./widgets/Widget";
-// import Farm from "./widgets/Farm/Farm";
+import _ from "lodash";
 import loadFromLS from "../utils/loadFromLS";
 import saveToLS from "../utils/saveToLS";
+import serverRequest from "../services/serverRequest";
 import styles from "./Dashboard.module.css";
-
-// import Workstation from "./widgets/Workstation";
-// import Wiki from "./widgets/Wiki";
-// import Apps from "./widgets/Apps";
-// import Todo from "./widgets/Todo";
-// import Notes from "./widgets/Notes";
-// import Licenses from "./widgets/Licenses";
+import widgetsList from "./widgets";
 
 const { Text } = Typography;
 
-// const widgets = {};
-const widgets = {
-  projects: Projects,
-  // workstation: Workstation,
-  // farm: Farm,
-  // support: Support,
-  // wiki: Wiki,
-  // apps: Apps,
-  // todo: Todo,
-  // notes: Notes,
-  // licenses: Licenses
-};
-
 const RGL = WidthProvider(GridLayout);
-
-// const defaultLayout = [
-//   {
-//     "w": 4,
-//     "h": 2,
-//     "x": 2,
-//     "y": 1,
-//     "i": "projects_1"
-//   },
-//   {
-//     "w": 2,
-//     "h": 1,
-//     "x": 6,
-//     "y": 0,
-//     "i": "workstation_2"
-//   },
-//   {
-//     "w": 2,
-//     "h": 2,
-//     "x": 0,
-//     "y": 0,
-//     "i": "licenses_3"
-//   },
-//   {
-//     "w": 4,
-//     "h": 3,
-//     "x": 2,
-//     "y": 3,
-//     "i": "farm_4"
-//   },
-//   {
-//     "w": 2,
-//     "h": 3,
-//     "x": 6,
-//     "y": 1,
-//     "i": "todo_5"
-//   },
-//   {
-//     "w": 2,
-//     "h": 2,
-//     "x": 6,
-//     "y": 4,
-//     "i": "notes_6"
-//   },
-//   {
-//     "w": 4,
-//     "h": 1,
-//     "x": 2,
-//     "y": 0,
-//     "i": "apps_7"
-//   },
-//   {
-//     "w": 2,
-//     "h": 2,
-//     "x": 0,
-//     "y": 2,
-//     "i": "wiki_8"
-//   },
-//   {
-//     "w": 2,
-//     "h": 2,
-//     "x": 0,
-//     "y": 4,
-//     "i": "support_9"
-//   }
-// ];
 
 const defaultSizes = {
   apps: {w: 3, h: 1},
@@ -201,9 +111,12 @@ const DashboardSettings = props => {
 };
 
 const Dashboard = () => {
-  const {layout, setLayout, layoutEditable, resetLayout, appLook, setAppLook}  = useContext(ConfigContext);
+  const {layout, setLayout, layoutEditable, resetLayout, appLook, user, setAppLook, selectedLayout, setSelectedLayout, layouts}  = useContext(ConfigContext);
   const [mounted, setMounted] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [overwriteLoading, setOverwriteLoading] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
 
   const {rows, columns} = layout;
 
@@ -220,9 +133,6 @@ const Dashboard = () => {
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  const handleOpenSettings = () => setSettingsOpen(true);
-  const handleCloseSettings = () => setSettingsOpen(false);
 
   const handleLayoutChange = widgets => {
     const newLayout = {...layout, widgets: widgets};
@@ -276,8 +186,60 @@ const Dashboard = () => {
   const handleResizeStart = (layout, oldItem, newItem, placeholder, e) =>
     e.preventDefault();
 
+  const handleLayoutOverwrite = () => {
+    const data = {
+      layout_id: selectedLayout,
+      user: user,
+      layout: layout,
+    };
+    serverRequest("create_layout", data, "api/v2").then(resp => {
+      setOverwriteLoading(true);
+      setSelectedLayout(resp.data);
+      if (resp.ok) {
+        messageApi.open({
+          type: "success",
+          content: "Layout saved",
+        });
+      } else {
+        messageApi.open({
+          type: "error",
+          content: "Error saving layout",
+        });
+      }
+      setOverwriteLoading(false);
+    });
+  };
+
+  const handleLayoutSave = () => {
+    const data = {
+      user: user,
+      layout: layout,
+    };
+    serverRequest("create_layout", data, "api/v2").then(resp => {
+      setSaveLoading(true);
+      setSelectedLayout(resp.data);
+      if (resp.ok) {
+        messageApi.open({
+          type: "success",
+          content: "Layout saved",
+        });
+      } else {
+        messageApi.open({
+          type: "error",
+          content: "Error saving layout",
+        });
+      }
+      setSaveLoading(false);
+    });
+  };
+
+  const layoutEqual = _.isEqual(layout, layouts[selectedLayout]?.data)
+  const overwriteDisabled = !layout.name || layouts[selectedLayout]?.user !== user || layoutEqual;
+  const saveDisabled = !layout.name || layoutEqual;
+
   return (
     <div className={styles.container}>
+      {contextHolder}
       <div className={styles.topBar} style={topBarStyle}>
         <Text>Rows</Text>
         <Slider min={2} max={12} style={{flexGrow: 1, maxWidth: 200}} value={rows} onChange={(value) => setLayoutKey("rows", value)} />
@@ -287,14 +249,15 @@ const Dashboard = () => {
         <Slider min={2} max={12} style={{flexGrow: 1, maxWidth: 200}} value={columns} onChange={(value) => setLayoutKey("columns", value)} />
         <InputNumber min={2} max={12} style={{ width: "60px", margin: "0 4px" }} value={columns} onChange={(value) => setLayoutKey("columns", value)} />
         <Divider type="vertical" />
-        <Input placeholder="Layout Name" style={{width: "fit-content"}} value={layout.name} onChange={(value) => setLayoutKey("name", value)} />
+        <Input placeholder="Layout Name" style={{width: "fit-content"}} value={layout.name} onChange={e => setLayoutKey("name", e.target.value)} />
         <Divider type="vertical" />
         <Switch value={layout.public} onChange={(value) => setLayoutKey("public", value)} />
-        <Text>Make public</Text>
+        <Text onClick={() => setLayoutKey("public", !layout.public)} style={{cursor: "pointer"}}>Make public</Text>
         <Divider type="vertical" />
-        <Button onClick={resetLayout}>Reset to default</Button>
-        <Button onClick={resetLayout}>Reset to last saved</Button>
-        <Button style={{width: "100px"}} type="primary">Save</Button>
+        <Button onClick={() => resetLayout()}>Reset to default</Button>
+        <Button onClick={() => resetLayout(true)}>Reset to last saved</Button>
+        <Button type="primary" loading={overwriteLoading} disabled={overwriteDisabled} onClick={handleLayoutOverwrite}>Overwrite</Button>
+        <Button type="primary" loading={saveLoading} disabled={saveDisabled} onClick={handleLayoutSave}>Save as new</Button>
       </div>
       <RGL
         layout={layout.widgets}
@@ -317,12 +280,12 @@ const Dashboard = () => {
         style={{height: "100%", width: "100%"}}
         resizeHandles={layoutEditable ? ["s", "se", "n", "ne", "e"] : []}
       >
-        {layout.widgets.map(w => {
+        {layout.widgets?.map(w => {
           const widgetType = w.i.split("_")[0];
-          if (!widgetType || !(widgetType in widgets)) {
+          if (!widgetType || !(widgetType in widgetsList)) {
             return <div key={w.i} />;
           }
-          const SelectedWidget = widgets[widgetType];
+          const SelectedWidget = widgetsList[widgetType];
           return (
             <div key={w.i}>
               <SelectedWidget rglKey={w.i} onRemove={handleRemoveWidget} />

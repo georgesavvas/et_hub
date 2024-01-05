@@ -3,16 +3,16 @@ import fetch from "./fetch";
 const address = "0ace-212-115-157-45.ngrok-free.app";
 // const address = "ws-vm02:8085";
 
-async function serverRequest(method, data=undefined) {
+async function serverRequest(method, data=undefined, route="api/v1") {
   // console.log("Server request:", address, method, data);
-  return await request(address, method, data);
+  return await request(address, method, data, route);
 }
 
 export function formatURL(method) {
   return `http://${address}/${method}`;
 }
 
-async function request(address, method, data) {
+async function request(address, method, data, route) {
   const cookie = {user: "host"};
   if (window.services) {
     const user = await window.services.get_env("USER");
@@ -21,7 +21,7 @@ async function request(address, method, data) {
     cookie.host = host;
   }
   try {
-    const resp = await fetch(`http://${address}/api/v1/${method}`, {
+    const resp = await fetch(`http://${address}/${route}/${method}`, {
       method: !data ? "GET" : "POST",
       headers: {
         "Accept": "application/json, text/plain, */*",

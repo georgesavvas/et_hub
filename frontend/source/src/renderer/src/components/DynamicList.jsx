@@ -1,13 +1,5 @@
 import React from "react";
-
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import AddIcon from "@mui/icons-material/Add";
-import RemoveIcon from "@mui/icons-material/Remove";
-
 import styles from "./DynamicList.module.css";
-import { Typography } from "@mui/material";
-
 
 const style = {
   width: "100%",
@@ -29,7 +21,7 @@ function createListItem(child, index, dense) {
 function buttons(props) {
   return (
     <div className={styles.buttonContainer}>
-      {props.title ? 
+      {props.title ?
         <Typography variant="h5" className={styles.title}>
           {props.title}
         </Typography>

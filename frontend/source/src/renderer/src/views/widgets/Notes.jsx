@@ -1,15 +1,11 @@
-import React, {useState, useEffect} from "react";
+import React, {useEffect, useState} from "react";
+
 import DataPlaceholder from "../../components/DataPlaceholder";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.bubble.css";
-import debounce from "lodash.debounce";
+import Widget from "./Widget";
+import debounce from "lodash/debounce";
 import loadFromLS from "../../utils/loadFromLS";
 import saveToLS from "../../utils/saveToLS";
-import Widget from "./Widget";
-import {Typography, TextField} from "@mui/material";
-
 import styles from "./Notes.module.css";
-
 
 const debounced = debounce(fn => fn(), 500);
 

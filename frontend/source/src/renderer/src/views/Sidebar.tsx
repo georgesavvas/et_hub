@@ -24,6 +24,7 @@ import React, { useContext, useEffect, useState } from "react";
 
 import { ConfigContext } from "../contexts/ConfigContext";
 import Logo from "../components/Logo";
+import ManageLayouts from "./ManageLayouts";
 import type { MenuProps } from "antd";
 import type { UploadProps } from "antd";
 import styles from "./Sidebar.module.css";
@@ -93,10 +94,7 @@ const SettingsModal = ({ open, onOk, onCancel }) => {
 
   const handleImageChange = (selectedImage) => {
     const imageUrl = URL.createObjectURL(selectedImage);
-
-    // Save the image URL to localStorage
     localStorage.setItem("backgroundImage", imageUrl);
-
     setBackgroundImage(imageUrl);
   };
 
@@ -211,13 +209,11 @@ const SettingsModal = ({ open, onOk, onCancel }) => {
 };
 
 const Sidebar = () => {
-  const { setLayout, layoutEditable, setLayoutEditable } = useContext(ConfigContext);
+  const { layoutEditable, setLayoutEditable, layouts, selectedLayout, setSelectedLayout } =
+    useContext(ConfigContext);
   const { setActivePage } = useContext(ConfigContext);
   const [settingsOpen, setSettingsOpen] = useState(false);
-
-  const handleResetLayout = () => {
-    setLayout(defaultLayout);
-  };
+  const [manageLayoutsOpen, setManageLayoutsOpen] = useState(false);
 
   const getMenuItem = ([id, name]) => {
     const handleDragStart = (e) => {
@@ -248,6 +244,7 @@ const Sidebar = () => {
         onCancel={() => setSettingsOpen(false)}
         onOk={() => setSettingsOpen(false)}
       />
+      <ManageLayouts open={manageLayoutsOpen} onCancel={() => setManageLayoutsOpen(false)} />
       <Flex style={{ width: "100%" }} gap="small">
         <Button style={{ width: "100%" }} onClick={() => setSettingsOpen(true)}>
           <SettingFilled />
@@ -268,19 +265,25 @@ const Sidebar = () => {
             Edit Mode
           </Text>
         </Space>
-        <Button>Browse</Button>
+        <Button onClick={() => setManageLayoutsOpen(true)}>Manage</Button>
         <Divider style={{ margin: "8px 0" }} />
-        <Radio.Group value="Farm" size="large" style={{ display: "flex", flexDirection: "column" }}>
-          <Radio value="Default">Default</Radio>
-          <Radio value="Farm">Farm</Radio>
-          <Radio value="Volt">Volt</Radio>
-          <Radio value="Dailies">Dailies</Radio>
+        <Radio.Group
+          value={selectedLayout}
+          onChange={(e) => setSelectedLayout(e.target.value)}
+          style={{ display: "flex", flexDirection: "column" }}
+        >
+          {/* <Radio value="Default">Default</Radio> */}
+          {Object.entries(layouts).map(([id, l]) => (
+            <Radio value={id} key={id}>
+              {l.data.name}
+            </Radio>
+          ))}
         </Radio.Group>
       </div>
       <Divider style={{ margin: "8px 0" }}>Widgets</Divider>
       <Space direction="vertical">
         {[
-          ["appLauncher", "App Launcher"],
+          ["apps", "App Launcher"],
           ["projects", "Projects"],
           ["notes", "Notes"],
         ].map((item) => getMenuItem(item))}

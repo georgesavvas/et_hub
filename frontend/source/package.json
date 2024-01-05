@@ -38,6 +38,7 @@
     "sockette": "^2.0.6",
     "string-to-color": "^2.2.2",
     "typeface-roboto": "^1.1.13",
+    "uuid": "^9.0.1",
     "uuid4": "^2.0.3"
   },
   "devDependencies": {
