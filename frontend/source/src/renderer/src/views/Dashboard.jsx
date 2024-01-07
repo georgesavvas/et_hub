@@ -159,7 +159,7 @@ const Dashboard = () => {
   };
 
   const handleRemoveWidget = i => {
-    const newWidgets = layout.filter(w => w.i != i);
+    const newWidgets = layout.widgets.filter(w => w.i != i);
     const newLayout = {...layout, widgets: newWidgets};
     setLayout(newLayout);
     saveToLS("layout", layout);
@@ -233,7 +233,7 @@ const Dashboard = () => {
     });
   };
 
-  const layoutEqual = _.isEqual(layout, layouts[selectedLayout]?.data)
+  const layoutEqual = _.isEqual(layout, layouts[selectedLayout]?.data);
   const overwriteDisabled = !layout.name || layouts[selectedLayout]?.user !== user || layoutEqual;
   const saveDisabled = !layout.name || layoutEqual;
 
@@ -285,7 +285,7 @@ const Dashboard = () => {
           if (!widgetType || !(widgetType in widgetsList)) {
             return <div key={w.i} />;
           }
-          const SelectedWidget = widgetsList[widgetType];
+          const SelectedWidget = widgetsList[widgetType].component;
           return (
             <div key={w.i}>
               <SelectedWidget rglKey={w.i} onRemove={handleRemoveWidget} />

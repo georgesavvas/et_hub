@@ -1,17 +1,12 @@
+import { CloseOutlined, SettingFilled } from "@ant-design/icons";
+// import Modal from "../../components/Modal";
+import { Popconfirm, Space, Typography } from "antd";
 import React, {useContext, useEffect, useState} from "react";
 
 import { ConfigContext } from "../../contexts/ConfigContext";
-// import Close from "@mui/icons-material/Close";
-// import Settings from "@mui/icons-material/Settings";
-// import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
-import { HolderOutlined } from "@ant-design/icons";
-// import Modal from "../../components/Modal";
-import { Typography } from "antd";
 import styles from "./Widget.module.css";
 
 const { Text } = Typography;
-
-
 
 const WidgetSettings = props => {
   return (
@@ -27,7 +22,7 @@ const WidgetSettings = props => {
 };
 
 const Widget = props => {
-  const {appLook}  = useContext(ConfigContext);
+  const {appLook, layoutEditable}  = useContext(ConfigContext);
 
   const widgetStyle = {
     backgroundColor: `rgba(${appLook.widgetColour.r}, ${appLook.widgetColour.g}, ${
@@ -42,6 +37,7 @@ const Widget = props => {
 
   return (
     <div className={styles.view} style={widgetStyle}>
+      {layoutEditable && <div className={styles.mask} />}
       {/* {props.settings ?
         <WidgetSettings
           title={props.rglKey}
@@ -54,20 +50,16 @@ const Widget = props => {
       } */}
       <div className={styles.container}>
         <div className={styles.top}>
-          {/* <div className={styles.topLeft}>
-            <HolderOutlined className={"dragHandle " + styles.dragHandle} />
-          </div> */}
-          <div className={styles.topCentre}>
-            <Text className={styles.title}>
-              {props.title || "No Title"}
-            </Text>
-          </div>
-          {/* <div className={styles.topRight}>
-            <Settings className={styles.settingsButton}
+          <Text className={styles.title}>
+            {props.title || "No Title"}
+          </Text>
+          <Space gap={5}>
+            <SettingFilled className={styles.settingsButton} style={{fontSize: 18}}
               onClick={() => props.setSettingsOpen(true)} />
-            <Close className={styles.closeButton}
-              onClick={handleRemovePressed} />
-          </div> */}
+            <Popconfirm placement="leftTop" title="Remove widget?" onConfirm={handleRemovePressed} okText="Yep" cancelText="Nope">
+              <CloseOutlined className={styles.closeButton} style={{fontSize: 18}} />
+            </Popconfirm>
+          </Space>
         </div>
         <div className={styles.content}>
           {props.children}

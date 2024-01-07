@@ -28,6 +28,7 @@ import ManageLayouts from "./ManageLayouts";
 import type { MenuProps } from "antd";
 import type { UploadProps } from "antd";
 import styles from "./Sidebar.module.css";
+import widgets from "./widgets";
 
 const { Title, Paragraph, Text, Link } = Typography;
 
@@ -221,7 +222,7 @@ const Sidebar = () => {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [manageLayoutsOpen, setManageLayoutsOpen] = useState(false);
 
-  const getMenuItem = ([id, name]) => {
+  const getMenuItem = ([id, { name }]) => {
     const handleDragStart = (e) => {
       e.dataTransfer.setData("text/hub_view/" + id, "");
       e.dataTransfer.setData("text/hub_view", id);
@@ -288,11 +289,7 @@ const Sidebar = () => {
       </div>
       <Divider style={{ margin: "8px 0" }}>Widgets</Divider>
       <Space direction="vertical">
-        {[
-          ["apps", "App Launcher"],
-          ["projects", "Projects"],
-          ["notes", "Notes"],
-        ].map((item) => getMenuItem(item))}
+        {Object.entries(widgets).map((widget) => getMenuItem(widget))}
       </Space>
       {/* <Menu items={items} style={{ backgroundColor: "none" }} /> */}
     </div>

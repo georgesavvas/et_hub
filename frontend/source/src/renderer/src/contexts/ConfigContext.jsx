@@ -62,6 +62,15 @@ const destroySocket = socket => {
   socket.current = undefined;
 };
 
+const areLayoutsEqual = (layoutA, layoutB) => {
+  const { widgets: widgetsA, ...genericA } = layoutA;
+  const { widgets: widgetsB, ...genericB } = layoutB;
+  const keys = ["i", "w", "h", "x", "y"];
+  const widgetsAFiltered = _.pick(widgetsA, keys);
+  const widgetsBFiltered = _.pick(widgetsA, keys);
+  return _.isEqual(genericA, genericB) && _.isEqual(widgetsAFiltered, widgetsBFiltered);
+};
+
 export const ConfigProvider = props => {
   const updatesSocket = useRef();
   const [isElectron, setIsElectron] = useState(false);
@@ -74,6 +83,7 @@ export const ConfigProvider = props => {
   const [layoutEditable, setLayoutEditable] = useState(false);
   const [appLook, setAppLook] = useState(defaultAppLook);
   const [pinnedLayouts, setPinnedLayouts] = useState([]);
+  const [mounted, setMounted] = useState(false);
 
   const processSocketData = data => {
     if (data.layouts) setLayouts(data.layouts);
@@ -112,6 +122,7 @@ export const ConfigProvider = props => {
     setLayout(savedLayout || _.cloneDeep(defaultLayout));
     setSelectedLayout(loadFromLS("selectedLayout"));
     setPinnedLayouts(loadFromLS("pinnedLayouts") || []);
+    setMounted(true);
   }, []);
 
   useEffect(() => {
@@ -138,18 +149,22 @@ export const ConfigProvider = props => {
   }, [user, host]);
 
   useEffect(() => {
-    if (!layouts[selectedLayout]) return;
-    setLayout(layouts[selectedLayout]?.data || {});
+    if (!mounted || !layouts[selectedLayout]) return;
     saveToLS("selectedLayout", selectedLayout);
     const ids = Object.keys(layouts);
     setPinnedLayouts(prev => prev.filter(id => ids.includes(id)));
+    // const layoutEmpty = Object.keys(layout).length === 0;
+    // const layoutEqual = areLayoutsEqual(layout, layouts[selectedLayout]?.data);
+    setLayout(layouts[selectedLayout]?.data || {});
   }, [layouts, selectedLayout]);
 
   useEffect(() => {
+    if (!mounted) return;
     saveToLS("layout", layout);
   }, [layout]);
 
   useEffect(() => {
+    if (!mounted) return;
     saveToLS("pinnedLayouts", pinnedLayouts);
   }, [pinnedLayouts]);
 
