@@ -15,9 +15,9 @@ export const ConfigContext = createContext();
 const defaultAppLook = {
   bgImage: "",
   bgBrightness: 100,
-  bgColour: "rgb(15, 15, 15)",
-  widgetColour: "rgb(40, 40, 40)",
-  widgetTranslucency: 0.5,
+  bgColour: {r: 15, g: 15, b: 15},
+  widgetColour: {r: 100, g: 100, b: 100},
+  widgetTranslucency: 0.8,
   widgetBlur: 5,
 }
 const defaultLayout = {
@@ -120,6 +120,7 @@ export const ConfigProvider = props => {
     });
     const savedLayout = loadFromLS("layout");
     setLayout(savedLayout || _.cloneDeep(defaultLayout));
+    setAppLook(loadFromLS("appLook") || _.cloneDeep(defaultAppLook));
     setSelectedLayout(loadFromLS("selectedLayout"));
     setPinnedLayouts(loadFromLS("pinnedLayouts") || []);
     setMounted(true);
@@ -165,6 +166,11 @@ export const ConfigProvider = props => {
 
   useEffect(() => {
     if (!mounted) return;
+    saveToLS("appLook", appLook);
+  }, [appLook]);
+
+  useEffect(() => {
+    if (!mounted) return;
     saveToLS("pinnedLayouts", pinnedLayouts);
   }, [pinnedLayouts]);
 
@@ -175,6 +181,16 @@ export const ConfigProvider = props => {
     }
     setLayout(_.cloneDeep(defaultLayout));
     setSelectedLayout("");
+  };
+
+  const resetBgLook = () => {
+    const { bgImage, bgColour, bgBrightness } = defaultAppLook;
+    setAppLook(prev => ({ ...prev, bgImage, bgColour, bgBrightness }));
+  };
+
+  const resetWidgetLook = () => {
+    const { widgetColour, widgetTranslucency, widgetBlur } = defaultAppLook;
+    setAppLook(prev => ({ ...prev, widgetColour, widgetTranslucency, widgetBlur }));
   };
 
   return (
@@ -196,6 +212,8 @@ export const ConfigProvider = props => {
       setLayoutEditable,
       appLook,
       setAppLook,
+      resetBgLook,
+      resetWidgetLook,
     }}>
       {/* <Modal open={true} buttons={null} centered title="Login">
         <Space direction="vertical">

@@ -1,9 +1,11 @@
 import React from "react";
 
-
-export function CopyToClipboard(text, enqueueSnackbar) {
+export function CopyToClipboard(text, messageApi) {
   navigator.clipboard.writeText(text);
-  enqueueSnackbar("Copied to clipboard!", {variant: "success"});
+  messageApi.open({
+    type: "success",
+    content: "Copied to clipboard!",
+  });
 }
 
 // export function ShowInExplorer(filepath, enqueueSnackbar) {

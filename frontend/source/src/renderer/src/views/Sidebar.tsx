@@ -88,24 +88,30 @@ const defaultLayout = [
 ];
 
 const SettingsModal = ({ open, onOk, onCancel }) => {
-  const { appLook, setAppLook } = useContext(ConfigContext);
-  const [backgroundImage, setBackgroundImage] = useState(() => {
-    return localStorage.getItem("backgroundImage") || null;
-  });
+  const { appLook, setAppLook, resetBgLook, resetWidgetLook } = useContext(ConfigContext);
+  // const [backgroundImage, setBackgroundImage] = useState(() => {
+  //   return localStorage.getItem("backgroundImage") || null;
+  // });
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const setConfig = (key, value) => {
+    setAppLook((prev) => ({ ...prev, [key]: value }));
+  };
 
   const handleImageChange = (selectedImage) => {
     const imageUrl = URL.createObjectURL(selectedImage);
     localStorage.setItem("backgroundImage", imageUrl);
-    setBackgroundImage(imageUrl);
+    // setBackgroundImage(imageUrl);
+    setConfig("bgImage", imageUrl);
   };
 
   useEffect(() => {
     return () => {
-      if (backgroundImage) {
-        URL.revokeObjectURL(backgroundImage);
+      if (appLook.bgImage) {
+        URL.revokeObjectURL(appLook.bgImage);
       }
     };
-  }, [backgroundImage]);
+  }, [appLook]);
 
   const uploadProps: UploadProps = {
     multiple: false,
@@ -121,10 +127,10 @@ const SettingsModal = ({ open, onOk, onCancel }) => {
         console.log(info.file, info.fileList);
       }
       if (status === "done") {
-        message.success(`${info.file.name} file uploaded successfully.`);
+        messageApi.success(`${info.file.name} file uploaded successfully.`);
         handleImageChange(info.file.originFileObj);
       } else if (status === "error") {
-        message.error(`${info.file.name} file upload failed.`);
+        messageApi.error(`${info.file.name} file upload failed.`);
       }
     },
     onDrop(e) {
@@ -132,30 +138,34 @@ const SettingsModal = ({ open, onOk, onCancel }) => {
     },
   };
 
+  const bgColour = appLook.bgColour.toRgb ? appLook.bgColour.toRgb() : appLook.bgColour;
   const previewStyle = {
     filter: `brightness(${appLook.bgBrightness}%)`,
-    backgroundImage: `url(${backgroundImage})`,
+    backgroundImage: `url(${appLook.bgImage})`,
+    backgroundColor: `rgb(${bgColour.r}, ${bgColour.g}, ${bgColour.b}})`,
   };
 
+  const widgetColour = appLook.widgetColour.toRgb
+    ? appLook.widgetColour.toRgb()
+    : appLook.widgetColour;
   const previewWidgetStyle = {
-    backgroundColor: `rgba(${appLook.widgetColour.r}, ${appLook.widgetColour.g}, ${
-      appLook.widgetColour.b
-    }, ${1 - appLook.widgetTranslucency})`,
-    // opacity: 1 - appLook.widgetTranslucency,
+    backgroundColor: `rgba(${widgetColour.r}, ${widgetColour.g}, ${widgetColour.b}, ${
+      1 - appLook.widgetTranslucency
+    })`,
     backdropFilter: `blur(${appLook.widgetBlur}px)`,
-  };
-
-  const setConfig = (key, value) => {
-    setAppLook((prev) => ({ ...prev, [key]: value }));
   };
 
   return (
     <Modal open={open} onOk={onOk} onCancel={onCancel} mask={false} width="40%">
+      {contextHolder}
       <Space direction="vertical" size={16} style={{ width: "100%" }}>
         <div className={styles.previewContainer} style={previewStyle}>
           <div className={styles.previewWidget} style={previewWidgetStyle} />
         </div>
-        <Card title="Background Image">
+        <Card
+          title="Background Image"
+          extra={<Button onClick={resetBgLook}>Revert to defaults</Button>}
+        >
           <Space direction="vertical" style={{ width: "100%" }}>
             <Upload.Dragger {...uploadProps} accept="image/*">
               <p className="ant-upload-drag-icon">
@@ -163,6 +173,14 @@ const SettingsModal = ({ open, onOk, onCancel }) => {
               </p>
               <p className="ant-upload-text">Click or drag file to this area to upload</p>
             </Upload.Dragger>
+            <Space>
+              <p>Colour</p>
+              <ColorPicker
+                disabledAlpha
+                value={appLook.bgColour}
+                onChange={(value) => setConfig("bgColour", value)}
+              />
+            </Space>
             <Space>
               <p>Brightness</p>
               <Slider
@@ -175,11 +193,15 @@ const SettingsModal = ({ open, onOk, onCancel }) => {
             </Space>
           </Space>
         </Card>
-        <Card title="Widgets">
+        <Card title="Widgets" extra={<Button onClick={resetWidgetLook}>Revert to defaults</Button>}>
           <Space direction="vertical">
             <Space>
               <p>Colour</p>
-              <ColorPicker onChange={(value) => setConfig("widgetColour", value.toRgb())} />
+              <ColorPicker
+                disabledAlpha
+                value={appLook.widgetColour}
+                onChange={(value) => setConfig("widgetColour", value)}
+              />
             </Space>
             <Space>
               <p>Translucency</p>

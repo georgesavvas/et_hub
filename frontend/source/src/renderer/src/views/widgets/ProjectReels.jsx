@@ -5,10 +5,10 @@ import React, {useContext, useEffect, useRef, useState} from "react";
 import serverRequest, {formatURL} from "../../services/serverRequest";
 
 import {ConfigContext} from "../../contexts/ConfigContext";
-// import {Typography, TextField} from "@mui/material";
+import { CopyToClipboard } from "../../components/ContextActions";
 import {DataContext} from "../../contexts/DataContext";
 import DataPlaceholder from "../../components/DataPlaceholder";
-import Widget from "./Widget";
+import Widget from "./Widget.tsx";
 import loadFromLS from "../../utils/loadFromLS";
 import saveToLS from "../../utils/saveToLS";
 import stc from "string-to-color";
@@ -66,12 +66,10 @@ const Showcase = props => {
 
   if (compact && !active) return null;
 
-  const minWidth = size[1] * (16 / 9);
-  const minHeight = size[0] / (16 / 9);
   const maxWidth = size[0] - 250;
   const maxHeight = size[1] - 150;
-
-  console.log(minHeight);
+  const minWidth = Math.min(maxWidth, size[1] * (16 / 9));
+  const minHeight = Math.min(maxHeight, size[0] / (16 / 9));
 
   const containerStyle = {
     flexDirection: vertical ? "column" : "row",
@@ -87,6 +85,7 @@ const Showcase = props => {
   };
 
   const dropdownItems = [
+    { key: "copy", label: "Copy job name" },
     { key: "edit", label: "Edit project info" },
     { key: "addUser", label: "I worked on this" },
     { key: "removeUser", label: "I didn't work on this" },
@@ -95,6 +94,7 @@ const Showcase = props => {
   const src = sources[page] || "";
   const projectNumberIndex = src.lastIndexOf("_e");
   const showName = src.slice(0, projectNumberIndex).split("/").at(-1);
+  const jobName = src.split("/").at(-1).split(".")[0];
 
   const carouselButtonStyle = {
     position: "absolute",
@@ -102,6 +102,7 @@ const Showcase = props => {
     left: "10px",
     fontSize: 24,
     zIndex: 2,
+    translate: "0 -50%",
   };
 
   const videoProps = {
@@ -127,6 +128,10 @@ const Showcase = props => {
 
   const handleActionsChange = ({key}) => {
     switch (key) {
+      case "copy": {
+        CopyToClipboard(jobName, messageApi);
+        return;
+      }
       case "edit": {
         setSettingsOpen(true);
         return;
@@ -179,7 +184,7 @@ const Showcase = props => {
       <motion.div {...videoProps} style={{width: "100%", height: "100%"}}>
         <video ref={videoRef} autoPlay muted loop controls className={styles.video} style={vertical ? {width: "100%"} : {height: "100%"}} src={src} />
         {compact && <div className={styles.showcaseDetailsCompact}>
-          <Title level={5} style={{margin: 0}}>{showName}</Title>
+          <Title level={5} ellipsis style={{margin: 0, textWrap: "nowrap", textAlign: "center"}}>{showName}</Title>
         </div>}
         {!compact && <div className={styles.showcaseDetails}>
           <div className={styles.showCaseDetailsTop}>
@@ -236,19 +241,22 @@ const ProjectList = ({sources, onProjectSelect, vertical}) => {
   return (
     <div className={styles.projectListContainer}>
       <div className={styles.projectListContainerGrid} style={vertical ? {marginTop: "10px"} : {}}>
-        {sources?.map((src, index) =>
-          <video
-            className={styles.showcaseListVideo}
-            muted
-            loop
-            style={style}
-            src={src}
-            key={src}
-            onClick={() => onProjectSelect(index)}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-          />
-        )}
+        {sources?.map((src, index) => {
+          const projectNumberIndex = src.lastIndexOf("_e");
+          const showName = src.slice(0, projectNumberIndex).split("/").at(-1);
+          return <Tooltip key={src} title={showName} color="forestgreen">
+            <video
+              className={styles.showcaseListVideo}
+              muted
+              loop
+              style={style}
+              src={src}
+              onClick={() => onProjectSelect(index)}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+            />
+          </Tooltip>
+        })}
       </div>
     </div>
   );
@@ -336,42 +344,18 @@ const ProjectReels = props => {
       rglKey={props.rglKey}
     >
       <div id="widgetContainer" className={styles.container} style={style} ref={ref}>
-        {/* <Carousel
-          slideIndex={carouselIndex}
-          autoplay={compact}
-          wrapAround
-          pauseOnHover
-          swiping={compact}
-          dragThreshold={0.05}
-          enableKeyboardControls
-          autoplayInterval={5000}
-          renderCenterLeftControls={({ previousSlide }) => (
-            <ArrowLeftOutlined onClick={previousSlide} style={carouselButtonStyle} />
-          )}
-          renderCenterRightControls={({ nextSlide }) => (
-            <ArrowRightOutlined onClick={nextSlide} style={carouselButtonStyle} />
-          )}
-          afterSlide={index => setCarouselIndex(index)}
-          style={compact ? {} : carouselStyle}
-        > */}
-          {/* {sources.map((src, index) => */}
         <AnimatePresence initial={false} custom={direction}>
-          {/* <div className={styles.carousel} style={containerStyle}> */}
-            <Showcase
-              sources={sources}
-              compact={compact}
-              vertical={vertical}
-              size={[width, height]}
-              direction={direction}
-              page={page}
-              paginate={paginate}
-              active
-            />
-            {/* </motion.div>
-          </div> */}
+          <Showcase
+            sources={sources}
+            compact={compact}
+            vertical={vertical}
+            size={[width, height]}
+            direction={direction}
+            page={page}
+            paginate={paginate}
+            active
+          />
         </AnimatePresence>
-          {/* )} */}
-        {/* </Carousel> */}
         {!compact && <ProjectList vertical={vertical} sources={sources} onProjectSelect={handleProjectSelect} />}
       </div>
     </Widget>
