@@ -23,12 +23,20 @@ import styles from "./Widget.module.css";
 const { Text } = Typography;
 
 const WidgetSettings = (props) => {
-  const { config, setConfigKey, setConfigLookKey, look } = props;
+  const { config, setConfig, look } = props;
   const [disabled, setDisabled] = useState(true);
   const [bounds, setBounds] = useState({ left: 0, top: 0, bottom: 0, right: 0 });
   const draggleRef = useRef<HTMLDivElement>(null);
 
+  const setConfigLookKey = (key, value) => {
+    let look = { ...config.look };
+    if (value === undefined) look = _.omit(look, key);
+    else look[key] = value;
+    setConfig("look", look);
+  };
+
   const hasLookOverride = (key) => {
+    if (!config.look) return false;
     return Object.hasOwn(config.look, key);
   };
 
@@ -96,8 +104,8 @@ const WidgetSettings = (props) => {
       <div className={styles.settingsContainer}>
         <Input
           placeholder="Widget name"
-          value={config.title}
-          onChange={(e) => setConfigKey("title", e.target.value)}
+          value={config.name}
+          onChange={(e) => setConfig("name", e.target.value)}
         />
         <Card title="Look overrides" style={{ width: "100%" }}>
           <Space direction="vertical">
@@ -158,14 +166,10 @@ export const WidgetContext = createContext({});
 
 const Widget = (props) => {
   const { appLook, layoutEditable, layout } = useContext(ConfigContext);
-  const [config, setConfig] = useState({ title: "", look: {} });
+  const { config, setConfig } = props;
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const finalLook = { ...appLook, ...layout.look, ...config.look };
-
-  // console.log("App", { ...appLook });
-  // console.log("Layout", { ...layout.look });
-  // console.log("Widget", { ...appLook });
-  // console.log("Final", { ...finalLook });
 
   const widgetColour = finalLook.widgetColour.toRgb
     ? finalLook.widgetColour.toRgb()
@@ -181,44 +185,27 @@ const Widget = (props) => {
     props.onRemove(props.rglKey);
   };
 
-  const setConfigKey = (key, value) => {
-    setConfig((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const setConfigLookKey = (key, value) => {
-    setConfig((prev) => {
-      let look = { ...prev.look };
-      if (value === undefined) look = _.omit(look, key);
-      else look[key] = value;
-      return { ...prev, look: look };
-    });
-  };
-
   return (
     <div className={styles.view} style={widgetStyle}>
-      <WidgetContext.Provider value={[config, setConfigKey]}>
-        {props.settings ? (
-          <WidgetSettings
-            title={props.rglKey}
-            config={config}
-            look={finalLook}
-            setConfigKey={setConfigKey}
-            setConfigLookKey={setConfigLookKey}
-            open={props.settingsOpen}
-            onCancel={() => props.setSettingsOpen(false)}
-          >
-            {props.settings}
-          </WidgetSettings>
-        ) : null}
+      <WidgetContext.Provider value={[config, setConfig]}>
+        <WidgetSettings
+          config={config}
+          setConfig={setConfig}
+          look={finalLook}
+          open={settingsOpen}
+          onCancel={() => setSettingsOpen(false)}
+        >
+          {props.settings}
+        </WidgetSettings>
         <div className={styles.container}>
           {layoutEditable && <div className={styles.mask} />}
           <div className={styles.top}>
-            <Text className={styles.title}>{config.title || "No Title"}</Text>
+            <Text className={styles.title}>{config.name || "No Title"}</Text>
             <Space gap={5}>
               <SettingFilled
                 className={styles.settingsButton}
                 style={{ fontSize: 18 }}
-                onClick={() => props.setSettingsOpen(true)}
+                onClick={() => setSettingsOpen(true)}
               />
               <Popconfirm
                 placement="leftTop"

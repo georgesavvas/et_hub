@@ -88,30 +88,13 @@ const defaultLayout = [
 ];
 
 const SettingsModal = ({ open, onOk, onCancel }) => {
-  const { appLook, setAppLook, resetBgLook, resetWidgetLook } = useContext(ConfigContext);
-  // const [backgroundImage, setBackgroundImage] = useState(() => {
-  //   return localStorage.getItem("backgroundImage") || null;
-  // });
+  const { appLook, setAppLook, resetBgLook, resetWidgetLook, setAppBgImage, backgroundImage } =
+    useContext(ConfigContext);
   const [messageApi, contextHolder] = message.useMessage();
 
-  const setConfig = (key, value) => {
-    setAppLook((prev) => ({ ...prev, [key]: value }));
-  };
-
   const handleImageChange = (selectedImage) => {
-    const imageUrl = URL.createObjectURL(selectedImage);
-    localStorage.setItem("backgroundImage", imageUrl);
-    // setBackgroundImage(imageUrl);
-    setConfig("bgImage", imageUrl);
+    setAppBgImage(selectedImage);
   };
-
-  useEffect(() => {
-    return () => {
-      if (appLook.bgImage) {
-        URL.revokeObjectURL(appLook.bgImage);
-      }
-    };
-  }, [appLook]);
 
   const uploadProps: UploadProps = {
     multiple: false,
@@ -141,7 +124,7 @@ const SettingsModal = ({ open, onOk, onCancel }) => {
   const bgColour = appLook.bgColour.toRgb ? appLook.bgColour.toRgb() : appLook.bgColour;
   const previewStyle = {
     filter: `brightness(${appLook.bgBrightness}%)`,
-    backgroundImage: `url(${appLook.bgImage})`,
+    backgroundImage: backgroundImage ? `url(${backgroundImage})` : "none",
     backgroundColor: `rgb(${bgColour.r}, ${bgColour.g}, ${bgColour.b}})`,
   };
 
@@ -156,7 +139,18 @@ const SettingsModal = ({ open, onOk, onCancel }) => {
   };
 
   return (
-    <Modal open={open} onOk={onOk} onCancel={onCancel} mask={false} width="40%">
+    <Modal
+      open={open}
+      onOk={onOk}
+      onCancel={onCancel}
+      mask={false}
+      width="40%"
+      footer={
+        <Button key="ok" onClick={onCancel} type="primary">
+          Ok
+        </Button>
+      }
+    >
       {contextHolder}
       <Space direction="vertical" size={16} style={{ width: "100%" }}>
         <div className={styles.previewContainer} style={previewStyle}>
@@ -173,12 +167,13 @@ const SettingsModal = ({ open, onOk, onCancel }) => {
               </p>
               <p className="ant-upload-text">Click or drag file to this area to upload</p>
             </Upload.Dragger>
+            <Button onClick={() => setAppBgImage()}>Remove background image</Button>
             <Space>
               <p>Colour</p>
               <ColorPicker
                 disabledAlpha
                 value={appLook.bgColour}
-                onChange={(value) => setConfig("bgColour", value)}
+                onChange={(value) => setAppLook("bgColour", value)}
               />
             </Space>
             <Space>
@@ -188,7 +183,7 @@ const SettingsModal = ({ open, onOk, onCancel }) => {
                 max={100}
                 style={{ width: 200 }}
                 value={appLook.bgBrightness}
-                onChange={(value) => setConfig("bgBrightness", value)}
+                onChange={(value) => setAppLook("bgBrightness", value)}
               />
             </Space>
           </Space>
@@ -200,7 +195,7 @@ const SettingsModal = ({ open, onOk, onCancel }) => {
               <ColorPicker
                 disabledAlpha
                 value={appLook.widgetColour}
-                onChange={(value) => setConfig("widgetColour", value)}
+                onChange={(value) => setAppLook("widgetColour", value)}
               />
             </Space>
             <Space>
@@ -211,7 +206,7 @@ const SettingsModal = ({ open, onOk, onCancel }) => {
                 step={0.05}
                 style={{ width: 200 }}
                 value={appLook.widgetTranslucency}
-                onChange={(value) => setConfig("widgetTranslucency", value)}
+                onChange={(value) => setAppLook("widgetTranslucency", value)}
               />
             </Space>
             <Space>
@@ -221,7 +216,7 @@ const SettingsModal = ({ open, onOk, onCancel }) => {
                 max={50}
                 style={{ width: 200 }}
                 value={appLook.widgetBlur}
-                onChange={(value) => setConfig("widgetBlur", value)}
+                onChange={(value) => setAppLook("widgetBlur", value)}
               />
             </Space>
           </Space>
@@ -244,20 +239,14 @@ const Sidebar = () => {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [manageLayoutsOpen, setManageLayoutsOpen] = useState(false);
 
-  const getMenuItem = ([id, { name }]) => {
+  const getMenuItem = ([id, widget]) => {
     const handleDragStart = (e) => {
       e.dataTransfer.setData("text/hub_view/" + id, "");
       e.dataTransfer.setData("text/hub_view", id);
     };
     return (
-      <Button
-        key={id}
-        // type="text"
-        draggable
-        onDragStart={handleDragStart}
-        style={{ cursor: "grab" }}
-      >
-        {name}
+      <Button key={id} draggable onDragStart={handleDragStart} style={{ cursor: "grab" }}>
+        {widget.config.name}
       </Button>
     );
   };

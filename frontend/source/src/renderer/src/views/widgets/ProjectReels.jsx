@@ -195,7 +195,7 @@ const Showcase = props => {
               </Tooltip>
             </Dropdown>
           </div>
-          {/* <div style={{ overflowY: "auto"}}>
+          <div style={{ overflowY: "auto"}}>
             <Paragraph ellipsis={{ rows: 2, expandable: true, symbol: "more" }}>
               Consequat sunt laboris culpa duis laborum deserunt deserunt pariatur nisi deserunt. Sint
               consequat elit magna ipsum quis ex mollit aliquip pariatur. Ut nisi et nisi incididunt qui
@@ -207,7 +207,7 @@ const Showcase = props => {
               consequat elit magna ipsum quis ex mollit aliquip pariatur. Ut nisi et nisi incididunt qui
               cupidatat dolore irure ipsum veniam magna.
             </Paragraph>
-          </div> */}
+          </div>
           <Space style={{width: "max-content"}}>
             <Text>Team:</Text>
             <Avatar.Group>
@@ -268,12 +268,7 @@ const ProjectReels = props => {
   const [selectedReel, setSelectedReel] = useState("");
   const {width, height, ref} = useResizeDetector();
   const {reels} = useContext(DataContext);
-  const [widgetConfig, setWidgetConfig] = useState({});
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const [[page, direction], setPage] = useState([0, 0]);
-
-  const title = widgetConfig.title;
-  const setTitle = value => handleConfigEdit("title", value);
 
   const compact = width < 650 && height < 500;
   const vertical = height * (compact ? 1 : (16 / 9)) > width;
@@ -292,35 +287,17 @@ const ProjectReels = props => {
 
   const sources = reels.data?.map(src => getReel(src)) || [];
 
-  useEffect(() => {
-    setMounted(true);
-    const savedConfig = loadFromLS(props.rglKey) || {...defaultConfig};
-    setWidgetConfig(savedConfig);
-  }, []);
+  // useEffect(() => {
+  //   setMounted(true);
+  //   const savedConfig = loadFromLS(props.rglKey) || {...defaultConfig};
+  //   setWidgetConfig(savedConfig);
+  // }, []);
 
   useEffect(() => {
     if (!selectedReel && sources.length > 0) setSelectedReel(sources[0]);
   }, [sources]);
 
   if (!reels) return <DataPlaceholder text="No data" />;
-
-  const handleConfigEdit = (key, value) => {
-    setWidgetConfig(prev => {
-      const existing = {...prev};
-      existing[key] = value;
-      saveToLS(props.rglKey, existing);
-      return existing;
-    });
-  };
-
-  const Settings = <>
-    {/* <TextField
-      label="Widget name"
-      value={title}
-      onChange={e => setTitle(e.target.value)}
-      size="small"
-    /> */}
-  </>;
 
   const style = {
     flexDirection: vertical ? "column" : "row",
@@ -335,14 +312,7 @@ const ProjectReels = props => {
   };
 
   return (
-    <Widget
-      settings={Settings}
-      settingsOpen={settingsOpen}
-      setSettingsOpen={setSettingsOpen}
-      title={title}
-      onRemove={props.onRemove}
-      rglKey={props.rglKey}
-    >
+    <Widget {...props}>
       <div id="widgetContainer" className={styles.container} style={style} ref={ref}>
         <AnimatePresence initial={false} custom={direction}>
           <Showcase

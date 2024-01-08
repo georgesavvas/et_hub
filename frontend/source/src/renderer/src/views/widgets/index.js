@@ -8,11 +8,19 @@ import Workstation from "./Workstation";
 
 export const widgets = {
   projects: {
-    name: "Project Reels",
+    config: {
+      name: "Project Reels",
+    },
+    w: 4,
+    h: 2,
     component: ProjectReels,
   },
-  voltBrowser: {
-    name: "Volt Browser",
+  voltbrowser: {
+    config: {
+      name: "Volt Browser",
+    },
+    w: 4,
+    h: 2,
     component: VoltBrowser,
   },
   // apps: Apps,

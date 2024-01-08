@@ -1,6 +1,7 @@
 import { Input, Modal, Space, Typography } from "antd";
 import React, {createContext, useEffect, useRef, useState} from "react";
 
+import WIDGETS from "../views/widgets";
 import _ from "lodash";
 import loadFromLS from "../utils/loadFromLS";
 import {longSocket} from "../services/serverWebSocket";
@@ -47,7 +48,15 @@ const defaultLayout = {
       i: "projects_3",
     },
   ],
-  look: {},
+};
+
+const verifyLayout = layout => {
+  const ids = layout.widgets.map(w => w.i);
+  if (!Object.hasOwn(layout, "config")) layout.config = {};
+  ids.forEach(id => {
+    if (!id in layout.config) layout.config[id] = {...WIDGETS[id.split("_")[0]].config};
+  });
+  return layout;
 };
 
 const SESSION_ID = uuid();
@@ -63,12 +72,16 @@ const destroySocket = socket => {
 };
 
 const areLayoutsEqual = (layoutA, layoutB) => {
+  console.log({layoutA}, {layoutB});
+  if (!layoutA || !layoutB) return false;
   const { widgets: widgetsA, ...genericA } = layoutA;
   const { widgets: widgetsB, ...genericB } = layoutB;
-  const keys = ["i", "w", "h", "x", "y"];
-  const widgetsAFiltered = _.pick(widgetsA, keys);
-  const widgetsBFiltered = _.pick(widgetsA, keys);
-  return _.isEqual(genericA, genericB) && _.isEqual(widgetsAFiltered, widgetsBFiltered);
+  const widgetsAFiltered = _.omitBy(widgetsA, _.isUndefined);
+  const widgetsBFiltered = _.omitBy(widgetsA, _.isUndefined);
+  console.log({widgetsAFiltered}, {widgetsBFiltered});
+  const isEqual = _.isEqual(genericA, genericB) && _.isEqual(widgetsAFiltered, widgetsBFiltered);
+  console.log({isEqual});
+  return isEqual;
 };
 
 export const ConfigProvider = props => {
@@ -84,9 +97,21 @@ export const ConfigProvider = props => {
   const [appLook, setAppLook] = useState(defaultAppLook);
   const [pinnedLayouts, setPinnedLayouts] = useState([]);
   const [mounted, setMounted] = useState(false);
+  const [backgroundImage, setBackgroundImage] = useState();
+  const [layoutModified, setLayoutModified] = useState(true);
 
   const processSocketData = data => {
     if (data.layouts) setLayouts(data.layouts);
+  };
+
+  const blobToBase64 = data => {
+    if (!data) return new Promise((resolve) => resolve(""));
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(data);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+    });
   };
 
   const handleUpdatesSocketMessage = e => {
@@ -119,7 +144,9 @@ export const ConfigProvider = props => {
       setLayouts(resp.data || {});
     });
     const savedLayout = loadFromLS("layout");
-    setLayout(savedLayout || _.cloneDeep(defaultLayout));
+    setLayout(verifyLayout(savedLayout || _.cloneDeep(defaultLayout)));
+    setLayoutModified(loadFromLS("layoutModified") || false);
+    setBackgroundImage(loadFromLS("backgroundImage"));
     setAppLook(loadFromLS("appLook") || _.cloneDeep(defaultAppLook));
     setSelectedLayout(loadFromLS("selectedLayout"));
     setPinnedLayouts(loadFromLS("pinnedLayouts") || []);
@@ -152,17 +179,28 @@ export const ConfigProvider = props => {
   useEffect(() => {
     if (!mounted || !layouts[selectedLayout]) return;
     saveToLS("selectedLayout", selectedLayout);
-    const ids = Object.keys(layouts);
-    setPinnedLayouts(prev => prev.filter(id => ids.includes(id)));
-    // const layoutEmpty = Object.keys(layout).length === 0;
-    // const layoutEqual = areLayoutsEqual(layout, layouts[selectedLayout]?.data);
-    setLayout(layouts[selectedLayout]?.data || {});
-  }, [layouts, selectedLayout]);
+    setLayout(verifyLayout(layouts[selectedLayout].data));
+  }, [selectedLayout]);
 
   useEffect(() => {
     if (!mounted) return;
+    const ids = Object.keys(layouts);
+    setPinnedLayouts(prev => prev.filter(id => ids.includes(id)));
+    if (selectedLayout && !layoutModified) setLayout(verifyLayout(layouts[selectedLayout]?.data) || {});
+  }, [layouts]);
+
+  useEffect(() => {
+    if (!mounted) return;
+    if (selectedLayout) {
+      const layoutEqual = areLayoutsEqual(layout, layouts[selectedLayout]?.data);
+      if (!layoutEqual) setLayoutModified(true);
+    }
     saveToLS("layout", layout);
   }, [layout]);
+
+  useEffect(() => {
+    saveToLS("layoutModified", layoutModified);
+  }, [layoutModified]);
 
   useEffect(() => {
     if (!mounted) return;
@@ -176,11 +214,13 @@ export const ConfigProvider = props => {
 
   const resetLayout = (saved=false) => {
     if (saved) {
-      setLayout(layouts[selectedLayout]?.data || {});
+      setLayout(verifyLayout(layouts[selectedLayout]?.data) || {});
+      setLayoutModified(false);
       return;
     }
-    setLayout(_.cloneDeep(defaultLayout));
+    setLayout(verifyLayout(_.cloneDeep(defaultLayout)));
     setSelectedLayout("");
+    setLayoutModified(false);
   };
 
   const resetBgLook = () => {
@@ -191,6 +231,21 @@ export const ConfigProvider = props => {
   const resetWidgetLook = () => {
     const { widgetColour, widgetTranslucency, widgetBlur } = defaultAppLook;
     setAppLook(prev => ({ ...prev, widgetColour, widgetTranslucency, widgetBlur }));
+  };
+
+  const setAppBgImage = blob => {
+    blobToBase64(blob).then(resp => {
+      setBackgroundImage(resp);
+      saveToLS("backgroundImage", resp);
+    });
+  };
+
+  const setAppLookKey = (key, value) => {
+    setAppLook((prev) => {
+      const modified = { ...prev, [key]: value };
+      saveToLS("appLook", modified);
+      return modified;
+    });
   };
 
   return (
@@ -211,9 +266,11 @@ export const ConfigProvider = props => {
       layoutEditable,
       setLayoutEditable,
       appLook,
-      setAppLook,
+      setAppLook: setAppLookKey,
       resetBgLook,
       resetWidgetLook,
+      setAppBgImage,
+      backgroundImage,
     }}>
       {/* <Modal open={true} buttons={null} centered title="Login">
         <Space direction="vertical">
