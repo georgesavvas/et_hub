@@ -31,244 +31,62 @@ import { useResizeDetector } from "react-resize-detector";
 
 const { Title, Text, Paragraph } = Typography;
 
-const mockTree = [
-  {
-    value: "build",
-    label: "build",
-    children: [
-      {
-        value: "jack",
-        label: "jack",
-        children: [
-          {
-            value: "model",
-            label: "model",
-            children: [
-              {
-                value: "main",
-                label: "main",
-              },
-            ],
-          },
-          {
-            value: "look",
-            label: "look",
-            children: [
-              {
-                value: "main",
-                label: "main",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        value: "chair",
-        label: "chair",
-        children: [
-          {
-            value: "model",
-            label: "model",
-            children: [
-              {
-                value: "main",
-                label: "main",
-              },
-            ],
-          },
-          {
-            value: "look",
-            label: "look",
-            children: [
-              {
-                value: "main",
-                label: "main",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        value: "cityGirl",
-        label: "cityGirl",
-        children: [
-          {
-            value: "model",
-            label: "model",
-            children: [
-              {
-                value: "main",
-                label: "main",
-              },
-            ],
-          },
-          {
-            value: "look",
-            label: "look",
-            children: [
-              {
-                value: "main",
-                label: "main",
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-  {
-    value: "lot10",
-    label: "lot10",
-    children: [
-      {
-        value: "0010",
-        label: "0010",
-        children: [
-          {
-            value: "animate",
-            label: "animate",
-            children: [
-              {
-                value: "main",
-                label: "main",
-              },
-            ],
-          },
-          {
-            value: "light",
-            label: "light",
-            children: [
-              {
-                value: "main",
-                label: "main",
-              },
-            ],
-          },
-          {
-            value: "comp",
-            label: "comp",
-            children: [
-              {
-                value: "main",
-                label: "main",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        value: "0020",
-        label: "0020",
-        children: [
-          {
-            value: "animate",
-            label: "animate",
-            children: [
-              {
-                value: "main",
-                label: "main",
-              },
-            ],
-          },
-          {
-            value: "light",
-            label: "light",
-            children: [
-              {
-                value: "main",
-                label: "main",
-              },
-            ],
-          },
-          {
-            value: "comp",
-            label: "comp",
-            children: [
-              {
-                value: "main",
-                label: "main",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        value: "0030",
-        label: "0030",
-        children: [
-          {
-            value: "animate",
-            label: "animate",
-            children: [
-              {
-                value: "main",
-                label: "main",
-              },
-            ],
-          },
-          {
-            value: "light",
-            label: "light",
-            children: [
-              {
-                value: "main",
-                label: "main",
-              },
-            ],
-          },
-          {
-            value: "comp",
-            label: "comp",
-            children: [
-              {
-                value: "main",
-                label: "main",
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-];
-
 const VoltBrowser = (props) => {
   const { projects } = useContext(DataContext);
-  const [selectedProject, setSelectedProject] = useState("");
+  const [project, setProject] = useState("");
+  const [context, setContext] = useState("");
+  const [treeLoading, setTreeLoading] = useState(false);
+  const [data, setData] = useState([]);
   const { width, height, ref } = useResizeDetector();
   const compact = width < 650 && height < 500;
 
   useEffect(() => {
-    if (!selectedProject) return;
-    serverRequest(
-      "get_project_tree",
-      { project: `/project/tvc/${selectedProject}` },
-      "api/v2",
-    ).then((resp) => {
+    if (!project) return;
+    setTreeLoading(true);
+    serverRequest("get_project_tree", { project: `/project/tvc/${project}` }, "api/v2").then(
+      (resp) => {
+        setData(resp.data);
+        setTreeLoading(false);
+      },
+    );
+  }, [project]);
+
+  useEffect(() => {
+    serverRequest("get_assets", { uri: context }, "api/v2").then((resp) => {
       console.log(resp.data);
     });
-  }, [selectedProject]);
+  }, [context]);
+
+  const getNode = (node) => {
+    return {
+      value: node.name,
+      label: node.name,
+      children: node.nodes.map((child) => getNode(child)),
+    };
+  };
+
+  // const projectTree = data.map((node) => getNode(node));
+  // console.log({ data });
+  // console.log(projectTree);
 
   const filterOption = (input: string, option?: { label: string; value: string }) =>
     (option?.label ?? "").toLowerCase().includes(input.toLowerCase());
 
   const onChange = (value: string) => {
     console.log(`selected ${value}`);
-    setSelectedProject(value);
-  };
-
-  const onSearch = (value: string) => {
-    console.log("search:", value);
+    setProject(value);
   };
 
   if (!projects || Object.keys(projects).length === 0) return <DataPlaceholder text="No data" />;
 
-  const data = Object.keys(projects).map((project) => ({
+  const projectList = Object.keys(projects).map((project) => ({
     value: project,
     label: project,
   }));
-
+  console.log(context);
   const displayRender = (labels: string[]) => labels.join(" / ");
+
+  const dropdownRender = (menus: React.ReactNode) => <div className={styles.cascader}>{menus}</div>;
 
   return (
     <Widget {...props}>
@@ -278,18 +96,22 @@ const VoltBrowser = (props) => {
           placeholder="Project"
           optionFilterProp="children"
           onChange={onChange}
-          onSearch={onSearch}
           filterOption={filterOption}
-          options={data}
-          style={{ width: "500px" }}
+          options={projectList}
+          style={{ width: "50%" }}
         />
         <Cascader
+          showSearch
+          fieldNames={{ label: "name", value: "name", children: "nodes" }}
+          onChange={(value) => setContext(`/project/tvc/${project}/${value.join("/")}`)}
           placeholder="Context"
-          options={mockTree}
+          options={data}
           expandTrigger="hover"
           changeOnSelect
           displayRender={displayRender}
-          style={{ width: "500px" }}
+          style={{ width: "100%" }}
+          loading={treeLoading}
+          dropdownRender={dropdownRender}
         />
       </div>
     </Widget>

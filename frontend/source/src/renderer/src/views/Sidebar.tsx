@@ -30,62 +30,7 @@ import type { UploadProps } from "antd";
 import styles from "./Sidebar.module.css";
 import widgets from "./widgets";
 
-const { Title, Paragraph, Text, Link } = Typography;
-
-// type MenuItem = Required<MenuProps>["items"][number];
-
-// function getItem(
-//   label: React.ReactNode,
-//   key: React.Key,
-//   icon?: React.ReactNode,
-//   children?: MenuItem[],
-//   type?: "group",
-// ): MenuItem {
-//   return {
-//     key,
-//     icon,
-//     children,
-//     label,
-//     type,
-//   } as MenuItem;
-// }
-
-// const items: MenuProps["items"] = [
-//   getItem("Layouts", "layouts", null, [
-//     getItem("Item 1", "g1", null, [getItem("Option 1", "1"), getItem("Option 2", "2")], "group"),
-//     getItem("Item 2", "g2", null, [getItem("Option 3", "3"), getItem("Option 4", "4")], "group"),
-//   ]),
-
-//   getItem("Widgets", "widgets", null, [
-//     getItem("Option 5", "5"),
-//     getItem("Option 6", "6"),
-//     getItem("Submenu", "sub3", null, [getItem("Option 7", "7"), getItem("Option 8", "8")]),
-//   ]),
-// ];
-
-const defaultLayout = [
-  {
-    w: 3,
-    h: 2,
-    x: 0,
-    y: 0,
-    i: "projects_1",
-  },
-  {
-    w: 3,
-    h: 2,
-    x: 1,
-    y: 3,
-    i: "projects_2",
-  },
-  {
-    w: 3,
-    h: 2,
-    x: 2,
-    y: 5,
-    i: "projects_3",
-  },
-];
+const { Title, Text } = Typography;
 
 const SettingsModal = ({ open, onOk, onCancel }) => {
   const { appLook, setAppLook, resetBgLook, resetWidgetLook, setAppBgImage, backgroundImage } =
@@ -271,10 +216,10 @@ const Sidebar = () => {
           <QuestionCircleFilled />
         </Button>
       </Flex>
-      <div className={styles.avatarButton}>
+      {/* <div className={styles.avatarButton}>
         <Avatar size="large" icon={<UserOutlined />} />
         <Text style={{ width: "max-content" }}>George Savvas</Text>
-      </div>
+      </div> */}
       <Divider style={{ margin: "8px 0" }}>Layout</Divider>
       <div className={styles.menu}>
         <Space align="center">

@@ -19,6 +19,11 @@ function App(): JSX.Element {
           token: {
             fontFamily: "Roboto",
           },
+          components: {
+            Cascader: {
+              dropdownHeight: 300,
+            },
+          },
         }}
       >
         <HubConfigProvider>
