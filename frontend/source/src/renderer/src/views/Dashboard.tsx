@@ -43,6 +43,7 @@ const Dashboard = () => {
   const {
     layout,
     setLayout,
+    setPinnedLayouts,
     layoutEditable,
     setLayoutEditable,
     resetLayout,
@@ -176,6 +177,7 @@ const Dashboard = () => {
     serverRequest("create_layout", data, "api/v2").then((resp) => {
       setSaveLoading(true);
       setSelectedLayout(resp.data);
+      setPinnedLayouts((prev) => [...prev, data]);
       if (resp.ok) {
         messageApi.open({
           type: "success",
@@ -282,7 +284,7 @@ const Dashboard = () => {
         isDraggable={layoutEditable}
         isResizable={layoutEditable}
         style={{ height: "100%", width: "100%" }}
-        resizeHandles={layoutEditable ? ["s", "se", "n", "e"] : []}
+        resizeHandles={layoutEditable ? ["s", "sw", "se", "n", "e"] : []}
       >
         {layout.widgets?.map((w) => {
           const widgetType = w.i.split("_")[0];
@@ -297,6 +299,7 @@ const Dashboard = () => {
                 config={layout.config[w.i] || {}}
                 setConfig={(key, value) => setWidgetConfigKey(w.i, key, value)}
                 onRemove={handleRemoveWidget}
+                messageApi={messageApi}
               />
             </div>
           );

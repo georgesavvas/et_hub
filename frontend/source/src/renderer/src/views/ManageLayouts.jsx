@@ -64,7 +64,16 @@ const ManageLayouts = props => {
   }, [layouts]);
 
   return (
-    <Modal centered width="75%" {...props}>
+    <Modal
+      centered
+      width="75%"
+      footer={
+        <Button key="ok" onClick={props.onCancel} type="primary">
+          Ok
+        </Button>
+      }
+      {...props}
+    >
       <Title level={5}>Your Layouts</Title>
       <Flex gap={10}>
         {userLayouts.map(([id, l]) => <Layout key={id} id={id} {...l} />)}

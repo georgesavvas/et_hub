@@ -233,25 +233,40 @@ const mockTree = [
 ];
 
 const VoltBrowser = (props) => {
-  const { reels } = useContext(DataContext);
+  const { projects } = useContext(DataContext);
+  const [selectedProject, setSelectedProject] = useState("");
   const { width, height, ref } = useResizeDetector();
   const compact = width < 650 && height < 500;
+
+  useEffect(() => {
+    if (!selectedProject) return;
+    serverRequest(
+      "get_project_tree",
+      { project: `/project/tvc/${selectedProject}` },
+      "api/v2",
+    ).then((resp) => {
+      console.log(resp.data);
+    });
+  }, [selectedProject]);
 
   const filterOption = (input: string, option?: { label: string; value: string }) =>
     (option?.label ?? "").toLowerCase().includes(input.toLowerCase());
 
   const onChange = (value: string) => {
     console.log(`selected ${value}`);
+    setSelectedProject(value);
   };
 
   const onSearch = (value: string) => {
     console.log("search:", value);
   };
 
-  if (!reels) return <DataPlaceholder text="No data" />;
+  if (!projects || Object.keys(projects).length === 0) return <DataPlaceholder text="No data" />;
 
-  const sources =
-    reels.data?.map((src) => ({ value: src, label: src.split("/").at(-1).split(".")[0] })) || [];
+  const data = Object.keys(projects).map((project) => ({
+    value: project,
+    label: project,
+  }));
 
   const displayRender = (labels: string[]) => labels.join(" / ");
 
@@ -265,7 +280,7 @@ const VoltBrowser = (props) => {
           onChange={onChange}
           onSearch={onSearch}
           filterOption={filterOption}
-          options={sources}
+          options={data}
           style={{ width: "500px" }}
         />
         <Cascader

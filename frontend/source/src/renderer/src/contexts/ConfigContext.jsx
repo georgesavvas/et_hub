@@ -54,7 +54,7 @@ const verifyLayout = layout => {
   const ids = layout.widgets.map(w => w.i);
   if (!Object.hasOwn(layout, "config")) layout.config = {};
   ids.forEach(id => {
-    if (!id in layout.config) layout.config[id] = {...WIDGETS[id.split("_")[0]].config};
+    if (!(id in layout.config)) layout.config[id] = {...WIDGETS[id.split("_")[0]].config};
   });
   return layout;
 };
@@ -252,6 +252,7 @@ export const ConfigProvider = props => {
     <ConfigContext.Provider value={{
       user,
       host,
+      sessionId: SESSION_ID,
       isElectron,
       activePage,
       setActivePage,

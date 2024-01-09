@@ -43,6 +43,7 @@
   max-height: 75%;
   max-width: 60%;
   z-index: 2;
+  overflow: clip;
 }
 
 .showcaseDetails:hover {
@@ -59,6 +60,7 @@
   border-radius: 10px;
   filter: drop-shadow(5px 5px 5px rgba(0, 0, 0, 0.5));
   transition: background-color 0.5s, filter 0.5s;
+  overflow: clip;
 }
 
 .showcaseDetailsCompact:hover {

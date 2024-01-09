@@ -1,10 +1,7 @@
-import Apps from "./Apps";
-import Licenses from "./Licenses";
-import Notes from "./Notes";
+import FarmUsage from "./FarmUsage";
 import ProjectReels from "./ProjectReels";
-import Todo from "./Todo";
+import RenderList from "./RenderList";
 import VoltBrowser from "./VoltBrowser";
-import Workstation from "./Workstation";
 
 export const widgets = {
   projects: {
@@ -22,6 +19,22 @@ export const widgets = {
     w: 4,
     h: 2,
     component: VoltBrowser,
+  },
+  farmusage: {
+    config: {
+      name: "Farm Usage",
+    },
+    w: 4,
+    h: 2,
+    component: FarmUsage,
+  },
+  renderlist: {
+    config: {
+      name: "Render List",
+    },
+    w: 4,
+    h: 2,
+    component: RenderList,
   },
   // apps: Apps,
   // licenses: Licenses,
