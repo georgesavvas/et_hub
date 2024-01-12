@@ -10,10 +10,9 @@ import {
   Space,
   Tooltip,
   Typography,
-  message,
 } from "antd";
-import React, { useContext, useEffect, useRef, useState } from "react";
 import serverRequest, { formatURL } from "../../services/serverRequest";
+import { useContext, useEffect, useRef, useState } from "react";
 
 import { ConfigContext } from "../../contexts/ConfigContext";
 import { CopyToClipboard } from "../../components/ContextActions";

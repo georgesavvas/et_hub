@@ -1,7 +1,7 @@
 import React from "react";
 import { Typography } from "antd";
 
-const { Text } = Typography;
+const { Title } = Typography;
 
 
 const containerStyle = {
@@ -26,7 +26,7 @@ const typeStyle = {
 const DataPlaceholder = props => {
   return (
     <div style={{...containerStyle, ...props.style}}>
-      <Text style={typeStyle}>{props.text || "Placeholder"}</Text>
+      <Title level={4} style={typeStyle}>{props.text || "Placeholder"}</Title>
     </div>
   );
 };

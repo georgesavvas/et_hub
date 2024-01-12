@@ -15,6 +15,8 @@ export function Home() {
 
   const bgColour = appLook.bgColour.r ? appLook.bgColour : appLook.bgColour.metaColor;
   const bgStyle = {
+    backgroundSize: "cover",
+    backgroundPosition: "center",
     position: "absolute",
     width: "100%",
     height: "100%",

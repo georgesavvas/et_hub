@@ -83,7 +83,10 @@ export const DataProvider = props => {
     serverRequest(URLS.licenses).then(resp => setLicenses(resp));
     serverRequest(URLS.projects).then(resp => setReels(resp));
     serverRequest(URLS.farm).then(resp => setFarm(resp));
-    serverRequest(newURLS.projects, undefined, "data/v1").then(resp => setProjects(resp.data));
+    serverRequest(newURLS.projects, undefined, "data/v1").then(resp => {
+      if (!resp.data) return;
+      setProjects(resp.data);
+    });
     serverRequest(newURLS.users, undefined, "data/v1").then(resp => {
       if (!resp.data) return;
       const data = {};

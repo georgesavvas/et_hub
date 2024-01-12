@@ -184,6 +184,7 @@ export const ConfigProvider = props => {
 
   useEffect(() => {
     if (!mounted) return;
+    if (layouts && Object.keys(layouts).length === 0) return;
     const ids = Object.keys(layouts);
     setPinnedLayouts(prev => prev.filter(id => ids.includes(id)));
     if (selectedLayout && !layoutModified) setLayout(verifyLayout(layouts[selectedLayout]?.data) || {});
