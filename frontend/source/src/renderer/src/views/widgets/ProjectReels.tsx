@@ -64,7 +64,6 @@ const Showcase = (props) => {
   const { user } = useContext(ConfigContext);
   const { users } = useContext(DataContext);
   const videoRef = useRef();
-  const [userProfile, setUserProfile] = useState({});
   const [summary, setSummary] = useState("");
   const [nickname, setNickname] = useState("");
   const [delivery, setDelivery] = useState();

@@ -210,6 +210,9 @@ const VoltBrowser = (props) => {
               <Text>{createdDateAgo}</Text>
               <Text>{createdDate}</Text>
             </div>
+            <div className={styles.column}>
+              <Title>{fullscreenAsset.version}</Title>
+            </div>
           </div>
           {fullscreenAsset?.path && (
             <video
