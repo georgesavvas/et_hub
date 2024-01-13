@@ -11,6 +11,7 @@
 
 .row {
   display: flex;
+  align-items: center;
   gap: 5px;
   width: 100%;
 }
@@ -63,10 +64,10 @@
 }
 
 .gridContainer {
-  width: 100%;
   flex-grow: 1;
   flex-basis: 0;
   overflow-y: auto;
+  display: flex;
 }
 
 .grid {
@@ -75,12 +76,21 @@
   height: min-content;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   margin: 0;
+  flex-grow: 1;
+  flex-basis: 1;
+}
+
+.gridLayoutHelper {
+  flex-grow: 0;
+  flex-basis: 1;
 }
 
 .fullscreenAssetDetails {
   display: flex;
-  gap: 10px;
+  flex-direction: column;
+  /* gap: 10px; */
   width: 100%;
-  align-items: center;
+  /* align-items: center; */
+  justify-content: center;
   padding: 10px;
 }

@@ -67,7 +67,7 @@
   text-align: center;
 }
 
-.settingsButton, .closeButton, .dragHandle {
+.settingsButton, .closeButton, .dragHandle, .maximiseButton {
   color: rgba(200, 200, 200);
   opacity: 0.25;
   cursor: pointer;
@@ -79,7 +79,7 @@
   font-size: 30px !important;
 }
 
-.closeButton:hover, .settingsButton:hover, .dragHandle:hover {
+.closeButton:hover, .settingsButton:hover, .dragHandle:hover, .maximiseButton:hover {
   opacity: 1;
 }
 

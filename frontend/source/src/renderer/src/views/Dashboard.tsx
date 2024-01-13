@@ -51,6 +51,7 @@ const Dashboard = () => {
     selectedLayout,
     setSelectedLayout,
     layouts,
+    tempLayout,
   } = useContext(ConfigContext);
   const [mounted, setMounted] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
@@ -83,6 +84,8 @@ const Dashboard = () => {
   }, []);
 
   const handleLayoutChange = (widgets) => {
+    if (tempLayout !== null) return;
+    console.log("LAYOUT CHANGED", widgets);
     const newLayout = { ...layout, widgets: widgets };
     setLayout(newLayout);
     saveToLS("layout", newLayout);
@@ -266,14 +269,14 @@ const Dashboard = () => {
         </Button>
       </div>
       <RGL
-        layout={layout.widgets}
+        layout={tempLayout === null ? layout.widgets : [tempLayout]}
         onLayoutChange={handleLayoutChange}
         onDropDragOver={handleDropDragOver}
         onDrop={handleDrop}
         isDroppable={layoutEditable}
-        rowHeight={rowHeight}
+        rowHeight={tempLayout === null ? rowHeight : window.innerHeight - margin * 2}
         margin={[margin, margin]}
-        cols={columns}
+        cols={tempLayout === null ? columns : 1}
         autoSize={false}
         measureBeforeMount={true}
         useCSSTransforms={mounted}
@@ -296,6 +299,7 @@ const Dashboard = () => {
             <div key={w.i}>
               <SelectedWidget
                 rglKey={w.i}
+                rglWidget={w}
                 config={layout.config[w.i] || {}}
                 setConfig={(key, value) => setWidgetConfigKey(w.i, key, value)}
                 onRemove={handleRemoveWidget}

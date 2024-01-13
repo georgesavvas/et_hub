@@ -104,6 +104,7 @@ export const ConfigProvider = props => {
   const [mounted, setMounted] = useState(false);
   const [backgroundImage, setBackgroundImage] = useState();
   const [layoutModified, setLayoutModified] = useState(true);
+  const [tempLayout, setTempLayout] = useState(null);
 
   const processSocketData = data => {
     if (data.layouts) setLayouts(data.layouts);
@@ -185,6 +186,7 @@ export const ConfigProvider = props => {
     if (!mounted || !layouts[selectedLayout]) return;
     saveToLS("selectedLayout", selectedLayout);
     setLayout(verifyLayout(layouts[selectedLayout].data));
+    setTempLayout(null);
   }, [selectedLayout]);
 
   useEffect(() => {
@@ -222,11 +224,13 @@ export const ConfigProvider = props => {
     if (saved) {
       setLayout(verifyLayout(layouts[selectedLayout]?.data) || {});
       setLayoutModified(false);
+      setTempLayout(null);
       return;
     }
     setLayout(verifyLayout(_.cloneDeep(defaultLayout)));
     setSelectedLayout("");
     setLayoutModified(false);
+    setTempLayout(null);
   };
 
   const resetBgLook = () => {
@@ -278,6 +282,8 @@ export const ConfigProvider = props => {
       resetWidgetLook,
       setAppBgImage,
       backgroundImage,
+      tempLayout,
+      setTempLayout,
     }}>
       {/* <Modal open={true} buttons={null} centered title="Login">
         <Space direction="vertical">

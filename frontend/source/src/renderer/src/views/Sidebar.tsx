@@ -180,7 +180,7 @@ const Sidebar = () => {
     setSelectedLayout,
     pinnedLayouts,
   } = useContext(ConfigContext);
-  const { setActivePage } = useContext(ConfigContext);
+  const { setActivePage, setTempLayout } = useContext(ConfigContext);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [manageLayoutsOpen, setManageLayoutsOpen] = useState(false);
 
@@ -198,6 +198,7 @@ const Sidebar = () => {
 
   const handleLayoutEditableChange = (value) => {
     setLayoutEditable(value);
+    if (value) setTempLayout(null);
   };
 
   console.log({ layouts });

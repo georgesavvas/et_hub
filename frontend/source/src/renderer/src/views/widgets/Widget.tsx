@@ -11,7 +11,12 @@ import {
   Space,
   Typography,
 } from "antd";
-import { CloseOutlined, SettingFilled } from "@ant-design/icons";
+import {
+  CloseOutlined,
+  FullscreenExitOutlined,
+  FullscreenOutlined,
+  SettingFilled,
+} from "@ant-design/icons";
 import type { DraggableData, DraggableEvent } from "react-draggable";
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 
@@ -165,8 +170,8 @@ const WidgetSettings = (props) => {
 export const WidgetContext = createContext({});
 
 const Widget = (props) => {
-  const { appLook, layoutEditable, layout } = useContext(ConfigContext);
-  const { config, setConfig } = props;
+  const { appLook, layoutEditable, layout, tempLayout, setTempLayout } = useContext(ConfigContext);
+  const { rglWidget, config, setConfig } = props;
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   const finalLook = { ...appLook, ...layout.look, ...config.look };
@@ -207,15 +212,30 @@ const Widget = (props) => {
                 style={{ fontSize: 18 }}
                 onClick={() => setSettingsOpen(true)}
               />
-              <Popconfirm
-                placement="leftTop"
-                title="Remove widget?"
-                onConfirm={handleRemovePressed}
-                okText="Yep"
-                cancelText="Nope"
-              >
-                <CloseOutlined className={styles.closeButton} style={{ fontSize: 18 }} />
-              </Popconfirm>
+              {layoutEditable && (
+                <Popconfirm
+                  placement="leftTop"
+                  title="Remove widget?"
+                  onConfirm={handleRemovePressed}
+                  okText="Yep"
+                  cancelText="Nope"
+                >
+                  <CloseOutlined className={styles.closeButton} style={{ fontSize: 18 }} />
+                </Popconfirm>
+              )}
+              {!layoutEditable && tempLayout === null ? (
+                <FullscreenOutlined
+                  onClick={() => setTempLayout({ ...rglWidget, x: 0, y: 0, w: 1, h: 1 })}
+                  className={styles.maximiseButton}
+                  style={{ fontSize: 18 }}
+                />
+              ) : (
+                <FullscreenExitOutlined
+                  onClick={() => setTempLayout(null)}
+                  className={styles.maximiseButton}
+                  style={{ fontSize: 18 }}
+                />
+              )}
             </Space>
           </div>
           <div className={styles.content}>{props.children}</div>

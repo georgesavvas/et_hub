@@ -98,7 +98,6 @@ const VoltBrowser = (props) => {
   const [filterValue, setFilterValue] = useState("");
   const [treeLoading, setTreeLoading] = useState(false);
   const [page, setPage] = useState(1);
-  const [pages, setPages] = useState(1);
   const [tileSize, setTileSize] = useState(200);
   const [assetsLoading, setAssetsLoading] = useState(false);
   const [data, setData] = useState([]);
@@ -120,7 +119,6 @@ const VoltBrowser = (props) => {
     if (!context) return;
     serverRequest("get_assets", { uri: context, latest: latest }, "api/v2").then((resp) => {
       setAssets(resp.data);
-      setPages(Math.ceil(resp.data?.length / assetsPerPage) || 1);
       setAssetsLoading(false);
     });
     setAssetsLoading(false);
@@ -141,28 +139,21 @@ const VoltBrowser = (props) => {
     );
   }, [fullscreenAsset]);
 
-  const assetsPaginated = useMemo(() => {
+  const assetsFiltered = useMemo(() => {
     if (!assets) return [];
-    const start = (page - 1) * assetsPerPage;
-    const end = page * assetsPerPage;
-    if (filterValue) {
-      const words = filterValue
-        .toLowerCase()
-        .split(" ")
-        .map((w) => w.trim());
-      return assets
-        .filter((a) => {
-          const realName = users[a.user]?.real_name;
-          const filterString =
-            `${realName}${a.user}${a.asset}${a.version}${a.kind_name}`.toLowerCase();
-          console.log(words);
-          console.log(filterString);
-          words.every((w) => filterString.includes(w));
-        })
-        .slice(start, end);
-    }
-    return assets.slice(start, end);
-  }, [assets, page, filterValue]);
+    if (!filterValue) return assets;
+    const words = filterValue.toLowerCase().split(" ");
+    return assets.filter((a) => {
+      const realName = users[a.user]?.real_name;
+      const filterString = `${realName}${a.user}${a.asset}${a.version}${a.kind_name}`.toLowerCase();
+      return words.every((w) => filterString.includes(w));
+    });
+  }, [assets, filterValue]);
+
+  const pages = Math.ceil(assetsFiltered.length / assetsPerPage) || 1;
+  const start = (page - 1) * assetsPerPage;
+  const end = page * assetsPerPage;
+  const assetsPaginated = assetsFiltered.slice(start, end);
 
   const getNode = (node) => {
     return {
@@ -236,44 +227,54 @@ const VoltBrowser = (props) => {
       <div id="widgetContainer" className={styles.container} ref={ref}>
         <Modal
           width="75%"
-          centered
+          // centered
           open={fullscreenAsset !== null}
           onCancel={() => setFullscreenAsset(null)}
           footer={null}
         >
           <div className={styles.fullscreenAssetDetails}>
-            <Avatar size={48} src={profile.image_48} />
-            <div className={styles.column} style={{ marginRight: 20 }}>
-              <Title level={5} style={{ margin: 0 }}>
-                {profile.real_name}
-              </Title>
-              {profile.title && <Text>{profile.title}</Text>}
+            <div className={styles.row}>
+              <Avatar size={48} src={profile.image_48} style={{ minWidth: "max-content" }} />
+              <div className={styles.column} style={{ marginRight: 20, minWidth: "max-content" }}>
+                <Title level={5} style={{ margin: 0 }}>
+                  {profile.real_name}
+                </Title>
+                {profile.title && <Text>{profile.title}</Text>}
+              </div>
+              <div className={styles.column} style={{ minWidth: "max-content" }}>
+                <Text>{createdDateAgo}</Text>
+                <Text>{createdDate}</Text>
+              </div>
+              <div className={styles.row} style={{ justifyContent: "flex-end" }}>
+                <Segmented
+                  value={selectedFullscreenVersion?.version}
+                  onChange={(value) =>
+                    setSelectedFullscreenVersion(
+                      fullscreenVersions.find((a) => a.version === value),
+                    )
+                  }
+                  options={fullscreenVersions.slice(0, 5).map((a) => ({
+                    value: a.version,
+                    label: formatVersion(a.version),
+                  }))}
+                />
+              </div>
             </div>
-            <div className={styles.column}>
-              <Text>{createdDateAgo}</Text>
-              <Text>{createdDate}</Text>
-            </div>
-            <div className={styles.column} style={{ marginLeft: "auto" }}>
-              <Segmented
-                size="small"
-                value={selectedFullscreenVersion?.version}
-                onChange={(value) =>
-                  setSelectedFullscreenVersion(fullscreenVersions.find((a) => a.version === value))
-                }
-                options={fullscreenVersions.slice(0, 5).map((a) => ({
-                  value: a.version,
-                  label: formatVersion(a.version),
-                }))}
-              />
-              <div className={styles.row} style={{ marginTop: "5px", justifyContent: "flex-end" }}>
-                <Button icon={<CopyOutlined />} size="small" onClick={handleCopyPath}>
+            <div className={styles.row}>
+              <div className={styles.row}>
+                <Title level={4} style={{ marginTop: "5px", marginBottom: 0 }}>
+                  {selectedFullscreenVersion.name}
+                </Title>
+              </div>
+              <div className={styles.row} style={{ justifyContent: "flex-end" }}>
+                <Text>{selectedFullscreenVersion.db_path}</Text>
+                <Button icon={<CopyOutlined />} onClick={handleCopyPath}>
                   Path
                 </Button>
-                <Button icon={<CopyOutlined />} size="small" type="primary" onClick={handleCopyVri}>
+                <Button icon={<CopyOutlined />} type="primary" onClick={handleCopyVri}>
                   VRI
                 </Button>
               </div>
-              {/* <Title level={5}>{formatVersion(fullscreenAsset?.version)}</Title> */}
             </div>
           </div>
           {fullscreenAsset?.path && (
@@ -367,14 +368,10 @@ const VoltBrowser = (props) => {
                   />
                 ))}
               </div>
+              {/* <div className={styles.gridLayoutHelper} /> */}
             </div>
             <div className={styles.row} style={{ justifyContent: "center" }}>
-              <Pagination
-                current={page}
-                onChange={setPage}
-                total={assetsPaginated.length}
-                pageSize={assetsPerPage}
-              />
+              <Pagination current={page} onChange={setPage} total={pages} pageSize={1} />
             </div>
           </>
         )}
