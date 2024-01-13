@@ -200,6 +200,8 @@ const Sidebar = () => {
     setLayoutEditable(value);
   };
 
+  console.log({ layouts });
+
   return (
     <div className={styles.container}>
       <SettingsModal
@@ -235,7 +237,6 @@ const Sidebar = () => {
           onChange={(e) => setSelectedLayout(e.target.value)}
           style={{ display: "flex", flexDirection: "column" }}
         >
-          {/* <Radio value="Default">Default</Radio> */}
           {pinnedLayouts.map((id) => (
             <Radio value={id} key={id}>
               {layouts[id]?.data.name}
@@ -247,7 +248,6 @@ const Sidebar = () => {
       <Space direction="vertical">
         {Object.entries(widgets).map((widget) => getMenuItem(widget))}
       </Space>
-      {/* <Menu items={items} style={{ backgroundColor: "none" }} /> */}
     </div>
   );
 };

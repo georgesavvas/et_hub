@@ -55,7 +55,7 @@ const Dashboard = () => {
   const [mounted, setMounted] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
   const [overwriteLoading, setOverwriteLoading] = useState(false);
-  const [messageApi, contextHolder] = message.useMessage();
+  const [messageApi, contextHolder] = message.useMessage({ maxCount: 3 });
 
   const { rows, columns } = layout;
 

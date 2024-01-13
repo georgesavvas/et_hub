@@ -2,17 +2,22 @@ import {
   Avatar,
   Button,
   Cascader,
+  Divider,
   Input,
   Modal,
   Pagination,
+  Segmented,
   Select,
+  Slider,
   Space,
   Spin,
   Typography,
 } from "antd";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import serverRequest, { formatURL } from "../../services/serverRequest";
 
+import { CopyOutlined } from "@ant-design/icons";
+import { CopyToClipboard } from "../../components/ContextActions";
 import { DataContext } from "../../contexts/DataContext";
 import DataPlaceholder from "../../components/DataPlaceholder";
 import Widget from "./Widget";
@@ -23,9 +28,18 @@ const { Title, Text, Paragraph } = Typography;
 
 const assetsPerPage = 50;
 
+const formatVersion = (n = 0) => `v${n.toString().padStart(3, "0")}`;
+
 const getTimeFormatted = (date) => {
   if (!date) return "";
-  return new Date(date * 1000).toLocaleString();
+  return new Date(date * 1000).toLocaleString([], {
+    year: "2-digit",
+    month: "numeric",
+    day: "numeric",
+    weekday: "long",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 };
 
 const getTimeAgo = (date) => {
@@ -50,21 +64,25 @@ const getTimeAgo = (date) => {
     timeUnitEnum = 3;
   }
   if (timeUnitEnum === 3 && timeAgo > 6) {
-    timeAgo = Math.round(timeAgo / 24);
+    timeAgo = Math.round(timeAgo / 7);
     timeUnit = timeAgo > 1 ? "weeks ago" : "week ago";
     timeUnitEnum = 4;
   }
   if (timeUnitEnum === 4 && timeAgo > 3) {
-    timeAgo = Math.round(timeAgo / 24);
+    timeAgo = Math.round(timeAgo / 4);
     timeUnit = timeAgo > 1 ? "months ago" : "month ago";
     timeUnitEnum = 5;
   }
   if (timeUnitEnum === 5 && timeAgo > 11) {
-    timeAgo = Math.round(timeAgo / 24);
+    timeAgo = Math.round(timeAgo / 12);
     timeUnit = timeAgo > 1 ? "years ago" : "year ago";
     timeUnitEnum = 6;
   }
   return `${timeAgo} ${timeUnit}`;
+};
+
+const assetRow = (props) => {
+  return <div></div>;
 };
 
 const VoltBrowser = (props) => {
@@ -73,11 +91,13 @@ const VoltBrowser = (props) => {
   const [context, setContext] = useState("");
   const [fullscreenAsset, setFullscreenAsset] = useState(null);
   const [fullscreenVersions, setFullscreenVersions] = useState([]);
+  const [selectedFullscreenVersion, setSelectedFullscreenVersion] = useState(null);
   const [contextValue, setContextValue] = useState([]);
   const [assets, setAssets] = useState([]);
   const [latest, setLatest] = useState(true);
+  const [filterValue, setFilterValue] = useState("");
   const [treeLoading, setTreeLoading] = useState(false);
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
   const [tileSize, setTileSize] = useState(200);
   const [assetsLoading, setAssetsLoading] = useState(false);
@@ -109,15 +129,40 @@ const VoltBrowser = (props) => {
   useEffect(() => {
     if (fullscreenAsset === null) {
       setFullscreenVersions([]);
+      setSelectedFullscreenVersion({});
       return;
     }
     serverRequest("get_assets", { uri: fullscreenAsset.asset, latest: false }, "api/v2").then(
       (resp) => {
         if (!resp.data) return;
         setFullscreenVersions(resp.data);
+        setSelectedFullscreenVersion(resp.data.at(0) || {});
       },
     );
   }, [fullscreenAsset]);
+
+  const assetsPaginated = useMemo(() => {
+    if (!assets) return [];
+    const start = (page - 1) * assetsPerPage;
+    const end = page * assetsPerPage;
+    if (filterValue) {
+      const words = filterValue
+        .toLowerCase()
+        .split(" ")
+        .map((w) => w.trim());
+      return assets
+        .filter((a) => {
+          const realName = users[a.user]?.real_name;
+          const filterString =
+            `${realName}${a.user}${a.asset}${a.version}${a.kind_name}`.toLowerCase();
+          console.log(words);
+          console.log(filterString);
+          words.every((w) => filterString.includes(w));
+        })
+        .slice(start, end);
+    }
+    return assets.slice(start, end);
+  }, [assets, page, filterValue]);
 
   const getNode = (node) => {
     return {
@@ -157,13 +202,12 @@ const VoltBrowser = (props) => {
 
   const style = {
     width: "100%",
+    maxWidth: "300px",
     aspectRatio: 16 / 9,
     borderRadius: "5px",
     cursor: "pointer",
     backgroundColor: "rgb(0, 0, 0)",
   };
-
-  console.log(assets?.[0], { fullscreenAsset, fullscreenVersions });
 
   const handleMouseEnter = (e) => {
     e.target.play();
@@ -173,16 +217,19 @@ const VoltBrowser = (props) => {
     e.target.pause();
   };
 
-  const getAssetsPaginated = () => {
-    if (!assets) return [];
-    const start = page * assetsPerPage;
-    const end = (page + 1) * assetsPerPage;
-    return assets.slice(start, end);
+  const handleCopyPath = () => {
+    CopyToClipboard(selectedFullscreenVersion?.path, props.messageApi);
   };
 
-  const profile = users[fullscreenAsset?.user]?.profile || {};
-  const createdDateAgo = getTimeAgo(fullscreenAsset?.created_date);
-  const createdDate = getTimeFormatted(fullscreenAsset?.created_date);
+  const handleCopyVri = () => {
+    CopyToClipboard(selectedFullscreenVersion?.vri, props.messageApi);
+  };
+
+  const profile = users[selectedFullscreenVersion?.user]?.profile || {};
+  const createdDateAgo = getTimeAgo(selectedFullscreenVersion?.created_date);
+  const createdDate = getTimeFormatted(selectedFullscreenVersion?.created_date);
+
+  // console.log(assets.map((a) => getTimeAgo(a.created_date)));
 
   return (
     <Widget {...props}>
@@ -192,38 +239,53 @@ const VoltBrowser = (props) => {
           centered
           open={fullscreenAsset !== null}
           onCancel={() => setFullscreenAsset(null)}
-          footer={
-            <Button key="ok" onClick={props.onCancel} type="primary">
-              Ok
-            </Button>
-          }
+          footer={null}
         >
           <div className={styles.fullscreenAssetDetails}>
             <Avatar size={48} src={profile.image_48} />
-            <Space direction="vertical" style={{ marginRight: 20 }}>
+            <div className={styles.column} style={{ marginRight: 20 }}>
               <Title level={5} style={{ margin: 0 }}>
                 {profile.real_name}
               </Title>
               {profile.title && <Text>{profile.title}</Text>}
-            </Space>
+            </div>
             <div className={styles.column}>
               <Text>{createdDateAgo}</Text>
               <Text>{createdDate}</Text>
             </div>
-            <div className={styles.column}>
-              <Title>{fullscreenAsset.version}</Title>
+            <div className={styles.column} style={{ marginLeft: "auto" }}>
+              <Segmented
+                size="small"
+                value={selectedFullscreenVersion?.version}
+                onChange={(value) =>
+                  setSelectedFullscreenVersion(fullscreenVersions.find((a) => a.version === value))
+                }
+                options={fullscreenVersions.slice(0, 5).map((a) => ({
+                  value: a.version,
+                  label: formatVersion(a.version),
+                }))}
+              />
+              <div className={styles.row} style={{ marginTop: "5px", justifyContent: "flex-end" }}>
+                <Button icon={<CopyOutlined />} size="small" onClick={handleCopyPath}>
+                  Path
+                </Button>
+                <Button icon={<CopyOutlined />} size="small" type="primary" onClick={handleCopyVri}>
+                  VRI
+                </Button>
+              </div>
+              {/* <Title level={5}>{formatVersion(fullscreenAsset?.version)}</Title> */}
             </div>
           </div>
           {fullscreenAsset?.path && (
             <video
-              key={fullscreenAsset.uri}
+              key={selectedFullscreenVersion?.uri}
               width="100%"
               height="100%"
               controls
               loop
               // style={style}
               // poster={formatURL(`files${asset.path}/thumbnail.jpg`)}
-              src={formatURL(`files${fullscreenAsset.path}/webview.mp4`)}
+              src={formatURL(`files${selectedFullscreenVersion?.path}/webview.mp4`)}
             />
           )}
         </Modal>
@@ -251,7 +313,12 @@ const VoltBrowser = (props) => {
             loading={treeLoading}
             dropdownRender={dropdownRender}
           />
-          <Input placeholder="Search" style={{ width: "100%" }} />
+          <Input
+            placeholder="Search"
+            onChange={(e) => setFilterValue(e.target.value)}
+            value={filterValue}
+            style={{ width: "100%" }}
+          />
           <Button onClick={() => setForceRefresh((prev) => (prev += 1))}>Reload</Button>
         </div>
         {assetsLoading && (
@@ -284,12 +351,13 @@ const VoltBrowser = (props) => {
           <>
             <div className={styles.gridContainer}>
               <div className={styles.grid}>
-                {getAssetsPaginated().map((asset) => (
+                {assetsPaginated.map((asset) => (
                   <video
                     key={asset.uri}
                     className={styles.showcaseListVideo}
                     muted
                     loop
+                    preload="auto"
                     style={style}
                     // poster={formatURL(`files${asset.path}/thumbnail.jpg`)}
                     src={formatURL(`files${asset.path}/webview.mp4`)}
@@ -301,7 +369,12 @@ const VoltBrowser = (props) => {
               </div>
             </div>
             <div className={styles.row} style={{ justifyContent: "center" }}>
-              <Pagination current={page} onChange={setPage} total={pages}></Pagination>
+              <Pagination
+                current={page}
+                onChange={setPage}
+                total={assetsPaginated.length}
+                pageSize={assetsPerPage}
+              />
             </div>
           </>
         )}

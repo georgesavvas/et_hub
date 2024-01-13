@@ -51,6 +51,11 @@ const defaultLayout = {
 };
 
 const verifyLayout = layout => {
+  layout.widgets = layout.widgets.filter(w => {
+    const widgetOk = w.i.split("_")[0] in WIDGETS;
+    if (!widgetOk) console.log("Removing unknown widget", w.i, "from layout", layout.id);
+    return widgetOk;
+  });
   const ids = layout.widgets.map(w => w.i);
   if (!Object.hasOwn(layout, "config")) layout.config = {};
   ids.forEach(id => {
@@ -140,7 +145,7 @@ export const ConfigProvider = props => {
       serverRequest("get_ip", undefined, "api/v2").then(resp => setHost(resp.data));
     }
     serverRequest("layouts", undefined, "api/v2").then(resp => {
-      if (!resp) return;
+      if (!resp?.data) return;
       setLayouts(resp.data || {});
     });
     const savedLayout = loadFromLS("layout");
