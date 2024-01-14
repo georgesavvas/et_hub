@@ -1,5 +1,6 @@
 import {
   Avatar,
+  Breadcrumb,
   Button,
   Cascader,
   Divider,
@@ -91,7 +92,7 @@ const VoltBrowser = (props) => {
   const [context, setContext] = useState("");
   const [fullscreenAsset, setFullscreenAsset] = useState(null);
   const [fullscreenVersions, setFullscreenVersions] = useState([]);
-  const [selectedFullscreenVersion, setSelectedFullscreenVersion] = useState(null);
+  const [selectedFullscreenVersion, setSelectedFullscreenVersion] = useState({});
   const [contextValue, setContextValue] = useState([]);
   const [assets, setAssets] = useState([]);
   const [latest, setLatest] = useState(true);
@@ -180,7 +181,12 @@ const VoltBrowser = (props) => {
     setContext(`/project/tvc/${project}/${value.join("/")}`);
   };
 
-  if (!projects || Object.keys(projects).length === 0) return <DataPlaceholder text="No data" />;
+  if (!projects || Object.keys(projects).length === 0)
+    return (
+      <Widget {...props}>
+        <DataPlaceholder text="No data" />
+      </Widget>
+    );
 
   const projectList = Object.keys(projects).map((project) => ({
     value: project,
@@ -190,15 +196,6 @@ const VoltBrowser = (props) => {
   const displayRender = (labels: string[]) => labels.join(" / ");
 
   const dropdownRender = (menus: React.ReactNode) => <div className={styles.cascader}>{menus}</div>;
-
-  const style = {
-    width: "100%",
-    maxWidth: "300px",
-    aspectRatio: 16 / 9,
-    borderRadius: "5px",
-    cursor: "pointer",
-    backgroundColor: "rgb(0, 0, 0)",
-  };
 
   const handleMouseEnter = (e) => {
     e.target.play();
@@ -220,7 +217,16 @@ const VoltBrowser = (props) => {
   const createdDateAgo = getTimeAgo(selectedFullscreenVersion?.created_date);
   const createdDate = getTimeFormatted(selectedFullscreenVersion?.created_date);
 
-  // console.log(assets.map((a) => getTimeAgo(a.created_date)));
+  const getFullscreenTitle = () => {
+    return (
+      <Breadcrumb
+        items={selectedFullscreenVersion?.asset?.split("/").map((section, index, list) => ({
+          title: section,
+          className: index === list.length - 1 ? styles.breadcrumbFinal : styles.breadcrumb,
+        }))}
+      />
+    );
+  };
 
   return (
     <Widget {...props}>
@@ -231,6 +237,7 @@ const VoltBrowser = (props) => {
           open={fullscreenAsset !== null}
           onCancel={() => setFullscreenAsset(null)}
           footer={null}
+          title={getFullscreenTitle()}
         >
           <div className={styles.fullscreenAssetDetails}>
             <div className={styles.row}>
@@ -246,6 +253,12 @@ const VoltBrowser = (props) => {
                 <Text>{createdDate}</Text>
               </div>
               <div className={styles.row} style={{ justifyContent: "flex-end" }}>
+                <Button icon={<CopyOutlined />} onClick={handleCopyPath}>
+                  Path
+                </Button>
+                <Button icon={<CopyOutlined />} type="primary" onClick={handleCopyVri}>
+                  VRI
+                </Button>
                 <Segmented
                   value={selectedFullscreenVersion?.version}
                   onChange={(value) =>
@@ -260,22 +273,6 @@ const VoltBrowser = (props) => {
                 />
               </div>
             </div>
-            <div className={styles.row}>
-              <div className={styles.row}>
-                <Title level={4} style={{ marginTop: "5px", marginBottom: 0 }}>
-                  {selectedFullscreenVersion.name}
-                </Title>
-              </div>
-              <div className={styles.row} style={{ justifyContent: "flex-end" }}>
-                <Text>{selectedFullscreenVersion.db_path}</Text>
-                <Button icon={<CopyOutlined />} onClick={handleCopyPath}>
-                  Path
-                </Button>
-                <Button icon={<CopyOutlined />} type="primary" onClick={handleCopyVri}>
-                  VRI
-                </Button>
-              </div>
-            </div>
           </div>
           {fullscreenAsset?.path && (
             <video
@@ -283,8 +280,10 @@ const VoltBrowser = (props) => {
               width="100%"
               height="100%"
               controls
+              preload="auto"
               loop
-              // style={style}
+              muted
+              autoPlay
               // poster={formatURL(`files${asset.path}/thumbnail.jpg`)}
               src={formatURL(`files${selectedFullscreenVersion?.path}/webview.mp4`)}
             />
@@ -316,11 +315,12 @@ const VoltBrowser = (props) => {
           />
           <Input
             placeholder="Search"
+            allowClear
             onChange={(e) => setFilterValue(e.target.value)}
             value={filterValue}
             style={{ width: "100%" }}
           />
-          <Button onClick={() => setForceRefresh((prev) => (prev += 1))}>Reload</Button>
+          <Button onClick={() => setForceRefresh((prev) => (prev += 1))}>Refresh</Button>
         </div>
         {assetsLoading && (
           <Spin
@@ -353,26 +353,32 @@ const VoltBrowser = (props) => {
             <div className={styles.gridContainer}>
               <div className={styles.grid}>
                 {assetsPaginated.map((asset) => (
-                  <video
-                    key={asset.uri}
-                    className={styles.showcaseListVideo}
-                    muted
-                    loop
-                    preload="auto"
-                    style={style}
-                    // poster={formatURL(`files${asset.path}/thumbnail.jpg`)}
-                    src={formatURL(`files${asset.path}/webview.mp4`)}
-                    onClick={() => setFullscreenAsset(asset)}
-                    onMouseEnter={handleMouseEnter}
-                    onMouseLeave={handleMouseLeave}
-                  />
+                  <div key={asset.uri} className={styles.gridVideoContainer}>
+                    <div className={styles.gridVideoOverlay}>
+                      <Text style={{ marginLeft: "5px", color: "lightgrey" }}>{asset.name}</Text>
+                    </div>
+                    <video
+                      className={styles.gridVideo}
+                      muted
+                      loop
+                      preload="auto"
+                      height="100%"
+                      // poster={formatURL(`files${asset.path}/thumbnail.jpg`)}
+                      src={formatURL(`files${asset.path}/webview.mp4`)}
+                      onClick={() => setFullscreenAsset(asset)}
+                      onMouseEnter={handleMouseEnter}
+                      onMouseLeave={handleMouseLeave}
+                    />
+                  </div>
                 ))}
               </div>
               {/* <div className={styles.gridLayoutHelper} /> */}
             </div>
-            <div className={styles.row} style={{ justifyContent: "center" }}>
-              <Pagination current={page} onChange={setPage} total={pages} pageSize={1} />
-            </div>
+            {pages > 1 && (
+              <div className={styles.row} style={{ justifyContent: "center" }}>
+                <Pagination current={page} onChange={setPage} total={pages} pageSize={1} />
+              </div>
+            )}
           </>
         )}
       </div>

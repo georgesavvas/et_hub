@@ -65,19 +65,55 @@
 
 .gridContainer {
   flex-grow: 1;
-  flex-basis: 0;
+  /* flex-basis: 0; */
   overflow-y: auto;
   display: flex;
+  flex-direction: column;
 }
 
 .grid {
   display: grid;
   grid-gap: 5px;
-  height: min-content;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  /* height: min-content; */
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-auto-rows: max-content;
   margin: 0;
+  flex-basis: 0;
   flex-grow: 1;
-  flex-basis: 1;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.gridVideoContainer {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+  overflow: clip;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: black;
+  position: relative;
+}
+
+.gridVideoOverlay {
+  position: absolute;
+  width: 100%;
+  height: 30%;
+  bottom: 0;
+  background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75));
+  user-select: none;
+  display: flex;
+  align-items: flex-end;
+  opacity: 1;
+  transition: opacity 0.25s;
+  z-index: 1;
+}
+
+.gridVideoContainer:hover > .gridVideoOverlay {
+  opacity: 0;
 }
 
 .gridLayoutHelper {
@@ -92,5 +128,9 @@
   width: 100%;
   /* align-items: center; */
   justify-content: center;
-  padding: 10px;
+  padding-bottom: 5px;
+}
+
+.breadcrumb {
+  color: dimgrey;
 }

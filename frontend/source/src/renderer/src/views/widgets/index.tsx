@@ -1,7 +1,4 @@
-import FarmUsage from "./FarmUsage";
-import ProjectReels from "./ProjectReels";
-import RenderList from "./RenderList";
-import VoltBrowser from "./VoltBrowser";
+import { lazy } from "react";
 
 export const widgets = {
   projects: {
@@ -10,7 +7,7 @@ export const widgets = {
     },
     w: 4,
     h: 2,
-    component: ProjectReels,
+    component: lazy(() => import("./ProjectReels")),
   },
   voltbrowser: {
     config: {
@@ -18,7 +15,7 @@ export const widgets = {
     },
     w: 4,
     h: 2,
-    component: VoltBrowser,
+    component: lazy(() => import("./VoltBrowser")),
   },
   farmusage: {
     config: {
@@ -26,7 +23,7 @@ export const widgets = {
     },
     w: 4,
     h: 2,
-    component: FarmUsage,
+    component: lazy(() => import("./FarmUsage")),
   },
   renderlist: {
     config: {
@@ -34,7 +31,7 @@ export const widgets = {
     },
     w: 4,
     h: 2,
-    component: RenderList,
+    component: lazy(() => import("./RenderList")),
   },
   // apps: Apps,
   // licenses: Licenses,

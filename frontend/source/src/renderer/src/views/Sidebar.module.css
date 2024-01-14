@@ -1,6 +1,7 @@
 .container {
   box-sizing: border-box;
-  width: 180px;
+  max-width: 250px;
+  width: min-content;
   height: 100%;
   position: relative;
   padding: 5px;
@@ -9,6 +10,29 @@
   flex-direction: column;
   gap: 5px;
   /* align-items: center; */
+  /* background-color: rgb(20, 20, 20); */
+}
+
+.pinnedContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.pinnedLayout {
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.pinnedLayout:hover {
+  background-color: rgb(30, 30, 30);
+}
+
+.selectedPinnedLayout {
+  /* background-color: rgb(40, 40, 40); */
+  background-color: darkgreen;
+  box-shadow: 0 0 10px 5px rgba(50, 150, 50, 0.25);
 }
 
 .row {
@@ -27,7 +51,7 @@
   margin-top: 20px;
   display: flex;
   gap: 10px;
-  width: 100%;
+  /* width: 100%; */
   justify-content: center;
   align-items: center;
   cursor: pointer;
@@ -76,4 +100,21 @@
 .previewWidget {
   width: 75%;
   height: 75%;
+}
+
+.layoutIcon, .widgetIcon {
+  background-color: none;
+  transition: background-color 0.25s;
+  cursor: pointer;
+  width: 80px;
+  height: 80px;
+}
+
+.iconImg {
+  width: 100%;
+  object-fit: contain;
+}
+
+.layoutIcon:hover, .widgetIcon:hover {
+  background-color: rgb(40, 40, 40);
 }

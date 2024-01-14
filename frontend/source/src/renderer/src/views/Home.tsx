@@ -13,7 +13,7 @@ export function Home() {
   const { appLook, isElectron, backgroundImage } = useContext(ConfigContext);
   const [updateAvailable, setUpdateAvailable] = useState(false);
 
-  const bgColour = appLook.bgColour.r ? appLook.bgColour : appLook.bgColour.metaColor;
+  const bgColour = appLook?.bgColour.r ? appLook.bgColour : appLook.bgColour.metaColor;
   const bgStyle = {
     backgroundSize: "cover",
     backgroundPosition: "center",

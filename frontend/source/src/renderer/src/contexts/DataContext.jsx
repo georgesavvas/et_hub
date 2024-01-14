@@ -4,7 +4,7 @@ import { ConfigContext } from "./ConfigContext";
 import {longSocket} from "../services/serverWebSocket";
 import serverRequest from "../services/serverRequest";
 
-export const DataContext = createContext();
+export const DataContext = createContext({});
 
 const URLS = {
   licenses: "data/licenses",

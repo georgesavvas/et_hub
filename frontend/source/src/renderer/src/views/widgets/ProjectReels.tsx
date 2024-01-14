@@ -80,7 +80,7 @@ const Showcase = (props) => {
     setDelivery(project.delivery || undefined);
   }, [page]);
 
-  if (compact) return null;
+  // if (compact) return null;
 
   const maxWidth = size[0] - 250;
   const maxHeight = size[1] - 150;
@@ -420,7 +420,12 @@ const ProjectReels = (props) => {
     if (!selectedProject && projects) setSelectedProject(projects[selectedProject]);
   }, [projects]);
 
-  if (!projects || Object.keys(projects).length === 0) return <DataPlaceholder text="No data" />;
+  if (!projects || Object.keys(projects).length === 0)
+    return (
+      <Widget {...props}>
+        <DataPlaceholder text="No data" />
+      </Widget>
+    );
 
   const processedData = [];
   Object.entries(projects).forEach(([name, data]) => {

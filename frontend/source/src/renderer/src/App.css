@@ -44,16 +44,7 @@ p {
   font-size: 0.85rem;
 }
 
-.slick-dots li button {
-  background-color: red;
-  opacity: 1;
-  height: 10px !important;
-  border: none;
-  outline: none;
-}
-
-.slick-dots li.slick-active {
-  background-color: royalblue;
-  border: none;
-  outline: none;
+.react-grid-item > .react-resizable-handle::after {
+  border-right: 2px solid rgb(255, 255, 255) !important;
+  border-bottom: 2px solid rgb(255, 255, 255) !important;
 }

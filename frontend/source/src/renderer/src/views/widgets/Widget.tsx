@@ -207,11 +207,13 @@ const Widget = (props) => {
           <div className={styles.top}>
             <Text className={styles.title}>{config.name || "No Title"}</Text>
             <Space gap={5}>
-              <SettingFilled
-                className={styles.settingsButton}
-                style={{ fontSize: 18 }}
-                onClick={() => setSettingsOpen(true)}
-              />
+              {!layoutEditable && (
+                <SettingFilled
+                  className={styles.settingsButton}
+                  style={{ fontSize: 18 }}
+                  onClick={() => setSettingsOpen(true)}
+                />
+              )}
               {layoutEditable && (
                 <Popconfirm
                   placement="leftTop"
@@ -223,19 +225,21 @@ const Widget = (props) => {
                   <CloseOutlined className={styles.closeButton} style={{ fontSize: 18 }} />
                 </Popconfirm>
               )}
-              {!layoutEditable && tempLayout === null ? (
-                <FullscreenOutlined
-                  onClick={() => setTempLayout({ ...rglWidget, x: 0, y: 0, w: 1, h: 1 })}
-                  className={styles.maximiseButton}
-                  style={{ fontSize: 18 }}
-                />
-              ) : (
-                <FullscreenExitOutlined
-                  onClick={() => setTempLayout(null)}
-                  className={styles.maximiseButton}
-                  style={{ fontSize: 18 }}
-                />
-              )}
+              {!layoutEditable ? (
+                tempLayout === null ? (
+                  <FullscreenOutlined
+                    onClick={() => setTempLayout({ ...rglWidget, x: 0, y: 0, w: 1, h: 1 })}
+                    className={styles.maximiseButton}
+                    style={{ fontSize: 18 }}
+                  />
+                ) : (
+                  <FullscreenExitOutlined
+                    onClick={() => setTempLayout(null)}
+                    className={styles.maximiseButton}
+                    style={{ fontSize: 18 }}
+                  />
+                )
+              ) : null}
             </Space>
           </div>
           <div className={styles.content}>{props.children}</div>

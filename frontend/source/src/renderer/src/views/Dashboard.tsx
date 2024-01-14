@@ -1,27 +1,13 @@
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 
-import {
-  Button,
-  Col,
-  Divider,
-  Input,
-  InputNumber,
-  Row,
-  Slider,
-  Space,
-  Switch,
-  Typography,
-  message,
-} from "antd";
+import { Button, Divider, Input, InputNumber, Slider, Switch, Typography, message } from "antd";
 import GridLayout, { WidthProvider } from "react-grid-layout";
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
-import CodeEditor from "@uiw/react-textarea-code-editor";
 import { ConfigContext } from "../contexts/ConfigContext";
 import WIDGETS from "./widgets";
 import _ from "lodash";
-import loadFromLS from "../utils/loadFromLS";
 import saveToLS from "../utils/saveToLS";
 import serverRequest from "../services/serverRequest";
 import styles from "./Dashboard.module.css";

@@ -1,5 +1,5 @@
-import { Input, Modal, Space, Typography } from "antd";
-import React, {createContext, useEffect, useRef, useState} from "react";
+import { Input, Modal, Space, Spin, Typography } from "antd";
+import React, {Suspense, createContext, useEffect, useRef, useState} from "react";
 
 import WIDGETS from "../views/widgets";
 import _ from "lodash";
@@ -11,7 +11,7 @@ import {v4 as uuid} from "uuid";
 
 const { Title, Text } = Typography;
 
-export const ConfigContext = createContext();
+export const ConfigContext = createContext({appLook: {}});
 
 const defaultAppLook = {
   bgImage: "",
@@ -77,15 +77,15 @@ const destroySocket = socket => {
 };
 
 const areLayoutsEqual = (layoutA, layoutB) => {
-  console.log({layoutA}, {layoutB});
+  // console.log({layoutA}, {layoutB});
   if (!layoutA || !layoutB) return false;
   const { widgets: widgetsA, ...genericA } = layoutA;
   const { widgets: widgetsB, ...genericB } = layoutB;
   const widgetsAFiltered = _.omitBy(widgetsA, _.isUndefined);
   const widgetsBFiltered = _.omitBy(widgetsA, _.isUndefined);
-  console.log({widgetsAFiltered}, {widgetsBFiltered});
+  // console.log({widgetsAFiltered}, {widgetsBFiltered});
   const isEqual = _.isEqual(genericA, genericB) && _.isEqual(widgetsAFiltered, widgetsBFiltered);
-  console.log({isEqual});
+  // console.log({isEqual});
   return isEqual;
 };
 
@@ -291,7 +291,18 @@ export const ConfigProvider = props => {
           <Input placeholder="email" suffix="@electrictheatre.tv" autoFocus style={{width: "300px"}} />
         </Space>
       </Modal> */}
+      <Suspense fallback={<div><Spin
+            tip="Please wait"
+            size="large"
+            style={{
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }} /></div>}>
       {props.children}
+      </Suspense>
     </ConfigContext.Provider>
   );
 };

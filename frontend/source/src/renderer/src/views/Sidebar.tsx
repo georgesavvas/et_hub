@@ -7,6 +7,7 @@ import {
   Flex,
   Modal,
   Radio,
+  Segmented,
   Slider,
   Space,
   Switch,
@@ -14,20 +15,16 @@ import {
   Upload,
   message,
 } from "antd";
-import {
-  QuestionCircleFilled,
-  SettingFilled,
-  UploadOutlined,
-  UserOutlined,
-} from "@ant-design/icons";
-import React, { useContext, useEffect, useState } from "react";
+import Icon, { QuestionCircleFilled, SettingFilled, UploadOutlined } from "@ant-design/icons";
+import { useContext, useState } from "react";
 
 import { ConfigContext } from "../contexts/ConfigContext";
-import Logo from "../components/Logo";
+import { DataContext } from "../contexts/DataContext";
 import ManageLayouts from "./ManageLayouts";
-import type { MenuProps } from "antd";
 import type { UploadProps } from "antd";
+import layoutIcon from "../assets/layout_icon.svg";
 import styles from "./Sidebar.module.css";
+import widgetIcon from "../assets/widget_icon.svg";
 import widgets from "./widgets";
 
 const { Title, Text } = Typography;
@@ -179,8 +176,10 @@ const Sidebar = () => {
     selectedLayout,
     setSelectedLayout,
     pinnedLayouts,
+    setTempLayout,
+    user,
   } = useContext(ConfigContext);
-  const { setActivePage, setTempLayout } = useContext(ConfigContext);
+  const { users } = useContext(DataContext);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [manageLayoutsOpen, setManageLayoutsOpen] = useState(false);
 
@@ -201,7 +200,7 @@ const Sidebar = () => {
     if (value) setTempLayout(null);
   };
 
-  console.log({ layouts });
+  const profile = users[user]?.profile || {};
 
   return (
     <div className={styles.container}>
@@ -211,29 +210,52 @@ const Sidebar = () => {
         onOk={() => setSettingsOpen(false)}
       />
       <ManageLayouts open={manageLayoutsOpen} onCancel={() => setManageLayoutsOpen(false)} />
-      <Flex style={{ width: "100%" }} gap="small">
-        <Button style={{ width: "100%" }} onClick={() => setSettingsOpen(true)}>
-          <SettingFilled />
-        </Button>
-        <Button style={{ width: "100%" }}>
+      {/* <Flex style={{ width: "100%" }} gap="small"> */}
+      {/* <Button onClick={() => setSettingsOpen(true)} style={{ width: "min-content" }}>
+        <SettingFilled />
+      </Button> */}
+      {/* <Button style={{ width: "100%" }}>
           <QuestionCircleFilled />
-        </Button>
-      </Flex>
-      {/* <div className={styles.avatarButton}>
-        <Avatar size="large" icon={<UserOutlined />} />
-        <Text style={{ width: "max-content" }}>George Savvas</Text>
-      </div> */}
+        </Button> */}
+      {/* </Flex> */}
+      <div className={styles.avatarButton}>
+        <Avatar
+          style={{ width: "max-content" }}
+          size="large"
+          src={profile.image_48}
+          onClick={() => setSettingsOpen(true)}
+        />
+        <Text>George Savvas</Text>
+      </div>
       <Divider style={{ margin: "8px 0" }}>Layout</Divider>
       <div className={styles.menu}>
         <Space align="center">
           <Switch checked={layoutEditable} onChange={handleLayoutEditableChange} />
-          <Text onClick={() => setLayoutEditable(!layoutEditable)} style={{ cursor: "pointer" }}>
+          <Text
+            onClick={() => setLayoutEditable(!layoutEditable)}
+            style={{ cursor: "pointer", textWrap: "nowrap" }}
+          >
             Edit Mode
           </Text>
         </Space>
-        <Button onClick={() => setManageLayoutsOpen(true)}>Manage</Button>
-        <Divider style={{ margin: "8px 0" }} />
-        <Radio.Group
+        {/* <Divider style={{ margin: "8px 0" }} /> */}
+        <div className={styles.pinnedContainer}>
+          {pinnedLayouts
+            .sort((a, b) => (layouts[a]?.data.name < layouts[b]?.data.name ? -1 : 1))
+            .map((id) => (
+              <div
+                key={id}
+                className={`${styles.pinnedLayout} ${
+                  id === selectedLayout && styles.selectedPinnedLayout
+                }`}
+                onClick={() => setSelectedLayout(id)}
+              >
+                <Text>{layouts[id]?.data.name}</Text>
+              </div>
+            ))}
+          <Button onClick={() => setManageLayoutsOpen(true)}>Manage</Button>
+        </div>
+        {/* <Radio.Group
           value={selectedLayout}
           onChange={(e) => setSelectedLayout(e.target.value)}
           style={{ display: "flex", flexDirection: "column" }}
@@ -243,12 +265,18 @@ const Sidebar = () => {
               {layouts[id]?.data.name}
             </Radio>
           ))}
-        </Radio.Group>
+        </Radio.Group> */}
       </div>
       <Divider style={{ margin: "8px 0" }}>Widgets</Divider>
       <Space direction="vertical">
         {Object.entries(widgets).map((widget) => getMenuItem(widget))}
       </Space>
+      {/* <div className={styles.layoutIcon}>
+        <img src={layoutIcon} className={styles.iconImg} />
+      </div>
+      <div className={styles.widgetIcon}>
+        <img src={widgetIcon} className={styles.iconImg} />
+      </div> */}
     </div>
   );
 };
