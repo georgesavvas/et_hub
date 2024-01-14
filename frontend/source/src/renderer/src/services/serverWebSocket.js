@@ -1,6 +1,6 @@
 import Sockette from "sockette";
 
-const address = "0ace-212-115-157-45.ngrok-free.app";
+const address = "733d-212-115-157-45.ngrok-free.app";
 
 export async function serverSocket(endpoint, sessionID, address) {
   const ws = new WebSocket(
